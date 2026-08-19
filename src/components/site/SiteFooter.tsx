@@ -56,7 +56,7 @@ export function SiteFooter() {
                 loading="lazy"
                 className="h-12 w-auto object-contain"
               />
-              <span className="font-display text-lg font-extrabold text-primary-foreground">
+              <span className="font-display text-lg font-extrabold text-white">
                 CMDA Nigeria
               </span>
             </div>
