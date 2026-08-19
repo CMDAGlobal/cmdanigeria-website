@@ -1,49 +1,52 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import heroMission from "@/assets/hero-mission.jpg";
-import studentsPrayer from "@/assets/students-prayer.jpg";
-import conference from "@/assets/conference.jpg";
-import storyOutreach from "@/assets/story-outreach.jpg";
-import storyClinic from "@/assets/story-clinic.jpg";
-import storyTraining from "@/assets/story-training.jpg";
 import { buttonVariants } from "./primitives";
 import { cn } from "@/lib/utils";
 
-/**
- * Three vertical columns of imagery that scroll continuously at different
- * speeds and directions, creating a layered editorial collage. Each column
- * duplicates its own list so the marquee loops with no visible reset.
- */
+const heroImages = [
+  "/Hero Scrolling image/DSC_0378.jpg",
+  "/Hero Scrolling image/DSC_0021.jpg",
+  "/Hero Scrolling image/DSC_0410.jpg",
+  "/Hero Scrolling image/DSC_0402.jpg",
+  "/Hero Scrolling image/DSC_0823.jpg",
+  "/Hero Scrolling image/DSC_0680.jpg",
+  "/Hero Scrolling image/DSC_0993.jpg",
+  "/Hero Scrolling image/DSC_0652.jpg",
+  "/Hero Scrolling image/DSC_0835.jpg",
+  "/Hero Scrolling image/DSC_0551.jpg",
+  "/Hero Scrolling image/IMG-10.jpg",
+  "/Hero Scrolling image/IMG-12.jpg",
+  "/Hero Scrolling image/IMG-13.jpg",
+  "/Hero Scrolling image/JNC (31 of 46).jpg",
+  "/Hero Scrolling image/JNC (15 of 20).jpg",
+  "/Hero Scrolling image/IMG_6469.jpg",
+  "/Hero Scrolling image/IMG-8.jpg",
+  "/Hero Scrolling image/JNC (6 of 46).jpg",
+  "/Hero Scrolling image/JNC (33 of 35).jpg",
+  "/Hero Scrolling image/JNC (32 of 47).jpg",
+  "/Hero Scrolling image/JNC PICS (24 of 91).jpg",
+  "/Hero Scrolling image/jnc p sesssion_58.jpg",
+  "/Hero Scrolling image/_MG_1170.jpg",
+];
+
 const columns = [
   {
     speed: "52s",
     direction: "up" as const,
     offset: "mt-0",
-    images: [
-      { src: heroMission, alt: "Christian doctors caring for patients at a CMDA Nigeria medical outreach" },
-      { src: storyOutreach, alt: "CMDA Nigeria volunteers at a rural community health outreach" },
-      { src: conference, alt: "Delegates at a CMDA Nigeria national conference" },
-    ],
+    images: heroImages.slice(0, 8),
   },
   {
     speed: "38s",
     direction: "down" as const,
     offset: "mt-[-4rem]",
-    images: [
-      { src: studentsPrayer, alt: "Medical and dental students praying together at a CMDA fellowship" },
-      { src: storyClinic, alt: "A Christian physician consulting with a patient in a mission clinic" },
-      { src: storyTraining, alt: "Clinical skills training session for Nigerian healthcare workers" },
-    ],
+    images: heroImages.slice(8, 16),
   },
   {
     speed: "64s",
     direction: "up" as const,
     offset: "mt-[-8rem]",
-    images: [
-      { src: storyTraining, alt: "Continuing medical education workshop hosted by CMDA Nigeria" },
-      { src: conference, alt: "Worship at the CMDA Nigeria annual national conference" },
-      { src: storyOutreach, alt: "Free medical screening at a CMDA Nigeria outreach" },
-    ],
+    images: heroImages.slice(16, 23),
   },
 ];
 
@@ -142,14 +145,14 @@ export function Hero() {
                   )}
                   style={{ animationDuration: col.speed }}
                 >
-                  {[...col.images, ...col.images].map((img, i) => (
+                  {[...col.images, ...col.images].map((src, i) => (
                     <figure
                       key={`${ci}-${i}`}
                       className="relative shrink-0 overflow-hidden border border-border/70 bg-card"
                     >
                       <img
-                        src={img.src}
-                        alt={i < col.images.length ? img.alt : ""}
+                        src={src}
+                        alt=""
                         aria-hidden={i >= col.images.length}
                         loading={ci === 0 && i === 0 ? "eager" : "lazy"}
                         className="aspect-3/4 size-full object-cover"
