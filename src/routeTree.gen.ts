@@ -10,13 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutRouteImport } from './routes/about'
+import { Route as AboutIndexRouteImport } from './routes/about/index'
+import { Route as AboutHistoryRouteImport } from './routes/about/history'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GiveRouteImport } from './routes/give'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as MinistriesRouteImport } from './routes/ministries'
+import { Route as PublicationsRouteImport } from './routes/publications'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 
 const IndexRoute = IndexRouteImport.update({
@@ -24,9 +26,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutRoute = AboutRouteImport.update({
+const AboutIndexRoute = AboutIndexRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AboutHistoryRoute = AboutHistoryRouteImport.update({
+  id: '/about/history',
+  path: '/about/history',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -59,6 +66,11 @@ const MinistriesRoute = MinistriesRouteImport.update({
   path: '/ministries',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicationsRoute = PublicationsRouteImport.update({
+  id: '/publications',
+  path: '/publications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const WhatWeDoRoute = WhatWeDoRouteImport.update({
   id: '/what-we-do',
   path: '/what-we-do',
@@ -67,36 +79,42 @@ const WhatWeDoRoute = WhatWeDoRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutIndexRoute
+  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
   '/impact': typeof ImpactRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRoute
+  '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutIndexRoute
+  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
   '/impact': typeof ImpactRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRoute
+  '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutRoute
+  '/about': typeof AboutIndexRoute
+  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
   '/impact': typeof ImpactRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRoute
+  '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
 }
 export interface FileRouteTypes {
@@ -104,46 +122,54 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/about'
+    | '/about/history'
     | '/contact'
     | '/events'
     | '/give'
     | '/impact'
     | '/membership'
     | '/ministries'
+    | '/publications'
     | '/what-we-do'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/about/history'
     | '/contact'
     | '/events'
     | '/give'
     | '/impact'
     | '/membership'
     | '/ministries'
+    | '/publications'
     | '/what-we-do'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/about/history'
     | '/contact'
     | '/events'
     | '/give'
     | '/impact'
     | '/membership'
     | '/ministries'
+    | '/publications'
     | '/what-we-do'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutRoute: typeof AboutRoute
+  AboutIndexRoute: typeof AboutIndexRoute
+  AboutHistoryRoute: typeof AboutHistoryRoute
   ContactRoute: typeof ContactRoute
   EventsRoute: typeof EventsRoute
   GiveRoute: typeof GiveRoute
   ImpactRoute: typeof ImpactRoute
   MembershipRoute: typeof MembershipRoute
   MinistriesRoute: typeof MinistriesRoute
+  PublicationsRoute: typeof PublicationsRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
 }
 
@@ -160,7 +186,14 @@ declare module '@tanstack/react-router' {
       id: '/about'
       path: '/about'
       fullPath: '/about'
-      preLoaderRoute: typeof AboutRouteImport
+      preLoaderRoute: typeof AboutIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about/history': {
+      id: '/about/history'
+      path: '/about/history'
+      fullPath: '/about/history'
+      preLoaderRoute: typeof AboutHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -205,6 +238,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinistriesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publications': {
+      id: '/publications'
+      path: '/publications'
+      fullPath: '/publications'
+      preLoaderRoute: typeof PublicationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/what-we-do': {
       id: '/what-we-do'
       path: '/what-we-do'
@@ -217,13 +257,15 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AboutRoute: AboutRoute,
+  AboutIndexRoute: AboutIndexRoute,
+  AboutHistoryRoute: AboutHistoryRoute,
   ContactRoute: ContactRoute,
   EventsRoute: EventsRoute,
   GiveRoute: GiveRoute,
   ImpactRoute: ImpactRoute,
   MembershipRoute: MembershipRoute,
   MinistriesRoute: MinistriesRoute,
+  PublicationsRoute: PublicationsRoute,
   WhatWeDoRoute: WhatWeDoRoute,
 }
 export const routeTree = rootRouteImport
