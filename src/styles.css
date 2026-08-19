@@ -1,0 +1,376 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * CMDA Nigeria design system.
+ * Primary: CMDA plum #994279. Secondary: lighter plum. Accent: gold.
+ * All colors are oklch tokens — never hardcode colors in components.
+ */
+
+@theme inline {
+  --font-display: "Sora", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-deep: var(--primary-deep);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+}
+
+:root {
+  --radius: 0.5rem;
+  --background: oklch(0.995 0.003 344);
+  --foreground: oklch(0.21 0.03 344);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.21 0.03 344);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.21 0.03 344);
+  --primary: oklch(0.511 0.134 344);
+  --primary-foreground: oklch(0.99 0.005 344);
+  --primary-deep: oklch(0.33 0.105 344);
+  --secondary: oklch(0.6 0.141 344);
+  --secondary-foreground: oklch(0.99 0.005 344);
+  --muted: oklch(0.966 0.008 344);
+  --muted-foreground: oklch(0.5 0.025 344);
+  --accent: oklch(0.955 0.02 344);
+  --accent-foreground: oklch(0.38 0.11 344);
+  --gold: oklch(0.78 0.13 85);
+  --gold-foreground: oklch(0.26 0.05 90);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.99 0 0);
+  --border: oklch(0.915 0.012 344);
+  --input: oklch(0.915 0.012 344);
+  --ring: oklch(0.511 0.134 344);
+  --chart-1: oklch(0.511 0.134 344);
+  --chart-2: oklch(0.6 0.141 344);
+  --chart-3: oklch(0.78 0.13 85);
+  --chart-4: oklch(0.33 0.105 344);
+  --chart-5: oklch(0.675 0.112 344);
+}
+
+.dark {
+  --background: oklch(0.18 0.03 344);
+  --foreground: oklch(0.97 0.006 344);
+  --card: oklch(0.23 0.04 344);
+  --card-foreground: oklch(0.97 0.006 344);
+  --popover: oklch(0.23 0.04 344);
+  --popover-foreground: oklch(0.97 0.006 344);
+  --primary: oklch(0.675 0.135 344);
+  --primary-foreground: oklch(0.18 0.04 344);
+  --primary-deep: oklch(0.26 0.075 344);
+  --secondary: oklch(0.72 0.12 344);
+  --secondary-foreground: oklch(0.18 0.04 344);
+  --muted: oklch(0.27 0.03 344);
+  --muted-foreground: oklch(0.72 0.03 344);
+  --accent: oklch(0.3 0.05 344);
+  --accent-foreground: oklch(0.95 0.01 344);
+  --gold: oklch(0.83 0.13 85);
+  --gold-foreground: oklch(0.22 0.04 90);
+  --destructive: oklch(0.704 0.191 22.216);
+  --destructive-foreground: oklch(0.98 0 0);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 16%);
+  --ring: oklch(0.675 0.135 344);
+}
+
+@theme {
+  --shadow-elegant: 0 24px 60px -28px color-mix(in oklab, var(--primary-deep) 45%, transparent);
+  --shadow-card: 0 2px 8px -2px color-mix(in oklab, var(--primary-deep) 14%, transparent);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+}
+
+@utility gradient-brand {
+  background-image: linear-gradient(135deg, var(--primary-deep), var(--primary) 55%, var(--secondary));
+}
+
+@utility text-gradient-gold {
+  background-image: linear-gradient(100deg, var(--gold), color-mix(in oklab, var(--gold) 55%, white));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility eyebrow {
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@utility reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@utility reveal-in {
+  opacity: 1;
+  transform: none;
+}
+
+@keyframes scroll-hint {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(8px);
+    opacity: 1;
+  }
+}
+
+@utility animate-scroll-hint {
+  animation: scroll-hint 2s ease-in-out infinite;
+}
+
+@keyframes ken-burns {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.14) translate3d(-1.5%, -1.5%, 0);
+  }
+}
+
+@utility animate-ken-burns {
+  animation: ken-burns 9s ease-out forwards;
+}
+
+@keyframes hero-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-slide-up {
+  opacity: 0;
+  animation: hero-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Seamless vertical marquee: the track holds two copies of its list, so a
+   -50% translate loops with no visible reset. */
+@keyframes marquee-up {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(0, -50%, 0);
+  }
+}
+
+@keyframes marquee-down {
+  from {
+    transform: translate3d(0, -50%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@utility animate-marquee-up {
+  animation: marquee-up 50s linear infinite;
+  will-change: transform;
+}
+
+@utility animate-marquee-down {
+  animation: marquee-down 50s linear infinite;
+  will-change: transform;
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+
+  .animate-marquee-up,
+  .animate-marquee-down {
+    animation: none !important;
+    transform: none !important;
+  }
+}
+
+/* ---------- Editorial layer: shared visual language across all pages ---------- */
+
+@utility display-1 {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.6vw, 4.6rem);
+  line-height: 1.02;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+@utility display-2 {
+  font-family: var(--font-display);
+  font-size: clamp(1.9rem, 3.6vw, 3.1rem);
+  line-height: 1.06;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+
+@utility lede {
+  font-size: clamp(1rem, 1.15vw, 1.2rem);
+  line-height: 1.75;
+}
+
+/* Squared editorial card with a gold rule that draws in on hover */
+@utility card-editorial {
+  position: relative;
+  background-color: var(--card);
+  border: 1px solid var(--border);
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 0;
+    height: 2px;
+    background-color: var(--gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-elegant);
+    border-color: color-mix(in oklab, var(--primary) 25%, var(--border));
+  }
+
+  &:hover::before {
+    transform: scaleX(1);
+  }
+}
+
+/* Same treatment on dark plum surfaces */
+@utility card-editorial-dark {
+  position: relative;
+  background-color: color-mix(in oklab, var(--primary-foreground) 7%, transparent);
+  border: 1px solid color-mix(in oklab, var(--primary-foreground) 14%, transparent);
+  transition:
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.4s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    border-color: color-mix(in oklab, var(--gold) 60%, transparent);
+  }
+}
+
+/* Oversized editorial index numeral */
+@utility numeral {
+  font-family: var(--font-display);
+  font-size: clamp(2.25rem, 3vw, 3rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in oklab, var(--primary) 45%, transparent);
+}
+
+/* Fine paper texture for light editorial sections */
+@utility paper {
+  background-color: var(--background);
+  background-image:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--primary) 4%, transparent),
+      transparent 22rem
+    ),
+    radial-gradient(
+      circle at 1px 1px,
+      color-mix(in oklab, var(--primary) 9%, transparent) 1px,
+      transparent 0
+    );
+  background-size:
+    100% 100%,
+    22px 22px;
+}
+
+/* Photo frame: image with an offset gold hairline */
+@utility framed {
+  position: relative;
+
+  & img {
+    position: relative;
+    z-index: 1;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    translate: 18px 18px;
+    border: 1px solid color-mix(in oklab, var(--gold) 75%, transparent);
+    pointer-events: none;
+  }
+}
