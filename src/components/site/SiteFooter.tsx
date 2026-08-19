@@ -54,7 +54,7 @@ export function SiteFooter() {
                 width={160}
                 height={48}
                 loading="lazy"
-                className="h-12 w-auto object-contain"
+                className="h-16 w-auto object-contain"
               />
               <span className="font-display text-lg font-extrabold text-white">
                 CMDA Nigeria
