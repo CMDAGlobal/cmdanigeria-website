@@ -1,7 +1,24 @@
-import { ChevronDown } from "lucide-react";
+import { Camera, ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Reveal, Section } from "./primitives";
 import { cn } from "@/lib/utils";
+
+/* ──────────────────────────────────────────────
+ * Image placeholder
+ * ────────────────────────────────────────────── */
+
+function ImagePlaceholder({ label }: { label: string }) {
+  return (
+    <div className="relative aspect-4/3 w-full shrink-0 border-2 border-dashed border-gold/40 bg-gold/5">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gold/60">
+        <Camera className="size-8" aria-hidden="true" />
+        <span className="px-2 text-center text-xs font-semibold tracking-wide uppercase">
+          {label}
+        </span>
+      </div>
+    </div>
+  );
+}
 
 /* ──────────────────────────────────────────────
  * Expandable section
@@ -20,12 +37,12 @@ function Expandable({ children }: { children: React.ReactNode }) {
       </div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="mt-4 inline-flex items-center gap-2 rounded-none border border-gold/40 px-4 py-2 text-xs font-semibold tracking-wide uppercase text-gold transition-colors hover:bg-gold hover:text-gold-foreground"
+        className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-deep"
         aria-expanded={open}
       >
         {open ? "Show less" : "Read more"}
         <ChevronDown
-          className={cn("size-3.5 transition-transform", open && "rotate-180")}
+          className={cn("size-4 transition-transform", open && "rotate-180")}
           aria-hidden="true"
         />
       </button>
@@ -34,35 +51,58 @@ function Expandable({ children }: { children: React.ReactNode }) {
 }
 
 /* ──────────────────────────────────────────────
- * Editorial era block
+ * Era card — image + text side by side
  * ────────────────────────────────────────────── */
 
-function EraBlock({
+function EraCard({
   year,
   title,
   children,
-  accent = false,
+  imageLabel,
+  imageSide = "left",
 }: {
   year: string;
   title: string;
   children: ReactNode;
-  accent?: boolean;
+  imageLabel?: string;
+  imageSide?: "left" | "right";
 }) {
+  const isLeft = imageSide === "left";
+
   return (
     <Reveal>
-      <div
-        className={cn(
-          "border-t border-border py-12 md:py-16",
-          accent && "bg-primary-deep/[0.03]",
-        )}
-      >
-        <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-[10rem_1fr] md:gap-12">
-          <div>
-            <span className="block font-display text-4xl font-extrabold tracking-tight text-primary md:text-5xl">
-              {year}
-            </span>
+      <article className="group relative border-t border-border py-12 md:py-16">
+        {/* Year marker — large display number */}
+        <div className="mb-6 flex items-center gap-4">
+          <span className="font-display text-3xl font-extrabold tracking-tight text-primary md:text-4xl">
+            {year}
+          </span>
+          <span className="h-px flex-1 bg-gold/30" aria-hidden="true" />
+        </div>
+
+        {/* Content grid: image beside text */}
+        <div
+          className={cn(
+            "grid gap-8 md:grid-cols-[1fr_1.2fr] md:gap-10",
+            !isLeft && "md:grid-cols-[1.2fr_1fr]",
+          )}
+        >
+          {/* Image side */}
+          <div className={cn(!isLeft ? "md:order-2" : "md:order-1")}>
+            {imageLabel && (
+              <div className="sticky top-28">
+                <ImagePlaceholder label={imageLabel} />
+              </div>
+            )}
           </div>
-          <div className="space-y-5">
+
+          {/* Text side */}
+          <div
+            className={cn(
+              "flex flex-col justify-center gap-5",
+              !isLeft ? "md:order-1" : "md:order-2",
+            )}
+          >
             <h3 className="font-display text-xl font-bold tracking-tight text-foreground md:text-2xl">
               {title}
             </h3>
@@ -71,7 +111,7 @@ function EraBlock({
             </div>
           </div>
         </div>
-      </div>
+      </article>
     </Reveal>
   );
 }
@@ -83,18 +123,13 @@ function EraBlock({
 export function HistoryTimeline() {
   return (
     <Section id="history" className="paper">
-      <div className="mx-auto max-w-5xl">
-        {/* Intro */}
-        <Reveal>
-          <p className="lede mx-auto max-w-3xl text-center text-muted-foreground">
-            From the pioneering work of Christian medical practitioners to a nationwide movement —
-            the history of CMDA Nigeria spans more than five decades of faith, sacrifice, and
-            service.
-          </p>
-        </Reveal>
-
-        {/* Era blocks */}
-        <EraBlock year="1500s–1900s" title="The historical foundation">
+      <div className="mx-auto max-w-6xl">
+        <EraCard
+          year="1500s–1900s"
+          title="The historical foundation"
+          imageLabel="Historical medical guilds"
+          imageSide="left"
+        >
           <p>
             For more than 500 years, the medical profession has provided fertile ground for the
             development of guilds and associations of doctors established to promote professional and
@@ -118,12 +153,13 @@ export function HistoryTimeline() {
               Christian medical missionaries around the world.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock
+        <EraCard
           year="1906–1957"
           title="The beginning of Christian medical fellowship in Nigeria"
-          accent
+          imageLabel="Dr. Akanu Ibiam"
+          imageSide="right"
         >
           <p>
             The development of Christian medical fellowship in Nigeria is closely associated with the
@@ -156,9 +192,14 @@ export function HistoryTimeline() {
               eastern part of Nigeria.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock year="1972" title="The birth of the Fellowship of Christian Doctors in Nigeria">
+        <EraCard
+          year="1972"
+          title="The birth of the Fellowship of Christian Doctors in Nigeria"
+          imageLabel="The 1972 Ibadan conference"
+          imageSide="left"
+        >
           <p>
             A major milestone occurred from 6–9 April 1972, when the Nigerian Voluntary Agencies
             Medical Services Committee successfully organised a conference at the Institute of
@@ -189,12 +230,13 @@ export function HistoryTimeline() {
               Agbidiye, then a clinical student.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock
+        <EraCard
           year="1974–1986"
           title="Growth, challenges, and international recognition"
-          accent
+          imageLabel="The 1974 nationwide tour"
+          imageSide="right"
         >
           <p>
             In keeping with the vision, active groups emerged in several centres, particularly within
@@ -218,9 +260,14 @@ export function HistoryTimeline() {
               Nigeria was accepted as a full member of ICMDA.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock year="1981–1985" title="The medical students' fellowship">
+        <EraCard
+          year="1981–1985"
+          title="The medical students' fellowship"
+          imageLabel="Student fellowship conference"
+          imageSide="left"
+        >
           <p>
             The medical students' movement represented another important component of the
             development of Christian medical fellowship in Nigeria. Founded in 1981, the student
@@ -241,12 +288,13 @@ export function HistoryTimeline() {
               fellowship capable of receiving and engaging student members after graduation.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock
+        <EraCard
           year="1999–2008"
           title="Leadership eras and institutional development"
-          accent
+          imageLabel="CMDA leadership"
+          imageSide="right"
         >
           <p>
             A significant development occurred in April 1999 with the visit of U.S. Emeritus
@@ -269,9 +317,13 @@ export function HistoryTimeline() {
               Nigerian institutions.
             </p>
           </Expandable>
-        </EraBlock>
+        </EraCard>
 
-        <EraBlock year="Today" title="The continuing history of CMDA Nigeria">
+        <EraCard
+          year="Today"
+          title="The continuing history of CMDA Nigeria"
+          imageSide="left"
+        >
           <p>
             The history of CMDA Nigeria is a history of people, events, vision, sacrifice, service,
             and commitment to Christian witness within the medical profession. From the pioneering
@@ -287,7 +339,7 @@ export function HistoryTimeline() {
             faith, professional excellence, service, leadership, and compassionate healthcare — with
             each generation contributing to the fulfilment of its calling.
           </p>
-        </EraBlock>
+        </EraCard>
       </div>
     </Section>
   );
