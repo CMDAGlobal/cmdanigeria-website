@@ -230,13 +230,21 @@
 }
 
 @utility animate-marquee-up {
-  animation: marquee-up 50s linear infinite;
-  will-change: transform;
+  animation-name: marquee-up;
+  animation-duration: 50s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 @utility animate-marquee-down {
-  animation: marquee-down 50s linear infinite;
-  will-change: transform;
+  animation-name: marquee-down;
+  animation-duration: 50s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
 }
 
 

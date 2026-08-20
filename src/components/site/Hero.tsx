@@ -70,7 +70,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section className="paper relative overflow-hidden border-b border-border">
+    <section className="paper relative overflow-x-hidden border-b border-border">
       {/* Faint plum wash bleeding in from the collage side */}
       <div
         aria-hidden="true"
