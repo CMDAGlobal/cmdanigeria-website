@@ -1,101 +1,10 @@
-import { Camera, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { useState, type ReactNode } from "react";
 import { Reveal, Section } from "./primitives";
 import { cn } from "@/lib/utils";
 
 /* ──────────────────────────────────────────────
- * Image placeholder — swap for <img> later
- * ────────────────────────────────────────────── */
-
-function ImagePlaceholder({ label }: { label: string }) {
-  return (
-    <div className="relative aspect-16/10 w-full border-2 border-dashed border-gold/40 bg-gold/5">
-      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-gold/60">
-        <Camera className="size-8" aria-hidden="true" />
-        <span className="text-xs font-semibold tracking-wide uppercase">{label}</span>
-      </div>
-    </div>
-  );
-}
-
-/* ──────────────────────────────────────────────
- * Timeline entry
- * ────────────────────────────────────────────── */
-
-function TimelineEntry({
-  year,
-  title,
-  children,
-  imageLabel,
-  align = "left",
-}: {
-  year: string;
-  title: string;
-  children: ReactNode;
-  imageLabel?: string;
-  align?: "left" | "right";
-}) {
-  const isRight = align === "right";
-
-  return (
-    <Reveal>
-      <div className="relative grid gap-8 pb-16 md:grid-cols-[1fr_4rem_1fr] md:gap-0">
-        {/* Left column */}
-        <div
-          className={cn(
-            "flex flex-col gap-6",
-            isRight ? "md:order-3" : "md:order-1",
-          )}
-        >
-          {!isRight && (
-            <>
-              <div>
-                <span className="eyebrow text-gold">{year}</span>
-                <h3 className="display-2 mt-3 text-balance">{title}</h3>
-              </div>
-              <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-                {children}
-              </div>
-              {imageLabel && <ImagePlaceholder label={imageLabel} />}
-            </>
-          )}
-        </div>
-
-        {/* Centre spine */}
-        <div className="relative hidden md:flex md:order-2 md:flex-col md:items-center">
-          <div className="z-10 flex size-10 shrink-0 items-center justify-center border-2 border-gold bg-background font-display text-xs font-bold text-primary">
-            {year.length <= 4 ? year : "NOW"}
-          </div>
-          <div className="w-px flex-1 bg-gold/30" />
-        </div>
-
-        {/* Right column */}
-        <div
-          className={cn(
-            "flex flex-col gap-6",
-            isRight ? "md:order-1" : "md:order-3",
-          )}
-        >
-          {isRight && (
-            <>
-              <div>
-                <span className="eyebrow text-gold">{year}</span>
-                <h3 className="display-2 mt-3 text-balance">{title}</h3>
-              </div>
-              <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-                {children}
-              </div>
-              {imageLabel && <ImagePlaceholder label={imageLabel} />}
-            </>
-          )}
-        </div>
-      </div>
-    </Reveal>
-  );
-}
-
-/* ──────────────────────────────────────────────
- * Expandable section for very long text
+ * Expandable section
  * ────────────────────────────────────────────── */
 
 function Expandable({ children }: { children: React.ReactNode }) {
@@ -103,24 +12,67 @@ function Expandable({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      <div className={cn(!open && "max-h-40 overflow-hidden relative")}>
+      <div className={cn(!open && "max-h-44 overflow-hidden relative")}>
         {children}
         {!open && (
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
         )}
       </div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="mt-3 flex items-center gap-2 text-sm font-semibold text-primary transition-colors hover:text-primary-deep"
+        className="mt-4 inline-flex items-center gap-2 rounded-none border border-gold/40 px-4 py-2 text-xs font-semibold tracking-wide uppercase text-gold transition-colors hover:bg-gold hover:text-gold-foreground"
         aria-expanded={open}
       >
         {open ? "Show less" : "Read more"}
         <ChevronDown
-          className={cn("size-4 transition-transform", open && "rotate-180")}
+          className={cn("size-3.5 transition-transform", open && "rotate-180")}
           aria-hidden="true"
         />
       </button>
     </div>
+  );
+}
+
+/* ──────────────────────────────────────────────
+ * Editorial era block
+ * ────────────────────────────────────────────── */
+
+function EraBlock({
+  year,
+  title,
+  children,
+  accent = false,
+}: {
+  year: string;
+  title: string;
+  children: ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <Reveal>
+      <div
+        className={cn(
+          "border-t border-border py-12 md:py-16",
+          accent && "bg-primary-deep/[0.03]",
+        )}
+      >
+        <div className="mx-auto grid max-w-5xl gap-8 md:grid-cols-[10rem_1fr] md:gap-12">
+          <div>
+            <span className="block font-display text-4xl font-extrabold tracking-tight text-primary md:text-5xl">
+              {year}
+            </span>
+          </div>
+          <div className="space-y-5">
+            <h3 className="font-display text-xl font-bold tracking-tight text-foreground md:text-2xl">
+              {title}
+            </h3>
+            <div className="space-y-4 text-[0.95rem] leading-relaxed text-muted-foreground">
+              {children}
+            </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 
@@ -131,13 +83,18 @@ function Expandable({ children }: { children: React.ReactNode }) {
 export function HistoryTimeline() {
   return (
     <Section id="history" className="paper">
-      <div className="mx-auto max-w-4xl">
-        <TimelineEntry
-          year="1500s–1900s"
-          title="The historical foundation"
-          imageLabel="Historical medical guilds"
-          align="left"
-        >
+      <div className="mx-auto max-w-5xl">
+        {/* Intro */}
+        <Reveal>
+          <p className="lede mx-auto max-w-3xl text-center text-muted-foreground">
+            From the pioneering work of Christian medical practitioners to a nationwide movement —
+            the history of CMDA Nigeria spans more than five decades of faith, sacrifice, and
+            service.
+          </p>
+        </Reveal>
+
+        {/* Era blocks */}
+        <EraBlock year="1500s–1900s" title="The historical foundation">
           <p>
             For more than 500 years, the medical profession has provided fertile ground for the
             development of guilds and associations of doctors established to promote professional and
@@ -161,13 +118,12 @@ export function HistoryTimeline() {
               Christian medical missionaries around the world.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
+        <EraBlock
           year="1906–1957"
           title="The beginning of Christian medical fellowship in Nigeria"
-          imageLabel="Dr. Akanu Ibiam"
-          align="right"
+          accent
         >
           <p>
             The development of Christian medical fellowship in Nigeria is closely associated with the
@@ -200,14 +156,9 @@ export function HistoryTimeline() {
               eastern part of Nigeria.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
-          year="1972"
-          title="The birth of the Fellowship of Christian Doctors in Nigeria"
-          imageLabel="The 1972 Ibadan conference"
-          align="left"
-        >
+        <EraBlock year="1972" title="The birth of the Fellowship of Christian Doctors in Nigeria">
           <p>
             A major milestone occurred from 6–9 April 1972, when the Nigerian Voluntary Agencies
             Medical Services Committee successfully organised a conference at the Institute of
@@ -238,13 +189,12 @@ export function HistoryTimeline() {
               Agbidiye, then a clinical student.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
+        <EraBlock
           year="1974–1986"
           title="Growth, challenges, and international recognition"
-          imageLabel="The 1974 nationwide tour"
-          align="right"
+          accent
         >
           <p>
             In keeping with the vision, active groups emerged in several centres, particularly within
@@ -268,14 +218,9 @@ export function HistoryTimeline() {
               Nigeria was accepted as a full member of ICMDA.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
-          year="1981–1985"
-          title="The medical students' fellowship"
-          imageLabel="Student fellowship conference"
-          align="left"
-        >
+        <EraBlock year="1981–1985" title="The medical students' fellowship">
           <p>
             The medical students' movement represented another important component of the
             development of Christian medical fellowship in Nigeria. Founded in 1981, the student
@@ -296,13 +241,12 @@ export function HistoryTimeline() {
               fellowship capable of receiving and engaging student members after graduation.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
+        <EraBlock
           year="1999–2008"
           title="Leadership eras and institutional development"
-          imageLabel="CMDA leadership"
-          align="right"
+          accent
         >
           <p>
             A significant development occurred in April 1999 with the visit of U.S. Emeritus
@@ -325,13 +269,9 @@ export function HistoryTimeline() {
               Nigerian institutions.
             </p>
           </Expandable>
-        </TimelineEntry>
+        </EraBlock>
 
-        <TimelineEntry
-          year="Today"
-          title="The continuing history of CMDA Nigeria"
-          align="left"
-        >
+        <EraBlock year="Today" title="The continuing history of CMDA Nigeria">
           <p>
             The history of CMDA Nigeria is a history of people, events, vision, sacrifice, service,
             and commitment to Christian witness within the medical profession. From the pioneering
@@ -347,7 +287,7 @@ export function HistoryTimeline() {
             faith, professional excellence, service, leadership, and compassionate healthcare — with
             each generation contributing to the fulfilment of its calling.
           </p>
-        </TimelineEntry>
+        </EraBlock>
       </div>
     </Section>
   );
