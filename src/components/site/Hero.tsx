@@ -50,6 +50,17 @@ const columns = [
   },
 ];
 
+const sliderImages = [
+  "/Additional Hero/bg-3.webp",
+  "/Additional Hero/bg-4.webp",
+  "/Additional Hero/JNC (15 of 20).webp",
+  "/Additional Hero/JNC (2 of 20).webp",
+  "/Additional Hero/JNC (33 of 35).webp",
+  "/Additional Hero/JNC (34 of 35).webp",
+  "/Additional Hero/JNC (35 of 35).webp",
+  "/Additional Hero/JNC (6 of 46).webp",
+];
+
 const rotating = ["the whole man", "spirit, soul & body", "Nigeria & beyond", "the underserved"];
 
 const marks = [
@@ -103,6 +114,37 @@ function useMarquee(
   return trackRef;
 }
 
+function HeroSlider() {
+  const [current, setCurrent] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrent((c) => (c + 1) % sliderImages.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, []);
+
+  return (
+    <div className="absolute inset-0 z-0 overflow-hidden">
+      {sliderImages.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt=""
+          aria-hidden={i !== current}
+          className={cn(
+            "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
+            i === current ? "opacity-100" : "opacity-0",
+          )}
+          loading={i === 0 ? "eager" : "lazy"}
+        />
+      ))}
+      {/* Dark overlay on top of slider */}
+      <div className="absolute inset-0 bg-primary-deep/80" />
+    </div>
+  );
+}
+
 function MarqueeColumn({
   col,
   ci,
@@ -150,17 +192,8 @@ export function Hero() {
 
   return (
     <section className="paper relative overflow-x-hidden border-b border-border">
-      {/* Background image */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: "url(/hero-bg.png)" }}
-      />
-      {/* Dark overlay for text readability */}
-      <div
-        aria-hidden="true"
-        className="absolute inset-0 bg-primary-deep/90"
-      />
+      {/* Background image slider */}
+      <HeroSlider />
 
       <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-14 px-6 pt-32 pb-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8 lg:px-10 lg:pt-40 lg:pb-28">
         {/* ---------- Editorial column ---------- */}
