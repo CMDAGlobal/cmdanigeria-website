@@ -150,10 +150,16 @@ export function Hero() {
 
   return (
     <section className="paper relative overflow-x-hidden border-b border-border">
-      {/* Faint plum wash bleeding in from the collage side */}
+      {/* Background image */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-y-0 right-0 hidden w-1/2 bg-linear-to-l from-primary/8 to-transparent lg:block"
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: "url(/HERO BG.png)" }}
+      />
+      {/* Dark overlay for text readability */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-primary-deep/70"
       />
 
       <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-14 px-6 pt-32 pb-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8 lg:px-10 lg:pt-40 lg:pb-28">
@@ -161,18 +167,18 @@ export function Hero() {
         <div className="relative z-10 flex flex-col justify-center">
           <div className="flex items-center gap-4">
             <span className="h-px w-14 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Christian Medical &amp; Dental Association</p>
+            <p className="eyebrow text-gold">Christian Medical &amp; Dental Association</p>
           </div>
 
-          <h1 className="display-1 mt-8 text-balance">
+          <h1 className="display-1 mt-8 text-balance text-white">
             <span className="block">Healing hands.</span>
-            <span className="block text-primary">Faithful hearts.</span>
-            <span className="mt-3 block font-display text-[0.42em] leading-tight font-semibold tracking-[-0.01em] text-muted-foreground">
+            <span className="block text-gold">Faithful hearts.</span>
+            <span className="mt-3 block font-display text-[0.42em] leading-tight font-semibold tracking-[-0.01em] text-white/75">
               Caring for{" "}
               <span className="relative inline-block align-baseline">
                 <span
                   key={word}
-                  className={cn("inline-block text-foreground", mounted && "animate-slide-up")}
+                  className={cn("inline-block text-white", mounted && "animate-slide-up")}
                 >
                   {rotating[word]}
                 </span>
@@ -184,7 +190,7 @@ export function Hero() {
             </span>
           </h1>
 
-          <p className="lede mt-8 max-w-lg text-muted-foreground">
+          <p className="lede mt-8 max-w-lg text-white/70">
             For over five decades CMDA Nigeria has equipped Christian doctors, dentists and students
             to practise with clinical excellence, Christ-like compassion and unwavering integrity —
             in teaching hospitals, rural clinics and mission fields across the nation.
@@ -200,20 +206,20 @@ export function Hero() {
           </div>
 
           {/* Credential ledger */}
-          <dl className="mt-14 grid max-w-xl grid-cols-2 border-t border-border sm:grid-cols-4">
+          <dl className="mt-14 grid max-w-xl grid-cols-2 border-t border-white/20 sm:grid-cols-4">
             {marks.map((m) => (
-              <div key={m.label} className="border-b border-border py-5 pr-4 sm:border-b-0">
-                <dt className="font-display text-xl font-extrabold tracking-tight text-primary sm:text-2xl">
+              <div key={m.label} className="border-b border-white/20 py-5 pr-4 sm:border-b-0">
+                <dt className="font-display text-xl font-extrabold tracking-tight text-gold sm:text-2xl">
                   {m.value}
                 </dt>
-                <dd className="eyebrow mt-2 text-[0.62rem] text-muted-foreground">{m.label}</dd>
+                <dd className="eyebrow mt-2 text-[0.62rem] text-white/60">{m.label}</dd>
               </div>
             ))}
           </dl>
         </div>
 
         {/* ---------- Moving collage ---------- */}
-        <div className="relative -mx-6 h-[26rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
+        <div className="relative -mx-6 z-10 h-[26rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
           <div className="grid h-full grid-cols-3 gap-3 sm:gap-4">
             {mounted &&
               columns.map((col, ci) => (
