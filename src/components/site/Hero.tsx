@@ -134,13 +134,13 @@ export function Hero() {
         </div>
 
         {/* ---------- Moving collage ---------- */}
-        <div className="relative -mx-6 h-[32rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
-          <div className="grid h-full grid-cols-2 gap-2 sm:grid-cols-3 sm:gap-4">
+        <div className="relative -mx-6 h-[26rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
+          <div className="grid h-full grid-cols-3 gap-3 sm:gap-4">
             {columns.map((col, ci) => (
               <div key={ci} className={cn("relative overflow-hidden", col.offset)}>
                 <div
                   className={cn(
-                    "flex flex-col gap-2 sm:gap-4",
+                    "flex flex-col gap-3 sm:gap-4",
                     mounted && (col.direction === "up" ? "animate-marquee-up" : "animate-marquee-down"),
                   )}
                   style={{ animationDuration: col.speed }}
@@ -155,7 +155,7 @@ export function Hero() {
                         alt=""
                         aria-hidden={i >= col.images.length}
                         loading={ci === 0 && i === 0 ? "eager" : "lazy"}
-                        className="aspect-3/4 w-full object-cover"
+                        className="aspect-3/4 size-full object-cover"
                       />
                       <span
                         aria-hidden="true"
