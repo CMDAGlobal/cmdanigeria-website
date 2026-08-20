@@ -159,7 +159,7 @@ export function Hero() {
       {/* Dark overlay for text readability */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-primary-deep/70"
+        className="absolute inset-0 bg-primary-deep/90"
       />
 
       <div className="relative mx-auto grid w-full max-w-7xl grid-cols-1 gap-14 px-6 pt-32 pb-20 lg:grid-cols-[1.02fr_0.98fr] lg:gap-8 lg:px-10 lg:pt-40 lg:pb-28">
@@ -200,7 +200,7 @@ export function Hero() {
             <Link to="/membership" className={cn(buttonVariants({ variant: "editorial", size: "lg" }))}>
               Become a Member
             </Link>
-            <Link to="/give" className={cn(buttonVariants({ variant: "editorialGold", size: "lg" }))}>
+            <Link to="/give" className={cn(buttonVariants({ variant: "editorialGold", size: "lg" }), "text-white")}>
               Support the Mission
             </Link>
           </div>
@@ -230,11 +230,11 @@ export function Hero() {
           {/* Feathered edges so the motion dissolves rather than clipping */}
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-background to-transparent"
+            className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-linear-to-b from-primary-deep to-transparent"
           />
           <div
             aria-hidden="true"
-            className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-background to-transparent"
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-linear-to-t from-primary-deep to-transparent"
           />
 
           {/* Floating editorial caption plate */}
