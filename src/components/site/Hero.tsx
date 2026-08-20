@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buttonVariants } from "./primitives";
 import { cn } from "@/lib/utils";
 
@@ -31,19 +31,19 @@ const heroImages = [
 
 const columns = [
   {
-    speed: "52s",
+    speed: 52,
     direction: "up" as const,
     offset: "mt-0",
     images: heroImages.slice(0, 8),
   },
   {
-    speed: "38s",
+    speed: 38,
     direction: "down" as const,
     offset: "mt-[-4rem]",
     images: heroImages.slice(8, 16),
   },
   {
-    speed: "64s",
+    speed: 64,
     direction: "up" as const,
     offset: "mt-[-8rem]",
     images: heroImages.slice(16, 23),
@@ -58,6 +58,85 @@ const marks = [
   { value: "11,000+", label: "Members" },
   { value: "75+", label: "Global network" },
 ];
+
+function useMarquee(
+  direction: "up" | "down",
+  speed: number,
+) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const offsetRef = useRef(0);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+
+    let raf: number;
+    let lastTime = performance.now();
+
+    const tick = (now: number) => {
+      const dt = (now - lastTime) / 1000;
+      lastTime = now;
+
+      const halfHeight = el.scrollHeight / 2;
+      if (halfHeight === 0) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
+      const pxPerSec = halfHeight / speed;
+      offsetRef.current += pxPerSec * dt;
+
+      if (offsetRef.current >= halfHeight) {
+        offsetRef.current -= halfHeight;
+      }
+
+      const y = direction === "up" ? -offsetRef.current : -(halfHeight - offsetRef.current);
+      el.style.transform = `translate3d(0, ${y}px, 0)`;
+
+      raf = requestAnimationFrame(tick);
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [direction, speed]);
+
+  return trackRef;
+}
+
+function MarqueeColumn({
+  col,
+  ci,
+}: {
+  col: (typeof columns)[number];
+  ci: number;
+}) {
+  const trackRef = useMarquee(col.direction, col.speed);
+
+  return (
+    <div className={cn("relative overflow-hidden", col.offset)}>
+      <div ref={trackRef} className={cn("flex flex-col gap-3 sm:gap-4")}>
+        {[...col.images, ...col.images].map((src, i) => (
+          <figure
+            key={`${ci}-${i}`}
+            className="relative shrink-0 overflow-hidden border border-border/70 bg-card"
+          >
+            <img
+              src={src}
+              alt=""
+              aria-hidden={i >= col.images.length}
+              loading={ci === 0 && i === 0 ? "eager" : "lazy"}
+              className="aspect-3/4 size-full object-cover"
+            />
+            <span
+              aria-hidden="true"
+              className="absolute inset-0 bg-primary-deep/10 mix-blend-multiply"
+            />
+          </figure>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function Hero() {
   const [mounted, setMounted] = useState(false);
@@ -136,36 +215,10 @@ export function Hero() {
         {/* ---------- Moving collage ---------- */}
         <div className="relative -mx-6 h-[26rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
           <div className="grid h-full grid-cols-3 gap-3 sm:gap-4">
-            {columns.map((col, ci) => (
-              <div key={ci} className={cn("relative overflow-hidden", col.offset)}>
-                <div
-                  className={cn(
-                    "flex flex-col gap-3 sm:gap-4",
-                    mounted && (col.direction === "up" ? "animate-marquee-up" : "animate-marquee-down"),
-                  )}
-                  style={{ animationDuration: col.speed }}
-                >
-                  {[...col.images, ...col.images].map((src, i) => (
-                    <figure
-                      key={`${ci}-${i}`}
-                      className="relative shrink-0 overflow-hidden border border-border/70 bg-card"
-                    >
-                      <img
-                        src={src}
-                        alt=""
-                        aria-hidden={i >= col.images.length}
-                        loading={ci === 0 && i === 0 ? "eager" : "lazy"}
-                        className="aspect-3/4 size-full object-cover"
-                      />
-                      <span
-                        aria-hidden="true"
-                        className="absolute inset-0 bg-primary-deep/10 mix-blend-multiply"
-                      />
-                    </figure>
-                  ))}
-                </div>
-              </div>
-            ))}
+            {mounted &&
+              columns.map((col, ci) => (
+                <MarqueeColumn key={ci} col={col} ci={ci} />
+              ))}
           </div>
 
           {/* Feathered edges so the motion dissolves rather than clipping */}
