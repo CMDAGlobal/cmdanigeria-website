@@ -81,7 +81,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                   activeOptions={{ exact: false }}
                   activeProps={{ className: "opacity-100 underline decoration-gold decoration-2 underline-offset-8" }}
                   className={cn(
-                    "flex items-center gap-1 font-display text-sm font-semibold transition-opacity hover:opacity-70",
+                    "flex items-center gap-1 text-xs font-semibold transition-opacity hover:opacity-70",
                     solid ? "text-foreground" : "text-primary-foreground",
                   )}
                 >
@@ -112,7 +112,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 activeOptions={{ exact: item.to === "/" }}
                 activeProps={{ className: "opacity-100 underline decoration-gold decoration-2 underline-offset-8" }}
                 className={cn(
-                  "font-display text-sm font-semibold transition-opacity hover:opacity-70",
+                  "text-xs font-semibold transition-opacity hover:opacity-70",
                   solid ? "text-foreground" : "text-primary-foreground",
                 )}
               >
@@ -155,7 +155,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                   <Link
                     to={item.to}
                     onClick={() => setOpen(false)}
-                    className="font-display text-base font-semibold text-foreground"
+                    className="text-sm font-semibold text-foreground"
                   >
                     {item.label}
                   </Link>
@@ -165,7 +165,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                         key={child.to}
                         to={child.to}
                         onClick={() => setOpen(false)}
-                        className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                        className="text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
                       >
                         {child.label}
                       </Link>
