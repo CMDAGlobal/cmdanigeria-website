@@ -63,7 +63,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             alt="CMDA Nigeria logo"
             width={140}
             height={40}
-            className="h-20 w-auto object-contain"
+            className="h-14 w-auto object-contain"
           />
         </Link>
 
