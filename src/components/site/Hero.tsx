@@ -62,9 +62,9 @@ const sliderImages = [
 ];
 
 const rotating = [
-  "Welcome To CMDA Nigeria",
-  "Caring For The Whole Man, Spirit Soul And Body",
-  "Competence, Character And Compassion",
+  { text: "Welcome To CMDA Nigeria", highlight: ["CMDA Nigeria"] },
+  { text: "Caring For The Whole Man, Spirit Soul And Body", highlight: ["Whole Man", "Spirit Soul And Body"] },
+  { text: "Competence, Character And Compassion", highlight: ["Competence", "Character", "Compassion"] },
 ];
 
 const marks = [
@@ -208,12 +208,19 @@ export function Hero() {
           </div>
 
           <h1 className="display-1 mt-8 text-balance text-white">
-            <span className="block h-[2.5em] overflow-hidden">
+            <span className="block min-h-[2.8em] overflow-hidden">
               <span
                 key={word}
                 className={cn("block", mounted && "animate-slide-up")}
               >
-                {rotating[word]}
+                {rotating[word].text.split(/(\s+)/).map((token, i) => {
+                  const isHighlight = rotating[word].highlight.some((h) => token.trim() && h.includes(token.trim()));
+                  return isHighlight ? (
+                    <span key={i} className="text-gold">{token}</span>
+                  ) : (
+                    <span key={i}>{token}</span>
+                  );
+                })}
               </span>
             </span>
           </h1>
