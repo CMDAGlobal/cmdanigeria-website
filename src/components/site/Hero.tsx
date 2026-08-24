@@ -61,7 +61,11 @@ const sliderImages = [
   "/Additional Hero/JNC (6 of 46).webp",
 ];
 
-const rotating = ["the whole man", "spirit, soul & body", "Nigeria & beyond", "the underserved"];
+const rotating = [
+  "Welcome To CMDA Nigeria",
+  "Caring For The Whole Man, Spirit Soul And Body",
+  "Competence, Character And Compassion",
+];
 
 const marks = [
   { value: "1972", label: "Founded" },
@@ -206,19 +210,12 @@ export function Hero() {
           <h1 className="display-1 mt-8 text-balance text-white">
             <span className="block">Healing hands.</span>
             <span className="block text-gold">Faithful hearts.</span>
-            <span className="mt-3 block font-display text-[0.42em] leading-tight font-semibold tracking-[-0.01em] text-white/75">
-              Caring for{" "}
-              <span className="relative inline-block align-baseline">
-                <span
-                  key={word}
-                  className={cn("inline-block text-white", mounted && "animate-slide-up")}
-                >
-                  {rotating[word]}
-                </span>
-                <span
-                  className="absolute inset-x-0 -bottom-1 h-px bg-gold"
-                  aria-hidden="true"
-                />
+            <span className="mt-4 block h-[1.2em] overflow-hidden font-display text-[0.38em] leading-[1.2] font-semibold tracking-[-0.01em] text-white/80">
+              <span
+                key={word}
+                className={cn("block", mounted && "animate-slide-up")}
+              >
+                {rotating[word]}
               </span>
             </span>
           </h1>
