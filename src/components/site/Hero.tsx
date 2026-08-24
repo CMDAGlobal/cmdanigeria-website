@@ -214,7 +214,10 @@ export function Hero() {
                 className={cn("block", mounted && "animate-slide-up")}
               >
                 {rotating[word].text.split(/(\s+)/).map((token, i) => {
-                  const isHighlight = rotating[word].highlight.some((h) => token.trim() && h.includes(token.trim()));
+                  const clean = token.trim().replace(/[,.]/g, "").toLowerCase();
+                  const isHighlight = rotating[word].highlight.some((h) =>
+                    h.toLowerCase().split(/\s+/).includes(clean),
+                  );
                   return isHighlight ? (
                     <span key={i} className="text-gold">{token}</span>
                   ) : (
