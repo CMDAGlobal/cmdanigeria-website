@@ -63,8 +63,8 @@ const sliderImages = [
 
 const rotating = [
   { text: "Welcome To CMDA Nigeria", highlight: ["CMDA Nigeria"] },
-  { text: "Caring For The Whole Man, Spirit Soul And Body", highlight: ["Whole Man", "Spirit Soul And Body"] },
-  { text: "Competence, Character And Compassion", highlight: ["Competence", "Character", "Compassion"] },
+  { text: "Caring For The Whole Man, Spirit Soul And Body", highlight: ["Whole Man"] },
+  { text: "Competence, Character And Compassion", highlight: ["Compassion"] },
 ];
 
 const marks = [
