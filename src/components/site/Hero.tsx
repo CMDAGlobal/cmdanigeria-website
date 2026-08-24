@@ -208,9 +208,7 @@ export function Hero() {
           </div>
 
           <h1 className="display-1 mt-8 text-balance text-white">
-            <span className="block">Healing hands.</span>
-            <span className="block text-gold">Faithful hearts.</span>
-            <span className="mt-4 block h-[1.2em] overflow-hidden font-display text-[0.38em] leading-[1.2] font-semibold tracking-[-0.01em] text-white/80">
+            <span className="block h-[2.5em] overflow-hidden">
               <span
                 key={word}
                 className={cn("block", mounted && "animate-slide-up")}
@@ -219,6 +217,9 @@ export function Hero() {
               </span>
             </span>
           </h1>
+          <p className="mt-4 font-display text-lg font-semibold tracking-wide text-gold lg:text-xl">
+            Healing hands. Faithful hearts.
+          </p>
 
           <p className="lede mt-8 max-w-lg text-white/70">
             For over five decades CMDA Nigeria has equipped Christian doctors, dentists and students
