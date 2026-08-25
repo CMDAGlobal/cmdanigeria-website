@@ -16,8 +16,6 @@ import {
   Users,
 } from "lucide-react";
 import { Link } from "@tanstack/react-router";
-import studentsPrayer from "@/assets/students-prayer.jpg";
-import conference from "@/assets/conference.jpg";
 import { buttonVariants, Reveal, Section, SectionHead } from "./primitives";
 import { cn } from "@/lib/utils";
 
@@ -85,7 +83,7 @@ export function WhoWeAre() {
           <div className="relative">
             <div className="framed">
               <img
-                src={studentsPrayer}
+                src="/About1.webp"
                 alt="Nigerian medical students praying together before ward rounds"
                 width={1408}
                 height={1008}
@@ -101,7 +99,7 @@ export function WhoWeAre() {
             </div>
             <div className="mt-6 hidden overflow-hidden lg:block">
               <img
-                src={conference}
+                src="/About2.webp"
                 alt="Delegates at a CMDA Nigeria healthcare leadership conference"
                 width={1408}
                 height={1008}
@@ -178,7 +176,7 @@ export function OurStory() {
           <div className="relative">
             <div className="framed">
               <img
-                src={studentsPrayer}
+                src="/About1.webp"
                 alt="Nigerian medical students praying together before ward rounds"
                 width={1408}
                 height={1008}
@@ -194,7 +192,7 @@ export function OurStory() {
             </div>
             <div className="mt-6 hidden overflow-hidden lg:block">
               <img
-                src={conference}
+                src="/About2.webp"
                 alt="Delegates at a CMDA Nigeria healthcare leadership conference"
                 width={1408}
                 height={1008}
@@ -377,7 +375,7 @@ export function HistoryTeaser() {
           <div className="relative">
             <div className="framed">
               <img
-                src={conference}
+                src="/About2.webp"
                 alt="Delegates at a CMDA Nigeria healthcare leadership conference"
                 width={1408}
                 height={1008}
