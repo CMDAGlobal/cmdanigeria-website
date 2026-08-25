@@ -40,7 +40,7 @@ export function ReasonsToJoin() {
       {/* Background image */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center opacity-[0.06]"
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.06]"
         style={{ backgroundImage: "url(/bg-5.webp)" }}
       />
       <SectionHead

@@ -56,7 +56,7 @@ export function ImpactStats() {
       {/* Background image */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center opacity-[0.10]"
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.10]"
         style={{ backgroundImage: "url(/whip-transparent-bg.webp)" }}
       />
       <div ref={ref} className="mx-auto w-full max-w-7xl">

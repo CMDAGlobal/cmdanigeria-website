@@ -52,7 +52,7 @@ function Index() {
         {/* Background image */}
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+          className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.12]"
           style={{ backgroundImage: "url(/cmda-wholeness-mission-bg.webp)" }}
         />
 

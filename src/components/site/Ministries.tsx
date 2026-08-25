@@ -137,7 +137,7 @@ export function Ministries() {
       {/* Background image */}
       <div
         aria-hidden="true"
-        className="absolute inset-0 bg-cover bg-center opacity-[0.07]"
+        className="absolute inset-0 bg-cover bg-center bg-fixed opacity-[0.07]"
         style={{ backgroundImage: "url(/bg-3.webp)" }}
       />
       <SectionHead
