@@ -124,7 +124,7 @@ function HeroSlider() {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrent((c) => (c + 1) % sliderImages.length);
-    }, 3500);
+    }, 4000);
     return () => clearInterval(timer);
   }, []);
 
@@ -137,8 +137,9 @@ function HeroSlider() {
           alt=""
           aria-hidden={i !== current}
           className={cn(
-            "absolute inset-0 h-full w-full object-cover transition-opacity duration-1000",
-            i === current ? "opacity-100" : "opacity-0",
+            "absolute inset-0 h-full w-full object-cover",
+            "transition-opacity duration-[1500ms] ease-in-out",
+            i === current ? "opacity-100 animate-ken-burns" : "opacity-0",
           )}
           loading={i === 0 ? "eager" : "lazy"}
         />

@@ -261,6 +261,26 @@
     animation: none !important;
     transform: none !important;
   }
+
+  .animate-ken-burns {
+    animation: none !important;
+    transform: scale(1) !important;
+  }
+}
+
+/* Ken Burns: slow zoom on hero slider images */
+@keyframes ken-burns {
+  from {
+    transform: scale(1);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+@utility animate-ken-burns {
+  animation: ken-burns 4s ease-out forwards;
+  transform-origin: center center;
 }
 
 /* ---------- Editorial layer: shared visual language across all pages ---------- */
