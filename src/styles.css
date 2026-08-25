@@ -193,20 +193,18 @@
   animation: ken-burns 9s ease-out forwards;
 }
 
-@keyframes hero-slide-up {
+@keyframes hero-fade-in {
   from {
     opacity: 0;
-    transform: translateY(24px);
   }
   to {
     opacity: 1;
-    transform: none;
   }
 }
 
 @utility animate-slide-up {
   opacity: 0;
-  animation: hero-slide-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: hero-fade-in 0.8s ease-in-out forwards;
 }
 
 /* Seamless vertical marquee: the track holds two copies of its list, so a
