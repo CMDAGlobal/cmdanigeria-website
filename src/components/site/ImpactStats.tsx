@@ -52,7 +52,13 @@ export function ImpactStats() {
   const { ref, inView } = useInView<HTMLDivElement>();
 
   return (
-    <section id="impact-stats" className="bg-primary-deep px-6 py-20 lg:px-10 lg:py-24">
+    <section id="impact-stats" className="relative overflow-hidden bg-primary-deep px-6 py-20 lg:px-10 lg:py-24">
+      {/* Background image */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.10]"
+        style={{ backgroundImage: "url(/whip-transparent-bg.webp)" }}
+      />
       <div ref={ref} className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="flex items-center gap-4">

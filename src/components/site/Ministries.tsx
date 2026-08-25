@@ -133,7 +133,13 @@ function MinistryRow({
 
 export function Ministries() {
   return (
-    <Section id="ministries">
+    <Section id="ministries" className="relative overflow-hidden">
+      {/* Background image */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-cover bg-center opacity-[0.07]"
+        style={{ backgroundImage: "url(/bg-3.webp)" }}
+      />
       <SectionHead
         eyebrow="Featured ministries"
         title="Institutions built for lasting impact"

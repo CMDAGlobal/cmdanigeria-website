@@ -48,7 +48,13 @@ function Index() {
       <WhoWeAre />
       <Ministries />
       <ReasonsToJoin />
-      <Section className="bg-primary-deep text-primary-foreground">
+      <Section className="relative overflow-hidden bg-primary-deep text-primary-foreground">
+        {/* Background image */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-cover bg-center opacity-[0.12]"
+          style={{ backgroundImage: "url(/cmda-wholeness-mission-bg.webp)" }}
+        />
 
         <Reveal className="mx-auto max-w-3xl text-center">
           <div className="flex items-center justify-center gap-4">
