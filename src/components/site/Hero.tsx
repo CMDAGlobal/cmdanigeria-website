@@ -220,7 +220,7 @@ export function Hero() {
                     h.toLowerCase().split(/\s+/).includes(clean),
                   );
                   return isHighlight ? (
-                    <span key={i} className="text-gold">{token}</span>
+                    <span key={i} className="text-gold whitespace-nowrap">{token}</span>
                   ) : (
                     <span key={i}>{token}</span>
                   );
