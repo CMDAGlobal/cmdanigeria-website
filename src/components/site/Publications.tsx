@@ -71,6 +71,18 @@ const publications = [
     desc: "Regular newsletters produced by local CMDA chapters across universities and hospitals, sharing fellowship updates, testimonies, event reports and prayer points.",
     placeholder: "Chapter newsletter",
   },
+  {
+    title: "Multiply",
+    tag: "Book",
+    desc: "An 86-page book by Prof. Chima Onoka offering a fresh and thought-provoking perspective on Christian medical mission. It explores the place of personal, God-given vision within CMDA, the relevance of individual calling, the challenge of mission fatigue, and the broader meaning of mission beyond traditional rural outreaches.",
+    placeholder: "Multiply book cover",
+  },
+  {
+    title: "Logo Exploration Manual",
+    tag: "Training Manual",
+    desc: "A training manual aimed at exposing medical and dental students, as well as doctors and dentists, to the essential tools for caring for the whole man. It provides a foundation for understanding the vision of CMDA Nigeria and highlights the core precepts and philosophies for effective practice of the vision.",
+    placeholder: "Logo Exploration Manual cover",
+  },
 ];
 
 /* ─── Ministries / Programs ─── */
@@ -257,7 +269,7 @@ export function PublicationsList() {
         title="Voices of the fellowship"
         intro="Magazines, journals and newsletters keeping CMDA Nigeria's doctors and students informed, encouraged, and equipped."
       />
-      <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {publications.map((item) => (
           <Reveal key={item.title}>
             <div className="card-editorial flex h-full flex-col">
