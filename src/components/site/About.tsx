@@ -340,6 +340,86 @@ export function StatementOfFaith() {
 }
 
 /* ──────────────────────────────────────────────
+ * LeadershipDevelopment
+ * ────────────────────────────────────────────── */
+
+const leadershipItems = [
+  {
+    title: "Cluster Levites Training",
+    desc: "A leadership formation programme for emerging student leaders, equipping them with spiritual depth, organisational skills and a servant-leadership mindset.",
+  },
+  {
+    title: "NEC Retreat",
+    desc: "An annual retreat for the National Executive Council — a time of prayer, strategic reflection, team-building and alignment for the year ahead.",
+  },
+];
+
+export function LeadershipDevelopment() {
+  return (
+    <Section id="leadership-development" className="paper">
+      <SectionHead
+        eyebrow="Leadership development"
+        title="Forming the next generation of servant-leaders"
+      />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2">
+        {leadershipItems.map((item, i) => (
+          <Reveal key={item.title} delay={(i % 2) * 90}>
+            <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card h-full">
+              <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
+ * AwardsAndRecognition
+ * ────────────────────────────────────────────── */
+
+const awardsItems = [
+  {
+    title: "The Chima Onoka Award",
+    desc: "Recognises outstanding academic achievement by a CMDA member, honouring the legacy of Prof. Chima Onoka and his commitment to excellence in medical practice and scholarship.",
+  },
+  {
+    title: "Emmanuel T. Alagoa Excellence in Writing Award",
+    desc: "Recognises exceptional writing skill among CMDA members, encouraging clear communication of faith, science and professional insight.",
+  },
+  {
+    title: "Other Awards",
+    desc: "Various awards presented at national conferences recognising chapter excellence, mission impact, leadership service and lifetime contribution to the fellowship.",
+  },
+];
+
+export function AwardsAndRecognition() {
+  return (
+    <Section id="awards" className="bg-muted">
+      <SectionHead
+        eyebrow="Awards & recognition"
+        title="Celebrating excellence, faithfulness and impact"
+      />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {awardsItems.map((item, i) => (
+          <Reveal key={item.title} delay={(i % 3) * 90}>
+            <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card h-full">
+              <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                {item.title}
+              </h3>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+/* ──────────────────────────────────────────────
  * HistoryTeaser — CTA block linking to /about/history
  * ────────────────────────────────────────────── */
 

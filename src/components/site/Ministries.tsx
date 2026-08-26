@@ -47,9 +47,15 @@ Through EXCEL, CMDA Nigeria is raising healthcare professionals who are academic
 
 const otherMinistries = [
   {
-    short: "Impact Fund",
-    name: "Impact Fund",
-    desc: "Funding scholarships, missions and emergency healthcare interventions.",
+    short: "The Lady Doctor",
+    name: "The Lady Doctor",
+    desc: "A platform addressing key aspects of the life and journey of female medical professionals and students, including spiritual and holistic growth, career, leadership, family and ministry.",
+    full: "",
+  },
+  {
+    short: "Saline Training",
+    name: "Saline Training",
+    desc: "Practical clinical skills training programme equipping students and young doctors with hands-on competencies for compassionate, whole-person patient care.",
     full: "",
   },
   {

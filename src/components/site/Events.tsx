@@ -34,49 +34,89 @@ const events = [
   },
 ];
 
+const nationalConferences = [
+  {
+    title: "National Conference — Students",
+    desc: "Annual gathering of CMDA student members from across Nigeria for worship, teaching, fellowship, missions deployment and leadership equipping.",
+  },
+  {
+    title: "National Zonal Conference — Doctors",
+    desc: "Regional conferences bringing together doctors and dentists for professional development, continuing medical education, fellowship and strategic planning.",
+  },
+  {
+    title: "Zonal Prayer & Missions Conference — Students",
+    desc: "Intense prayer and missions-focused conferences at the zonal level, preparing student members for deployment to underserved communities.",
+  },
+  {
+    title: "Joint Conference",
+    desc: "A combined gathering of the Doctors' and Students' arms for unified worship, vision-setting, training and cross-generational mentorship.",
+  },
+];
+
 
 export function Events() {
   return (
-    <Section id="events" className="bg-muted">
-      <SectionHead
-        eyebrow="Upcoming events"
-        title="Gather, train, and be sent"
-        action={
-          <Link to="/events" className={cn(buttonVariants({ variant: "outline" }))}>
-            Full events calendar
-          </Link>
-        }
-      />
+    <>
+      <Section id="events" className="bg-muted">
+        <SectionHead
+          eyebrow="Upcoming events"
+          title="Gather, train, and be sent"
+          action={
+            <Link to="/events" className={cn(buttonVariants({ variant: "outline" }))}>
+              Full events calendar
+            </Link>
+          }
+        />
 
-      <div className="mt-16 grid gap-6 lg:grid-cols-2">
-        {events.map((e, i) => (
-          <Reveal key={e.title} delay={(i % 2) * 90}>
-            <article className="card-editorial flex h-full flex-col gap-6 p-8 sm:flex-row sm:items-center">
-              <div className="w-24 shrink-0 border-r border-border pr-4 text-center sm:text-left">
-                <p className="font-display text-base font-extrabold text-primary">{e.date}</p>
-                <p className="eyebrow mt-2 text-muted-foreground">{e.year}</p>
+        <div className="mt-16 grid gap-6 lg:grid-cols-2">
+          {events.map((e, i) => (
+            <Reveal key={e.title} delay={(i % 2) * 90}>
+              <article className="card-editorial flex h-full flex-col gap-6 p-8 sm:flex-row sm:items-center">
+                <div className="w-24 shrink-0 border-r border-border pr-4 text-center sm:text-left">
+                  <p className="font-display text-base font-extrabold text-primary">{e.date}</p>
+                  <p className="eyebrow mt-2 text-muted-foreground">{e.year}</p>
+                </div>
+                <div className="flex-1">
+                  <span className="eyebrow text-secondary">{e.type}</span>
+                  <h3 className="mt-2 font-display text-lg leading-snug font-bold">{e.title}</h3>
+                  <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                    <MapPin className="size-4" aria-hidden="true" />
+                    {e.place}
+                  </p>
+                </div>
+                <a
+                  href="#events"
+                  className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
+                  aria-label={`Register for ${e.title}`}
+                >
+                  <CalendarDays aria-hidden="true" />
+                  Register
+                </a>
+              </article>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      <Section id="national-conferences" className="paper">
+        <SectionHead
+          eyebrow="National conferences"
+          title="Gathering the fellowship for worship, training and vision"
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2">
+          {nationalConferences.map((c, i) => (
+            <Reveal key={c.title} delay={(i % 2) * 90}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card h-full">
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  {c.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{c.desc}</p>
               </div>
-              <div className="flex-1">
-                <span className="eyebrow text-secondary">{e.type}</span>
-                <h3 className="mt-2 font-display text-lg leading-snug font-bold">{e.title}</h3>
-                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  {e.place}
-                </p>
-              </div>
-              <a
-                href="#events"
-                className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
-                aria-label={`Register for ${e.title}`}
-              >
-                <CalendarDays aria-hidden="true" />
-                Register
-              </a>
-            </article>
-          </Reveal>
-        ))}
-      </div>
-    </Section>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+    </>
   );
 }
 

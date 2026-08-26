@@ -23,6 +23,7 @@ import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
 import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
 import { Route as GlobalNetworkRouteImport } from './routes/global-network'
+import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -95,6 +96,12 @@ const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const MediaResourcesRoute = MediaResourcesRouteImport.update({
+  id: '/media-resources',
+  path: '/media-resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutIndexRoute
@@ -110,6 +117,7 @@ export interface FileRoutesByFullPath {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/media-resources': typeof MediaResourcesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +134,7 @@ export interface FileRoutesByTo {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/media-resources': typeof MediaResourcesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +152,7 @@ export interface FileRoutesById {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/media-resources': typeof MediaResourcesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +171,7 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/media-resources'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +188,7 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/media-resources'
   id:
     | '__root__'
     | '/'
@@ -193,6 +205,7 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/media-resources'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +223,7 @@ export interface RootRouteChildren {
   StudentsArmRoute: typeof StudentsArmRoute
   DoctorsArmRoute: typeof DoctorsArmRoute
   GlobalNetworkRoute: typeof GlobalNetworkRoute
+  MediaResourcesRoute: typeof MediaResourcesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -330,6 +344,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudentsArmRoute: StudentsArmRoute,
   DoctorsArmRoute: DoctorsArmRoute,
   GlobalNetworkRoute: GlobalNetworkRoute,
+  MediaResourcesRoute: MediaResourcesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

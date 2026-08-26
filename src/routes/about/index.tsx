@@ -5,6 +5,8 @@ import {
   VisionAndMission,
   CoreValues,
   StatementOfFaith,
+  LeadershipDevelopment,
+  AwardsAndRecognition,
   HistoryTeaser,
 } from "@/components/site/About";
 
@@ -37,6 +39,8 @@ function AboutPage() {
       <OurStory />
       <VisionAndMission />
       <CoreValues />
+      <LeadershipDevelopment />
+      <AwardsAndRecognition />
       <StatementOfFaith />
       <HistoryTeaser />
     </>
