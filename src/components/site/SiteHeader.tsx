@@ -13,6 +13,9 @@ const nav = [
     children: [
       { label: "Our Story", to: "/about" },
       { label: "Our History", to: "/about/history" },
+      { label: "Students' Arm", to: "/students-arm" },
+      { label: "Doctors' Arm", to: "/doctors-arm" },
+      { label: "Global Network", to: "/global-network" },
     ],
   },
   { label: "What We Do", to: "/what-we-do" },

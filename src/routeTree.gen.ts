@@ -20,6 +20,9 @@ import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as MinistriesRouteImport } from './routes/ministries'
 import { Route as PublicationsRouteImport } from './routes/publications'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
+import { Route as StudentsArmRouteImport } from './routes/students-arm'
+import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
+import { Route as GlobalNetworkRouteImport } from './routes/global-network'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -76,6 +79,21 @@ const WhatWeDoRoute = WhatWeDoRouteImport.update({
   path: '/what-we-do',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StudentsArmRoute = StudentsArmRouteImport.update({
+  id: '/students-arm',
+  path: '/students-arm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DoctorsArmRoute = DoctorsArmRouteImport.update({
+  id: '/doctors-arm',
+  path: '/doctors-arm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
+  id: '/global-network',
+  path: '/global-network',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -89,6 +107,9 @@ export interface FileRoutesByFullPath {
   '/ministries': typeof MinistriesRoute
   '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/doctors-arm': typeof DoctorsArmRoute
+  '/global-network': typeof GlobalNetworkRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -102,6 +123,9 @@ export interface FileRoutesByTo {
   '/ministries': typeof MinistriesRoute
   '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/doctors-arm': typeof DoctorsArmRoute
+  '/global-network': typeof GlobalNetworkRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -116,6 +140,9 @@ export interface FileRoutesById {
   '/ministries': typeof MinistriesRoute
   '/publications': typeof PublicationsRoute
   '/what-we-do': typeof WhatWeDoRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/doctors-arm': typeof DoctorsArmRoute
+  '/global-network': typeof GlobalNetworkRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -131,6 +158,9 @@ export interface FileRouteTypes {
     | '/ministries'
     | '/publications'
     | '/what-we-do'
+    | '/students-arm'
+    | '/doctors-arm'
+    | '/global-network'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -144,6 +174,9 @@ export interface FileRouteTypes {
     | '/ministries'
     | '/publications'
     | '/what-we-do'
+    | '/students-arm'
+    | '/doctors-arm'
+    | '/global-network'
   id:
     | '__root__'
     | '/'
@@ -157,6 +190,9 @@ export interface FileRouteTypes {
     | '/ministries'
     | '/publications'
     | '/what-we-do'
+    | '/students-arm'
+    | '/doctors-arm'
+    | '/global-network'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -171,6 +207,9 @@ export interface RootRouteChildren {
   MinistriesRoute: typeof MinistriesRoute
   PublicationsRoute: typeof PublicationsRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
+  StudentsArmRoute: typeof StudentsArmRoute
+  DoctorsArmRoute: typeof DoctorsArmRoute
+  GlobalNetworkRoute: typeof GlobalNetworkRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -252,6 +291,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WhatWeDoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/students-arm': {
+      id: '/students-arm'
+      path: '/students-arm'
+      fullPath: '/students-arm'
+      preLoaderRoute: typeof StudentsArmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/doctors-arm': {
+      id: '/doctors-arm'
+      path: '/doctors-arm'
+      fullPath: '/doctors-arm'
+      preLoaderRoute: typeof DoctorsArmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network': {
+      id: '/global-network'
+      path: '/global-network'
+      fullPath: '/global-network'
+      preLoaderRoute: typeof GlobalNetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -267,6 +327,9 @@ const rootRouteChildren: RootRouteChildren = {
   MinistriesRoute: MinistriesRoute,
   PublicationsRoute: PublicationsRoute,
   WhatWeDoRoute: WhatWeDoRoute,
+  StudentsArmRoute: StudentsArmRoute,
+  DoctorsArmRoute: DoctorsArmRoute,
+  GlobalNetworkRoute: GlobalNetworkRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

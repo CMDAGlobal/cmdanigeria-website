@@ -9,6 +9,8 @@ const columns = [
     links: [
       { label: "Who We Are", to: "/about" },
       { label: "Our History", to: "/about/history" },
+      { label: "Students' Arm", to: "/students-arm" },
+      { label: "Doctors' Arm", to: "/doctors-arm" },
       { label: "What We Do", to: "/what-we-do" },
       { label: "Our Impact", to: "/impact" },
       { label: "Contact", to: "/contact" },
@@ -20,7 +22,7 @@ const columns = [
       { label: "IfEHL", to: "/ministries" },
       { label: "Institute of Medical Missions", to: "/ministries" },
       { label: "EXCEL", to: "/ministries" },
-      { label: "Global Network", to: "/ministries" },
+      { label: "Global Network", to: "/global-network" },
     ],
   },
   {
