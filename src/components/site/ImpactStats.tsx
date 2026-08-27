@@ -38,7 +38,7 @@ function useCounter(target: number, active: boolean) {
 function StatItem({ stat, active }: { stat: Stat; active: boolean }) {
   const value = useCounter(stat.value, active);
   return (
-    <div className="flex flex-col border-t border-gold/30 pt-8">
+    <div className="flex flex-col border-t border-cmda-green/40 pt-8">
       <span className="font-display text-4xl font-extrabold text-gold lg:text-5xl">
         {value.toLocaleString()}
         {stat.suffix}
@@ -62,8 +62,8 @@ export function ImpactStats() {
       <div ref={ref} className="mx-auto w-full max-w-7xl">
         <Reveal>
           <div className="flex items-center gap-4">
-            <span className="h-px w-12 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary-foreground/60">Our footprint</p>
+            <span className="h-px w-12 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green-light">Our footprint</p>
           </div>
           <h2 className="mt-5 max-w-2xl font-display text-3xl font-extrabold text-primary-foreground sm:text-4xl">
             A national movement with a global reach

@@ -191,7 +191,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             <Link
               to="/membership"
               onClick={() => setOpen(false)}
-              className={cn(buttonVariants({ variant: "outline" }))}
+              className={cn(buttonVariants({ variant: "outline" }), "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white")}
             >
               Become a Member
             </Link>

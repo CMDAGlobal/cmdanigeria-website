@@ -82,8 +82,8 @@ export function SectionHead({
     >
       <Reveal className="max-w-3xl">
         <div className="flex items-center gap-4">
-          <span className="h-px w-10 bg-gold" aria-hidden="true" />
-          <p className={cn("eyebrow", tone === "dark" ? "text-gold" : "text-primary")}>{eyebrow}</p>
+          <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+          <p className={cn("eyebrow", tone === "dark" ? "text-cmda-green-light" : "text-cmda-green")}>{eyebrow}</p>
         </div>
         <h2 className="display-2 mt-6 text-balance">{title}</h2>
         {intro ? (

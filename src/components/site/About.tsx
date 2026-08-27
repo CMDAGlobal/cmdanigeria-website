@@ -29,8 +29,8 @@ export function WhoWeAre() {
       <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.05fr] lg:gap-24">
         <Reveal className="order-2 lg:order-1">
           <div className="flex items-center gap-4">
-            <span className="h-px w-10 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Who we are</p>
+            <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green">Who we are</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">
             Healthcare professionals called to heal, to teach, and to serve.
@@ -124,8 +124,8 @@ export function OurStory() {
       <div className="grid items-center gap-16 lg:grid-cols-[1fr_1.05fr] lg:gap-24">
         <Reveal className="order-2 lg:order-1">
           <div className="flex items-center gap-4">
-            <span className="h-px w-10 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Our story</p>
+            <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green">Our story</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">
             Five decades of faith, sacrifice, and service in healthcare.
@@ -217,8 +217,8 @@ export function VisionAndMission() {
       <div className="grid gap-16 lg:grid-cols-2 lg:gap-24">
         <Reveal>
           <div className="flex items-center gap-4">
-            <span className="h-px w-10 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Vision</p>
+            <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green">Vision</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">
             God made man — spirit, soul, and body.
@@ -236,8 +236,8 @@ export function VisionAndMission() {
 
         <Reveal delay={120}>
           <div className="flex items-center gap-4">
-            <span className="h-px w-10 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Mission</p>
+            <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green">Mission</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">
             A Christian witness through healthcare in every community.
@@ -296,7 +296,7 @@ export function CoreValues() {
           <Reveal key={item.title} delay={(i % 3) * 90}>
             <div className="card-editorial flex h-full flex-col p-8">
               <div className="flex items-start justify-between gap-4">
-                <span className="flex size-11 items-center justify-center border border-border text-primary">
+                <span className="flex size-11 items-center justify-center border border-cmda-green text-cmda-green">
                   <item.icon className="size-5" aria-hidden="true" />
                 </span>
                 <span className="numeral">{String(i + 1).padStart(2, "0")}</span>
@@ -429,8 +429,8 @@ export function HistoryTeaser() {
       <div className="grid items-center gap-16 lg:grid-cols-[1.1fr_1fr] lg:gap-24">
         <Reveal>
           <div className="flex items-center gap-4">
-            <span className="h-px w-10 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-primary">Our history</p>
+            <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+            <p className="eyebrow text-cmda-green">Our history</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">
             From a pioneering vision to a nationwide movement.
@@ -557,7 +557,7 @@ export function WhatWeDo() {
           <Reveal key={item.title} delay={(i % 3) * 90}>
             <div className="group flex h-full flex-col bg-card p-8 transition-colors duration-500 hover:bg-primary-deep">
               <div className="flex items-start justify-between gap-4">
-                <span className="flex size-11 items-center justify-center border border-border text-primary transition-colors group-hover:border-gold group-hover:text-gold">
+                <span className="flex size-11 items-center justify-center border border-border text-primary transition-colors group-hover:border-cmda-green group-hover:text-cmda-green">
                   <item.icon className="size-5" aria-hidden="true" />
                 </span>
                 <span className="numeral">{String(i + 1).padStart(2, "0")}</span>

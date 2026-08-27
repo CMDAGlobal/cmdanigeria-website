@@ -100,7 +100,7 @@ export function SiteFooter() {
                     <li key={link.label}>
                       <Link
                         to={link.to}
-                        className="opacity-80 transition-opacity hover:opacity-100"
+                        className="opacity-80 transition-all hover:opacity-100 hover:text-cmda-green-light"
                       >
                         {link.label}
                       </Link>
@@ -134,7 +134,7 @@ export function SiteFooter() {
               placeholder="you@hospital.org"
               className="h-11 flex-1 border border-primary-foreground/25 bg-primary-foreground/10 px-4 text-sm text-primary-foreground placeholder:text-primary-foreground/50 focus-visible:ring-2 focus-visible:ring-gold focus-visible:outline-none"
             />
-            <Button variant="gold" type="submit">
+            <Button variant="gold" type="submit" className="bg-cmda-green hover:bg-cmda-green-deep">
               Subscribe
             </Button>
           </form>

@@ -90,11 +90,11 @@ function MinistryRow({
     <Reveal delay={index * 60}>
       <div className="border-b border-border">
         <div className="group grid grid-cols-[auto_1fr_auto] items-start gap-6 py-8 transition-colors hover:bg-accent/50 sm:gap-10 sm:px-5">
-          <span className="numeral shrink-0 pt-1 transition-colors group-hover:text-primary group-hover:[-webkit-text-stroke:0]">
+          <span className="numeral shrink-0 pt-1 transition-colors group-hover:text-cmda-green group-hover:[-webkit-text-stroke:0]">
             {String(index + 1).padStart(2, "0")}
           </span>
           <div className="min-w-0">
-            <span className="eyebrow block text-gold">{item.short}</span>
+            <span className="eyebrow block text-cmda-green">{item.short}</span>
             <span className="mt-2 block font-display text-xl leading-snug font-bold sm:text-2xl">
               {item.name}
             </span>
@@ -150,7 +150,7 @@ export function Ministries() {
         eyebrow="Featured ministries"
         title="Institutions built for lasting impact"
         action={
-          <Link to="/ministries" className={cn(buttonVariants({ variant: "outline" }))}>
+          <Link to="/ministries" className={cn(buttonVariants({ variant: "outline" }), "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white")}>
             View all ministries
           </Link>
         }
@@ -184,7 +184,7 @@ function MinistryDetail({
       <div className="grid items-start gap-12 py-16 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
         <div>
           <span className="numeral">{String(index + 1).padStart(2, "0")}</span>
-          <span className="eyebrow mt-4 block text-gold">{item.short}</span>
+            <span className="eyebrow mt-4 block text-cmda-green">{item.short}</span>
           <h3 className="mt-3 display-2 text-balance">{item.name}</h3>
         </div>
         <div className="space-y-4 text-base leading-relaxed text-muted-foreground">

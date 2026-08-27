@@ -54,13 +54,13 @@ export function ReasonsToJoin() {
           <Reveal key={item.title} delay={(i % 3) * 90}>
             <li className="card-editorial flex h-full flex-col p-8">
               <div className="flex items-start justify-between gap-4">
-                <span className="flex size-11 items-center justify-center border border-border text-primary">
+                <span className="flex size-11 items-center justify-center border border-cmda-green text-cmda-green">
                   <item.icon className="size-5" aria-hidden="true" />
                 </span>
                 <span className="numeral">{String(i + 1).padStart(2, "0")}</span>
               </div>
               <h3 className="mt-8 font-display text-lg font-bold">{item.title}</h3>
-              <span className="mt-4 block h-px w-10 bg-gold" aria-hidden="true" />
+              <span className="mt-4 block h-px w-10 bg-cmda-green" aria-hidden="true" />
               <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
             </li>
           </Reveal>

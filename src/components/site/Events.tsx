@@ -86,7 +86,7 @@ export function Events() {
                 </div>
                 <a
                   href="#events"
-                  className={cn(buttonVariants({ variant: "primary", size: "sm" }))}
+                  className={cn(buttonVariants({ variant: "primary", size: "sm" }), "bg-cmda-green hover:bg-cmda-green-deep")}
                   aria-label={`Register for ${e.title}`}
                 >
                   <CalendarDays aria-hidden="true" />
@@ -106,7 +106,7 @@ export function Events() {
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {nationalConferences.map((c, i) => (
             <Reveal key={c.title} delay={(i % 2) * 90}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card h-full">
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card hover:border-cmda-green h-full">
                 <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
                   {c.title}
                 </h3>
