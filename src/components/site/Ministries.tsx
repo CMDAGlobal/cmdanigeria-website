@@ -18,6 +18,7 @@ const trainingArms = [
 Since its inception, IfEHL has trained and mentored over 350 healthcare professionals through its Basic and Advanced leadership programmes, with alumni serving and making an impact across hospitals, academia, public health, policy, and global health institutions in Nigeria and around the world.
 
 At IfEHL, we believe that transforming healthcare begins with transforming the healthcare professional. We are committed to building a global community of leaders who view healthcare not just as a profession, but as a calling to serve, lead, and shape the future of healthcare with excellence and integrity.`,
+    link: "/ministries/ifehl",
   },
   {
     short: "IMM",
@@ -26,6 +27,7 @@ At IfEHL, we believe that transforming healthcare begins with transforming the h
     full: `Established in 2006, following a vision to rekindle the missionary passion among Christian health professionals, IMM equips doctors, dentists, nurses, pharmacists, and other healthcare workers to integrate faith with professional practice and serve communities with compassion, excellence, and the love of Christ.
 
 Through mission-focused training, mentorship, research, and strategic partnerships, IMM prepares healthcare professionals for impactful service in Nigeria and across the world. More than a training institute, IMM is a growing movement committed to building a generation of disciple-makers who see healthcare as a platform for fulfilling the Great Commission and transforming lives through holistic, Christ-centred care.`,
+    link: "/ministries/imm",
   },
   {
     short: "EXCEL",
@@ -36,12 +38,14 @@ Through mission-focused training, mentorship, research, and strategic partnershi
 Its programmes include the EXCEL Programme for Students, Whole Person Medicine Training, Continuing Medical Education (CME), The Good Teacher, Developing Health Course, and the Publications & Library. Together, these initiatives promote academic excellence, patient-centred care, values-based teaching, lifelong learning, and access to quality educational resources.
 
 Through EXCEL, CMDA Nigeria is raising healthcare professionals who are academically sound, professionally competent, and equipped to serve God and humanity with excellence.`,
+    link: "/ministries/excel",
   },
   {
     short: "Starting Strong",
     name: "Starting Strong",
     desc: "Equipping new members and fresh graduates with the foundation they need to thrive in faith, practice, and professional life from day one.",
     full: "",
+    link: "",
   },
 ];
 
@@ -51,24 +55,28 @@ const otherMinistries = [
     name: "The Lady Doctor",
     desc: "A platform addressing key aspects of the life and journey of female medical professionals and students, including spiritual and holistic growth, career, leadership, family and ministry.",
     full: "",
+    link: "/ministries/the-lady-doctor",
   },
   {
     short: "Saline Training",
     name: "Saline Training",
     desc: "Practical clinical skills training programme equipping students and young doctors with hands-on competencies for compassionate, whole-person patient care.",
     full: "",
+    link: "/ministries/saline-training",
   },
   {
     short: "Wholeness",
     name: "Wholeness Missions",
     desc: "Whole-person care projects addressing body, mind and spirit in communities.",
     full: "",
+    link: "/ministries/wholeness-missions",
   },
   {
     short: "Global",
     name: "Global Network",
     desc: "Connecting Nigerian Christian healthcare professionals in over 20 countries.",
     full: "",
+    link: "/global-network",
   },
 ];
 
@@ -109,24 +117,35 @@ function MinistryRow({
               </div>
             )}
           </div>
-          {hasMore ? (
-            <button
-              onClick={() => setExpanded((v) => !v)}
-              className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold text-primary transition-colors hover:text-primary-deep"
-              aria-expanded={expanded}
-            >
-              {expanded ? "Less" : "More"}
-              <ChevronDown
-                className={cn("size-4 transition-transform", expanded && "rotate-180")}
+          <div className="flex items-center gap-3">
+            {item.link ? (
+              <Link
+                to={item.link}
+                className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
+              >
+                Learn more
+                <ArrowUpRight className="size-4" aria-hidden="true" />
+              </Link>
+            ) : null}
+            {hasMore ? (
+              <button
+                onClick={() => setExpanded((v) => !v)}
+                className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold text-primary transition-colors hover:text-primary-deep"
+                aria-expanded={expanded}
+              >
+                {expanded ? "Less" : "More"}
+                <ChevronDown
+                  className={cn("size-4 transition-transform", expanded && "rotate-180")}
+                  aria-hidden="true"
+                />
+              </button>
+            ) : (
+              <ArrowUpRight
+                className="size-6 shrink-0 pt-1 text-primary transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1"
                 aria-hidden="true"
               />
-            </button>
-          ) : (
-            <ArrowUpRight
-              className="size-6 shrink-0 pt-1 text-primary transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1"
-              aria-hidden="true"
-            />
-          )}
+            )}
+          </div>
         </div>
       </div>
     </Reveal>

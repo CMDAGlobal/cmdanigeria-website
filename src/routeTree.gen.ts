@@ -24,6 +24,12 @@ import { Route as StudentsArmRouteImport } from './routes/students-arm'
 import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
 import { Route as GlobalNetworkRouteImport } from './routes/global-network'
 import { Route as MediaResourcesRouteImport } from './routes/media-resources'
+import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
+import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
+import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
+import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
+import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministries/saline-training'
+import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -102,6 +108,42 @@ const MediaResourcesRoute = MediaResourcesRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const MinistriesIfehlRoute = MinistriesIfehlRouteImport.update({
+  id: '/ministries/ifehl',
+  path: '/ministries/ifehl',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const MinistriesImmRoute = MinistriesImmRouteImport.update({
+  id: '/ministries/imm',
+  path: '/ministries/imm',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const MinistriesExcelRoute = MinistriesExcelRouteImport.update({
+  id: '/ministries/excel',
+  path: '/ministries/excel',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const MinistriesTheLadyDoctorRoute = MinistriesTheLadyDoctorRouteImport.update({
+  id: '/ministries/the-lady-doctor',
+  path: '/ministries/the-lady-doctor',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const MinistriesSalineTrainingRoute = MinistriesSalineTrainingRouteImport.update({
+  id: '/ministries/saline-training',
+  path: '/ministries/saline-training',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const MinistriesWholenessMissionsRoute = MinistriesWholenessMissionsRouteImport.update({
+  id: '/ministries/wholeness-missions',
+  path: '/ministries/wholeness-missions',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutIndexRoute
@@ -118,6 +160,12 @@ export interface FileRoutesByFullPath {
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/ministries/ifehl': typeof MinistriesIfehlRoute
+  '/ministries/imm': typeof MinistriesImmRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
+  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -135,6 +183,12 @@ export interface FileRoutesByTo {
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/ministries/ifehl': typeof MinistriesIfehlRoute
+  '/ministries/imm': typeof MinistriesImmRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
+  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -153,6 +207,12 @@ export interface FileRoutesById {
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/ministries/ifehl': typeof MinistriesIfehlRoute
+  '/ministries/imm': typeof MinistriesImmRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
+  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -172,6 +232,12 @@ export interface FileRouteTypes {
     | '/doctors-arm'
     | '/global-network'
     | '/media-resources'
+    | '/ministries/ifehl'
+    | '/ministries/imm'
+    | '/ministries/excel'
+    | '/ministries/the-lady-doctor'
+    | '/ministries/saline-training'
+    | '/ministries/wholeness-missions'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -189,6 +255,12 @@ export interface FileRouteTypes {
     | '/doctors-arm'
     | '/global-network'
     | '/media-resources'
+    | '/ministries/ifehl'
+    | '/ministries/imm'
+    | '/ministries/excel'
+    | '/ministries/the-lady-doctor'
+    | '/ministries/saline-training'
+    | '/ministries/wholeness-missions'
   id:
     | '__root__'
     | '/'
@@ -206,6 +278,12 @@ export interface FileRouteTypes {
     | '/doctors-arm'
     | '/global-network'
     | '/media-resources'
+    | '/ministries/ifehl'
+    | '/ministries/imm'
+    | '/ministries/excel'
+    | '/ministries/the-lady-doctor'
+    | '/ministries/saline-training'
+    | '/ministries/wholeness-missions'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -224,6 +302,12 @@ export interface RootRouteChildren {
   DoctorsArmRoute: typeof DoctorsArmRoute
   GlobalNetworkRoute: typeof GlobalNetworkRoute
   MediaResourcesRoute: typeof MediaResourcesRoute
+  MinistriesIfehlRoute: typeof MinistriesIfehlRoute
+  MinistriesImmRoute: typeof MinistriesImmRoute
+  MinistriesExcelRoute: typeof MinistriesExcelRoute
+  MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
+  MinistriesSalineTrainingRoute: typeof MinistriesSalineTrainingRoute
+  MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -326,6 +410,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GlobalNetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media-resources': {
+      id: '/media-resources'
+      path: '/media-resources'
+      fullPath: '/media-resources'
+      preLoaderRoute: typeof MediaResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/ifehl': {
+      id: '/ministries/ifehl'
+      path: '/ministries/ifehl'
+      fullPath: '/ministries/ifehl'
+      preLoaderRoute: typeof MinistriesIfehlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/imm': {
+      id: '/ministries/imm'
+      path: '/ministries/imm'
+      fullPath: '/ministries/imm'
+      preLoaderRoute: typeof MinistriesImmRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/excel': {
+      id: '/ministries/excel'
+      path: '/ministries/excel'
+      fullPath: '/ministries/excel'
+      preLoaderRoute: typeof MinistriesExcelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/the-lady-doctor': {
+      id: '/ministries/the-lady-doctor'
+      path: '/ministries/the-lady-doctor'
+      fullPath: '/ministries/the-lady-doctor'
+      preLoaderRoute: typeof MinistriesTheLadyDoctorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/saline-training': {
+      id: '/ministries/saline-training'
+      path: '/ministries/saline-training'
+      fullPath: '/ministries/saline-training'
+      preLoaderRoute: typeof MinistriesSalineTrainingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/wholeness-missions': {
+      id: '/ministries/wholeness-missions'
+      path: '/ministries/wholeness-missions'
+      fullPath: '/ministries/wholeness-missions'
+      preLoaderRoute: typeof MinistriesWholenessMissionsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -345,6 +478,12 @@ const rootRouteChildren: RootRouteChildren = {
   DoctorsArmRoute: DoctorsArmRoute,
   GlobalNetworkRoute: GlobalNetworkRoute,
   MediaResourcesRoute: MediaResourcesRoute,
+  MinistriesIfehlRoute: MinistriesIfehlRoute,
+  MinistriesImmRoute: MinistriesImmRoute,
+  MinistriesExcelRoute: MinistriesExcelRoute,
+  MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
+  MinistriesSalineTrainingRoute: MinistriesSalineTrainingRoute,
+  MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
