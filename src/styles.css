@@ -37,6 +37,9 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
+  --color-cmda-green: var(--cmda-green);
+  --color-cmda-green-light: var(--cmda-green-light);
+  --color-cmda-green-deep: var(--cmda-green-deep);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -68,6 +71,9 @@
   --accent-foreground: oklch(0.38 0.11 344);
   --gold: oklch(0.78 0.13 85);
   --gold-foreground: oklch(0.26 0.05 90);
+  --cmda-green: oklch(0.44 0.16 145);
+  --cmda-green-light: oklch(0.55 0.14 145);
+  --cmda-green-deep: oklch(0.32 0.12 145);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.99 0 0);
   --border: oklch(0.915 0.012 344);
@@ -98,6 +104,9 @@
   --accent-foreground: oklch(0.95 0.01 344);
   --gold: oklch(0.83 0.13 85);
   --gold-foreground: oklch(0.22 0.04 90);
+  --cmda-green: oklch(0.52 0.14 145);
+  --cmda-green-light: oklch(0.62 0.12 145);
+  --cmda-green-deep: oklch(0.38 0.10 145);
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(1 0 0 / 12%);
