@@ -24,6 +24,7 @@ export function typeLabel(type?: string | null): string {
     mission: "Medical mission",
     retreat: "Retreat",
     webinar: "Webinar",
+    devotional: "Devotional",
     meeting: "Meeting",
     project: "Project",
     health: "Community health",

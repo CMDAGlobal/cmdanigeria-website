@@ -34,6 +34,7 @@ import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
 import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministries/saline-training'
 import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
+import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -162,6 +163,11 @@ const MinistriesWholenessMissionsRoute =
     path: '/wholeness-missions',
     getParentRoute: () => MinistriesRoute,
   } as any)
+const ZonesSlugRoute = ZonesSlugRouteImport.update({
+  id: '/zones/$slug',
+  path: '/zones/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -187,6 +193,7 @@ export interface FileRoutesByFullPath {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
 }
@@ -214,6 +221,7 @@ export interface FileRoutesByTo {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
 }
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
 }
@@ -271,6 +280,7 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/zones/$slug'
     | '/about/'
     | '/chapters/'
   fileRoutesByTo: FileRoutesByTo
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/zones/$slug'
     | '/about'
     | '/chapters'
   id:
@@ -325,6 +336,7 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/zones/$slug'
     | '/about/'
     | '/chapters/'
   fileRoutesById: FileRoutesById
@@ -346,6 +358,7 @@ export interface RootRouteChildren {
   WhatWeDoRoute: typeof WhatWeDoRoute
   AboutHistoryRoute: typeof AboutHistoryRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
+  ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   ChaptersIndexRoute: typeof ChaptersIndexRoute
 }
@@ -527,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinistriesWholenessMissionsRouteImport
       parentRoute: typeof MinistriesRoute
     }
+    '/zones/$slug': {
+      id: '/zones/$slug'
+      path: '/zones/$slug'
+      fullPath: '/zones/$slug'
+      preLoaderRoute: typeof ZonesSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -581,6 +601,7 @@ const rootRouteChildren: RootRouteChildren = {
   WhatWeDoRoute: WhatWeDoRoute,
   AboutHistoryRoute: AboutHistoryRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
+  ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   ChaptersIndexRoute: ChaptersIndexRoute,
 }

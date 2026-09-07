@@ -1,10 +1,12 @@
 import { createServerFn } from "@tanstack/react-start";
 import { getClient } from "./client";
 import {
+  fallbackDoctorsArm,
   fallbackRegionList,
   fallbackStudentsArm,
   getFallbackChapter,
   getFallbackRegion,
+  getFallbackZone,
 } from "./fallback";
 import {
   armAnnouncementsQuery,
@@ -13,6 +15,7 @@ import {
   necQuery,
   regionListQuery,
   regionQuery,
+  zoneQuery,
   zonesQuery,
 } from "./queries";
 import type {
@@ -24,6 +27,7 @@ import type {
   LeaderRecord,
   RegionDetail,
   RegionListEntry,
+  ZoneDetail,
   ZoneRecord,
 } from "./types";
 
@@ -60,7 +64,7 @@ export const fetchArmOverview = createServerFn({ method: "GET", strict: false })
   .validator((arm: Arm) => arm)
   .handler(async ({ data }): Promise<ArmOverview> => {
     const client = getClient();
-    if (!client) return data === "students" ? fallbackStudentsArm() : { zones: [], nec: [], events: [], announcements: [] };
+    if (!client) return data === "students" ? fallbackStudentsArm() : fallbackDoctorsArm();
     try {
       const [nec, zones, events, announcements] = await Promise.all([
         client.fetch<LeaderRecord[] | null>(necQuery, { arm: data }),
@@ -92,5 +96,20 @@ export const fetchChapter = createServerFn({ method: "GET", strict: false })
     } catch (error) {
       console.error("[sanity] fetchChapter failed", error);
       return getFallbackChapter(data) ?? null;
+    }
+  });
+
+export const fetchZone = createServerFn({ method: "GET", strict: false })
+  .validator((slug: string) => slug)
+  .handler(async ({ data }): Promise<ZoneDetail | null> => {
+    const client = getClient();
+    if (!client) return getFallbackZone(data) ?? null;
+    try {
+      const zone = await client.fetch<ZoneDetail | null>(zoneQuery, { slug: data });
+      if (!zone) return getFallbackZone(data) ?? null;
+      return zone;
+    } catch (error) {
+      console.error("[sanity] fetchZone failed", error);
+      return getFallbackZone(data) ?? null;
     }
   });

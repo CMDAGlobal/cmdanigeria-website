@@ -1,5 +1,6 @@
 import { createClient } from "@sanity/client";
 import {
+  fallbackDoctorsArm,
   fallbackStudentsArm,
   getFallbackRegion,
 } from "../src/sanity/fallback.ts";
@@ -24,6 +25,93 @@ async function docsExist(type, slugs) {
     { type, slugs },
   );
   return new Set(results.map((doc) => doc.slug.current));
+}
+
+async function seedArmZones(arm, zones) {
+  const createdChapters = [];
+  const zoneSlugs = zones.map((zone) => zone.slug?.current).filter(Boolean);
+  const existingZones = await docsExist("zone", zoneSlugs);
+
+  for (const [index, zone] of zones.entries()) {
+    const zoneSlug = zone.slug?.current ?? `zone-${arm}-${index}`;
+    let zoneRef = null;
+
+    if (existingZones.has(zoneSlug)) {
+      const [{ _id }] = await client.fetch(`*[_type == "zone" && slug.current == $zoneSlug][0] { _id }`, {
+        zoneSlug,
+      });
+      zoneRef = _id;
+      console.log(`skip zone ${zoneSlug}: already exists`);
+    } else {
+      const doc = await client.create({
+        _type: "zone",
+        name: zone.name,
+        slug: { _type: "slug", current: zoneSlug },
+        eyebrow: zone.eyebrow ?? undefined,
+        tagline: zone.tagline ?? undefined,
+        intro: zone.intro ?? undefined,
+        stats: (zone.stats ?? []).map((stat) => ({
+          _type: "statItem",
+          value: stat.value ?? "",
+          label: stat.label ?? "",
+        })),
+        order: index,
+      });
+      zoneRef = doc._id;
+      console.log(`created zone: ${zone.name} (${doc._id})`);
+    }
+
+    for (const [ci, chapter] of (zone.sampleChapters ?? []).entries()) {
+      const chapterSlug = chapter.slug?.current ?? `${zoneSlug}-chapter-${ci}`;
+      const { results: dupes } = await client.fetch(
+        `*[_type == "chapter" && slug.current == $chapterSlug] { _id }`,
+        { chapterSlug },
+      );
+      if (dupes.length > 0) {
+        console.log(`skip chapter ${chapterSlug}: already exists`);
+        continue;
+      }
+      const doc = await client.create({
+        _type: "chapter",
+        name: chapter.name,
+        slug: { _type: "slug", current: chapterSlug },
+        institution: chapter.institution ?? undefined,
+        country: chapter.country ?? "Nigeria",
+        arm,
+        zone: zoneRef ? { _type: "reference", _ref: zoneRef } : undefined,
+        order: ci,
+      });
+      createdChapters.push(chapterSlug);
+      console.log(`created chapter: ${chapter.name} (${doc._id})`);
+    }
+  }
+  return { zones: zoneSlugs.length, chapters: createdChapters.length };
+}
+
+async function seedArmEvents(arm, events) {
+  let created = 0;
+  const existingEvents = await docsExist("event", events.map((event) => event.slug?.current).filter(Boolean));
+  for (const [index, event] of events.entries()) {
+    const slug = event.slug?.current ?? `${arm}-event-${index}`;
+    if (existingEvents.has(slug)) {
+      console.log(`skip event ${slug}: already exists`);
+      continue;
+    }
+    await client.create({
+      _type: "event",
+      title: event.title,
+      slug: { _type: "slug", current: slug },
+      type: event.type ?? "other",
+      arm,
+      startDate: event.startDate ?? `${new Date().getFullYear() + 1}-12-31T09:00:00.000Z`,
+      venue: event.venue ?? undefined,
+      location: event.location ?? undefined,
+      mode: event.mode ?? "inperson",
+    });
+    created += 1;
+    console.log(`created event: ${event.title} (${slug})`);
+  }
+  return created;
 }
 
 /* ----------------------------- Global regions ----------------------------- */
@@ -94,90 +182,25 @@ for (const [index, slug] of regionSlugs.entries()) {
 /* --------------------------- Students' Arm zones --------------------------- */
 
 const students = fallbackStudentsArm();
-const zoneSlugs = (students.zones ?? []).map((zone) => zone.slug?.current).filter(Boolean);
-const existingZones = await docsExist("zone", zoneSlugs);
-
-const createdChapters = [];
-for (const [index, zone] of (students.zones ?? []).entries()) {
-  const zoneSlug = zone.slug?.current ?? `zone-${index}`;
-  let zoneRef = null;
-
-  if (existingZones.has(zoneSlug)) {
-    const [{ _id }] = await client.fetch(`*[_type == "zone" && slug.current == $zoneSlug][0] { _id }`, {
-      zoneSlug,
-    });
-    zoneRef = _id;
-    console.log(`skip zone ${zoneSlug}: already exists`);
-  } else {
-    const doc = await client.create({
-      _type: "zone",
-      name: zone.name,
-      slug: { _type: "slug", current: zoneSlug },
-      eyebrow: zone.eyebrow ?? undefined,
-      tagline: zone.tagline ?? undefined,
-      intro: zone.intro ?? undefined,
-      stats: (zone.stats ?? []).map((stat) => ({
-        _type: "statItem",
-        value: stat.value ?? "",
-        label: stat.label ?? "",
-      })),
-      order: index,
-    });
-    zoneRef = doc._id;
-    console.log(`created zone: ${zone.name} (${doc._id})`);
-  }
-
-  for (const [ci, chapter] of (zone.sampleChapters ?? []).entries()) {
-    const chapterSlug = chapter.slug?.current ?? `${zoneSlug}-chapter-${ci}`;
-    const { results: dupes } = await client.fetch(
-      `*[_type == "chapter" && slug.current == $chapterSlug] { _id }`,
-      { chapterSlug },
-    );
-    if (dupes.length > 0) {
-      console.log(`skip chapter ${chapterSlug}: already exists`);
-      continue;
-    }
-    const doc = await client.create({
-      _type: "chapter",
-      name: chapter.name,
-      slug: { _type: "slug", current: chapterSlug },
-      institution: chapter.institution ?? undefined,
-      country: chapter.country ?? "Nigeria",
-      arm: "students",
-      zone: zoneRef ? { _type: "reference", _ref: zoneRef } : undefined,
-      order: ci,
-    });
-    createdChapters.push(chapterSlug);
-    console.log(`created chapter: ${chapter.name} (${doc._id})`);
-  }
-}
+const studentZones = await seedArmZones("students", students.zones ?? []);
 
 /* --------------------------- Students' Arm events --------------------------- */
 
-const studentEvents = students.events ?? [];
-const existingEvents = await docsExist("event", studentEvents.map((event) => event.slug?.current).filter(Boolean));
-for (const [index, event] of studentEvents.entries()) {
-  const slug = event.slug?.current ?? `students-event-${index}`;
-  if (existingEvents.has(slug)) {
-    console.log(`skip event ${slug}: already exists`);
-    continue;
-  }
-  await client.create({
-    _type: "event",
-    title: event.title,
-    slug: { _type: "slug", current: slug },
-    type: event.type ?? "other",
-    arm: "students",
-    startDate: event.startDate ?? `${new Date().getFullYear() + 1}-12-31T09:00:00.000Z`,
-    venue: event.venue ?? undefined,
-    location: event.location ?? undefined,
-    mode: event.mode ?? "inperson",
-  });
-  console.log(`created event: ${event.title} (${slug})`);
-}
+const studentEvents = await seedArmEvents("students", students.events ?? []);
+
+/* ---------------------------- Doctors' Arm zones ---------------------------- */
+
+const doctors = fallbackDoctorsArm();
+const doctorZones = await seedArmZones("doctors", doctors.zones ?? []);
+
+/* ---------------------------- Doctors' Arm events ---------------------------- */
+
+const doctorEvents = await seedArmEvents("doctors", doctors.events ?? []);
 
 console.log(
-  `\nDone. ${regionsCreated} region(s), ${zoneSlugs.length} zone(s), ${createdChapters.length} chapter(s) seeded. ` +
+  `\nDone. ${regionsCreated} region(s), ${studentZones.zones} student zone(s) (${studentZones.chapters} chapters), ` +
+    `${studentEvents} student event(s), ${doctorZones.zones} doctor zone(s) (${doctorZones.chapters} chapters), ` +
+    `${doctorEvents} doctor event(s) seeded. ` +
     `Open the studio (SANITY project) to add NEC members, chapter executives, announcements and media.`,
 );
 process.exit(0);

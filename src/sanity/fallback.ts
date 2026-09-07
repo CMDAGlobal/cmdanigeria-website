@@ -1,6 +1,7 @@
 import type { PortableTextBlock } from "@portabletext/types";
 import type {
   AnnouncementRecord,
+  Arm,
   ArmOverview,
   ChapterDetail,
   EventRecord,
@@ -482,6 +483,7 @@ interface FallbackZone {
   _id: string;
   slug: string;
   name: string;
+  arm: "students" | "doctors";
   eyebrow: string;
   tagline: string;
   intro: string;
@@ -499,6 +501,7 @@ const studentZones: FallbackZone[] = [
     _id: "fallback-zone-east",
     slug: "eastern",
     name: "Eastern Zone",
+    arm: "students",
     eyebrow: "Students' Arm — Eastern Zone",
     tagline: "The Eastern Zone",
     intro:
@@ -529,6 +532,7 @@ const studentZones: FallbackZone[] = [
     _id: "fallback-zone-west",
     slug: "western",
     name: "Western Zone",
+    arm: "students",
     eyebrow: "Students' Arm — Western Zone",
     tagline: "The Western Zone",
     intro:
@@ -562,6 +566,7 @@ const studentZones: FallbackZone[] = [
     _id: "fallback-zone-north",
     slug: "northern",
     name: "Northern Zone",
+    arm: "students",
     eyebrow: "Students' Arm — Northern Zone",
     tagline: "The Northern Zone",
     intro:
@@ -584,6 +589,159 @@ const studentZones: FallbackZone[] = [
       chapter("UATH", "University of Abuja Teaching Hospital"),
       chapter("UDUTH", "Usmanu Danfodiyo University Teaching Hospital"),
       chapter("UMTH", "University of Maiduguri Teaching Hospital"),
+    ],
+  },
+];
+
+const doctorZones: FallbackZone[] = [
+  {
+    _id: "fallback-zone-ss",
+    slug: "south-south",
+    name: "South-South Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — South-South Zone",
+    tagline: "The South-South Zone",
+    intro:
+      "The South-South zone connects doctor chapters across the Niger Delta and southern coast, from Benin City and Port Harcourt to Calabar and Uyo.",
+    stats: [
+      { value: "7", label: "Doctor chapters" },
+      { value: "400+", label: "Active members" },
+      { value: "8+", label: "States represented" },
+      { value: "1", label: "Annual zonal retreat" },
+    ],
+    chapters: [
+      chapter("CMDA Benin City", "University of Benin Teaching Hospital"),
+      chapter("CMDA Port Harcourt", "University of Port Harcourt Teaching Hospital"),
+      chapter("CMDA Calabar", "University of Calabar Teaching Hospital"),
+      chapter("CMDA Warri", "Central Hospital, Warri"),
+      chapter("CMDA Uyo", "University of Uyo Teaching Hospital"),
+      chapter("CMDA Yenagoa", "Federal Medical Centre, Yenagoa"),
+      chapter("CMDA Asaba", "Federal Medical Centre, Asaba"),
+    ],
+  },
+  {
+    _id: "fallback-zone-sw",
+    slug: "south-west",
+    name: "South-West Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — South-West Zone",
+    tagline: "The South-West Zone",
+    intro:
+      "The South-West zone is the largest, spanning Lagos, Ibadan, Abeokuta and Akure with vibrant doctor chapters and an annual zonal conference.",
+    stats: [
+      { value: "10", label: "Doctor chapters" },
+      { value: "1,200+", label: "Active members" },
+      { value: "6+", label: "States represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("CMDA Lagos", "Lagos University Teaching Hospital"),
+      chapter("CMDA Ikeja", "Lagos State University Teaching Hospital"),
+      chapter("CMDA Ibadan", "University College Hospital, Ibadan"),
+      chapter("CMDA Abeokuta", "Federal Medical Centre, Abeokuta"),
+      chapter("CMDA Akure", "University of Medical Sciences Teaching Hospital"),
+      chapter("CMDA Ile-Ife", "Obafemi Awolowo University Teaching Hospital"),
+      chapter("CMDA Osogbo", "Ladoke Akintola University of Technology Teaching Hospital"),
+      chapter("CMDA Ogbomoso", "Baptist Medical Centre, Ogbomoso"),
+      chapter("CMDA Ado-Ekiti", "Ekiti State University Teaching Hospital"),
+      chapter("CMDA Ijebu-Ode", "Olabisi Onabanjo University Teaching Hospital"),
+    ],
+  },
+  {
+    _id: "fallback-zone-se",
+    slug: "south-east",
+    name: "South-East Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — South-East Zone",
+    tagline: "The South-East Zone",
+    intro:
+      "The South-East zone unites doctor chapters across Enugu, Onitsha, Awka, Owerri and the wider Igbo heartland.",
+    stats: [
+      { value: "6", label: "Doctor chapters" },
+      { value: "500+", label: "Active members" },
+      { value: "5+", label: "States represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("CMDA Enugu", "University of Nigeria Teaching Hospital"),
+      chapter("CMDA Onitsha", "Nnamdi Azikiwe University Teaching Hospital"),
+      chapter("CMDA Aba", "Living Word Mission Hospital, Aba"),
+      chapter("CMDA Awka", "Chukwuemeka Odumegwu Ojukwu University Teaching Hospital"),
+      chapter("CMDA Owerri", "Imo State University Teaching Hospital"),
+      chapter("CMDA Abakaliki", "Ebonyi State University Teaching Hospital"),
+    ],
+  },
+  {
+    _id: "fallback-zone-nc",
+    slug: "north-central",
+    name: "North-Central Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — North-Central Zone",
+    tagline: "The North-Central Zone",
+    intro:
+      "The North-Central zone ties together doctor chapters from Jos and Abuja to Ilorin and Makurdi, including the Federal Capital Territory.",
+    stats: [
+      { value: "8", label: "Doctor chapters" },
+      { value: "600+", label: "Active members" },
+      { value: "8", label: "States & FCT represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("CMDA Jos", "Jos University Teaching Hospital"),
+      chapter("CMDA Abuja", "University of Abuja Teaching Hospital"),
+      chapter("CMDA Ilorin", "University of Ilorin Teaching Hospital"),
+      chapter("CMDA Makurdi", "Benue State University Teaching Hospital"),
+      chapter("CMDA Lokoja", "Federal Medical Centre, Lokoja"),
+      chapter("CMDA Minna", "Ibrahim Badamasi Babangida Specialist Hospital"),
+      chapter("CMDA Lafia", "Federal Medical Centre, Lafia"),
+      chapter("CMDA Keffi", "Federal Medical Centre, Keffi"),
+    ],
+  },
+  {
+    _id: "fallback-zone-nw",
+    slug: "north-west",
+    name: "North-West Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — North-West Zone",
+    tagline: "The North-West Zone",
+    intro:
+      "The North-West zone covers doctor chapters in Kano, Kaduna, Zaria, Sokoto and the wider north-western region.",
+    stats: [
+      { value: "6", label: "Doctor chapters" },
+      { value: "400+", label: "Active members" },
+      { value: "6", label: "States represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("CMDA Kano", "Aminu Kano Teaching Hospital"),
+      chapter("CMDA Kaduna", "Barau Dikko Teaching Hospital"),
+      chapter("CMDA Zaria", "Ahmadu Bello University Teaching Hospital"),
+      chapter("CMDA Sokoto", "Usmanu Danfodiyo University Teaching Hospital"),
+      chapter("CMDA Katsina", "Federal Teaching Hospital, Katsina"),
+      chapter("CMDA Birnin Kebbi", "Federal Medical Centre, Birnin Kebbi"),
+    ],
+  },
+  {
+    _id: "fallback-zone-ne",
+    slug: "north-east",
+    name: "North-East Zone",
+    arm: "doctors",
+    eyebrow: "Doctors' Arm — North-East Zone",
+    tagline: "The North-East Zone",
+    intro:
+      "The North-East zone connects doctor chapters in Maiduguri, Yola, Bauchi, Gombe and Potiskum serving communities across the region.",
+    stats: [
+      { value: "5", label: "Doctor chapters" },
+      { value: "250+", label: "Active members" },
+      { value: "5", label: "States represented" },
+      { value: "1", label: "Annual zonal gathering" },
+    ],
+    chapters: [
+      chapter("CMDA Maiduguri", "University of Maiduguri Teaching Hospital"),
+      chapter("CMDA Yola", "Federal Medical Centre, Yola"),
+      chapter("CMDA Bauchi", "Abubakar Tafawa Balewa University Teaching Hospital"),
+      chapter("CMDA Gombe", "Federal Teaching Hospital, Gombe"),
+      chapter("CMDA Potiskum", "Federal Medical Centre, Potiskum"),
     ],
   },
 ];
@@ -630,10 +788,61 @@ const studentEvents: EventRecord[] = [
   },
 ];
 
+const doctorEvents: EventRecord[] = [
+  {
+    _id: "fallback-event-doc-1",
+    title: "National Zonal Conference — Doctors",
+    slug: { current: "national-zonal-conference-doctors" },
+    type: "conference",
+    arm: "doctors",
+    startDate: "2026-11-20T09:00:00.000Z",
+    endDate: "2026-11-22T18:00:00.000Z",
+    location: "Nigeria",
+    mode: "inperson",
+    description: pt(
+      "The flagship gathering of the Doctors' Arm — worship, continuing medical education, fellowship and strategic planning with doctor leaders from across Nigeria.",
+    ),
+  },
+  {
+    _id: "fallback-event-doc-2",
+    title: "Joint Conference (Doctors & Students)",
+    slug: { current: "joint-conference-doctors-students" },
+    type: "conference",
+    arm: "doctors",
+    startDate: "2027-03-12T09:00:00.000Z",
+    location: "Nigeria",
+    mode: "inperson",
+    description: pt(
+      "A shared gathering bringing together the Doctors' and Students' Arms for worship, mentorship, training and fellowship.",
+    ),
+  },
+  {
+    _id: "fallback-event-doc-3",
+    title: "The Prescription — Devotional Series",
+    slug: { current: "prescription-devotional-series" },
+    type: "devotional",
+    arm: "doctors",
+    startDate: null,
+    location: "Online",
+    mode: "online",
+    description: pt(
+      "A monthly devotional series connecting Scripture to the daily realities of healthcare practice.",
+    ),
+  },
+];
+
 export function fallbackStudentsArm(): ArmOverview {
+  return overviewFromZones("students", studentZones, studentEvents);
+}
+
+export function fallbackDoctorsArm(): ArmOverview {
+  return overviewFromZones("doctors", doctorZones, doctorEvents);
+}
+
+function overviewFromZones(arm: Arm, zones: FallbackZone[], events: EventRecord[]): ArmOverview {
   return {
     nec: [],
-    zones: studentZones.map((zone) => {
+    zones: zones.map((zone) => {
       const entry: Record<string, unknown> = {
         _id: zone._id,
         name: zone.name,
@@ -644,35 +853,38 @@ export function fallbackStudentsArm(): ArmOverview {
         stats: zone.stats,
         chapterCount: zone.chapters.length,
         sampleChapters: zone.chapters.map((item) => ({
-          _id: `fallback-${item.slug}`,
+          _id: `fallback-${arm}-${item.slug}`,
           name: item.name,
           slug: { current: item.slug },
           institution: item.institution,
           country: "Nigeria",
-          arm: "students",
+          arm,
         })),
       };
       return entry as unknown as ZoneRecord;
     }),
-    events: studentEvents,
+    events,
     announcements: [],
   };
 }
 
+const allZones = [...studentZones, ...doctorZones];
+
 export function getFallbackChapter(slug: string): ChapterDetail | undefined {
-  for (const zone of studentZones) {
+  for (const zone of allZones) {
     const found = zone.chapters.find((item) => item.slug === slug);
     if (!found) continue;
+    const armLabel = zone.arm === "students" ? "Students' Arm" : "Doctors' Arm";
     return {
-      _id: `fallback-${found.slug}`,
+      _id: `fallback-${zone.arm}-${found.slug}`,
       name: found.name,
       slug: { current: found.slug },
       institution: found.institution,
       country: "Nigeria",
-      arm: "students",
+      arm: zone.arm,
       zone: { _id: zone._id, name: zone.name, slug: { current: zone.slug } },
       description: pt(
-        `Welcome to the ${found.name} chapter of CMDA Nigeria's Students' Arm, hosted at ${found.institution}. The chapter gathers students for weekly fellowship, Bible studies, prayer, community health outreach and academic support.`,
+        `Welcome to the ${found.name} chapter of CMDA Nigeria's ${armLabel}, hosted at ${found.institution}. The chapter gathers members for regular fellowship, Bible studies, prayer, community health outreach and professional development.`,
       ),
       membership: [],
       exco: [],
@@ -684,7 +896,7 @@ export function getFallbackChapter(slug: string): ChapterDetail | undefined {
 }
 
 export function getFallbackZone(slug: string): ZoneDetail | undefined {
-  const zone = studentZones.find((item) => item.slug === slug);
+  const zone = allZones.find((item) => item.slug === slug);
   if (!zone) return undefined;
   const { chapters, ...rest } = zone;
   return {
@@ -694,12 +906,12 @@ export function getFallbackZone(slug: string): ZoneDetail | undefined {
     leaders: [],
     gallery: [],
     chapters: chapters.map((item) => ({
-      _id: `fallback-${item.slug}`,
+      _id: `fallback-${zone.arm}-${item.slug}`,
       name: item.name,
       slug: { current: item.slug },
       institution: item.institution,
       country: "Nigeria",
-      arm: "students",
+      arm: zone.arm,
     })),
   } as ZoneDetail;
 }

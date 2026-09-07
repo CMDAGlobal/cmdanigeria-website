@@ -1,14 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
+import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
+import { fetchArmOverview } from "@/sanity/data";
 import { cn } from "@/lib/utils";
-import { Stethoscope, Heart, Globe, Award, Users, BookOpen, CalendarDays, MapPin, Newspaper } from "lucide-react";
+import { Award, BookOpen, Globe, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
 
 const title = "Doctors' Arm | CMDA Nigeria";
 const description =
   "The professional arm of CMDA Nigeria — uniting Christian doctors and dentists for clinical excellence, mentorship, missions and advocacy since 1972.";
 
 export const Route = createFileRoute("/doctors-arm")({
+  loader: async () => ({ data: await fetchArmOverview({ data: "doctors" }) }),
   component: DoctorsArmPage,
   head: () => ({
     meta: [
@@ -62,21 +65,6 @@ const stats = [
   { value: "20+", label: "Countries with CMDA alumni" },
 ];
 
-const chapters = [
-  { zone: "South-South", count: 7, cities: ["Benin City", "Port Harcourt", "Calabar", "Warri"] },
-  { zone: "South-West", count: 10, cities: ["Lagos", "Ibadan", "Abeokuta", "Akure"] },
-  { zone: "South-East", count: 6, cities: ["Enugu", "Owerri", "Aba", "Awka"] },
-  { zone: "North-Central", count: 8, cities: ["Jos", "Abuja", "Ilorin", "Makurdi"] },
-  { zone: "North-West", count: 6, cities: ["Kano", "Kaduna", "Sokoto", "Zaria"] },
-  { zone: "North-East", count: 5, cities: ["Maiduguri", "Yola", "Bauchi", "Gombe"] },
-];
-
-const events = [
-  { date: "TBA 2026", title: "National Zonal Conference — Doctors", place: "Nigeria", type: "Conference" },
-  { date: "TBA", title: "Joint Conference (Doctors & Students)", place: "Nigeria", type: "Conference" },
-  { date: "Monthly", title: "The Prescription — Devotional Series", place: "Online", type: "Devotional" },
-];
-
 const newsletters = [
   { title: "Touch Magazine", desc: "Annual publication of the Doctors' arm with news, reports and enriching articles addressing challenges faced by Christian medics in practice." },
   { title: "CMDA-LD Magazine", desc: "Biannual publication for Lady Doctors addressing spiritual growth, career, leadership, family, wellness and missions." },
@@ -85,6 +73,7 @@ const newsletters = [
 ];
 
 function DoctorsArmPage() {
+  const { data } = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -186,70 +175,14 @@ function DoctorsArmPage() {
         </div>
       </Section>
 
-      {/* Chapters by Zone */}
-      <Section className="paper">
-        <SectionHead
-          eyebrow="Our chapters"
-          title="50+ doctor chapters across 6 zones"
-        />
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {chapters.map((z) => (
-            <Reveal key={z.zone}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                    {z.zone}
-                  </h3>
-                  <span className="font-display text-2xl font-extrabold text-cmda-green">
-                    {z.count}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">chapters</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {z.cities.map((c) => (
-                    <span key={c} className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
-                      {c}
-                    </span>
-                  ))}
-                  {z.count > 4 && (
-                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
-                      +{z.count - 4} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* Upcoming Events */}
-      <Section className="bg-muted">
-        <SectionHead
-          eyebrow="Upcoming events"
-          title="Events for doctors"
-        />
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {events.map((e) => (
-            <Reveal key={e.title}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
-                <span className="eyebrow text-cmda-green">{e.type}</span>
-                <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
-                  {e.title}
-                </h3>
-                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="size-4" aria-hidden="true" />
-                  {e.date}
-                </p>
-                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  {e.place}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      <ArmNec nec={data.nec} title="Doctors' national leadership" />
+      <ArmZones
+        zones={data.zones}
+        title="50+ doctor chapters across 6 zones"
+        intro="Click a chapter to explore its leadership, activities and events."
+      />
+      <ArmEvents events={data.events} title="Events for doctors" />
+      <ArmAnnouncements announcements={data.announcements} title="Doctor notices" />
 
       {/* Newsletters */}
       <Section className="paper">

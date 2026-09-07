@@ -1,11 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
-import { AnnouncementCard, EventCard, LeaderCard } from "@/components/site/org/cards";
+import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
 import { fetchArmOverview } from "@/sanity/data";
-import type { AnnouncementRecord, EventRecord, LeaderRecord, ZoneRecord } from "@/sanity/types";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, BookOpen, CalendarDays, Globe, GraduationCap, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
+import { BookOpen, Globe, GraduationCap, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
 
 const title = "Students' Arm | CMDA Nigeria";
 const description =
@@ -72,112 +71,6 @@ const newsletters = [
   { title: "Missions Exploits", desc: "Annual publication documenting the missions activities and experiences of student members." },
   { title: "Chapter Newsletters", desc: "Regular newsletters from local chapters sharing fellowship updates, testimonies and prayer points." },
 ];
-
-function Nec({ nec }: { nec?: LeaderRecord[] | null | undefined }) {
-  if (!nec?.length) return null;
-  return (
-    <Section className="bg-muted" id="nec">
-      <SectionHead
-        eyebrow="National Executive Committee (NEC)"
-        title="Students' national leadership"
-        intro="A committed team of student leaders coordinating the fellowship nationwide. Names are managed from the CMS."
-      />
-      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {nec.map((leader) => (
-          <LeaderCard key={leader._id} leader={leader} />
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-function Zones({ zones }: { zones?: ZoneRecord[] | null | undefined }) {
-  if (!zones?.length) return null;
-  return (
-    <Section className="paper">
-      <SectionHead
-        eyebrow="Our chapters"
-        title="Student chapters across 3 zones"
-        intro="Click a chapter to explore its leadership, activities and events."
-      />
-      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {zones.map((zone) => (
-          <Reveal key={zone._id}>
-            <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
-              <div className="flex items-center justify-between">
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{zone.name}</h3>
-                <span className="font-display text-2xl font-extrabold text-cmda-green">
-                  {zone.chapterCount ?? 0}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">chapters</p>
-              {zone.intro ? <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{zone.intro}</p> : null}
-              {zone.sampleChapters?.length ? (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {zone.sampleChapters.map((chapter) => (
-                    <Link
-                      key={chapter._id}
-                      to="/chapters/$slug"
-                      params={{ slug: chapter.slug?.current ?? chapter._id }}
-                      className="group inline-flex items-center gap-1 border border-border bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:border-cmda-green hover:text-cmda-green"
-                    >
-                      {chapter.name}
-                      <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
-                    </Link>
-                  ))}
-                  {(zone.chapterCount ?? 0) > 8 ? (
-                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.7rem] text-muted-foreground">
-                      +{(zone.chapterCount ?? 0) - 8} more
-                    </span>
-                  ) : null}
-                </div>
-              ) : null}
-            </div>
-          </Reveal>
-        ))}
-      </div>
-    </Section>
-  );
-}
-
-function Events({ events }: { events?: EventRecord[] | null | undefined }) {
-  return (
-    <Section className="bg-muted">
-      <SectionHead eyebrow="Upcoming events" title="Events for students" />
-      <div className="mt-16 grid gap-6 lg:grid-cols-3">
-        {events?.length ? (
-          events.map((event) => <EventCard key={event._id} event={event} />)
-        ) : (
-          <Reveal className="lg:col-span-3">
-            <div className="border border-border bg-background p-8 text-center">
-              <CalendarDays className="mx-auto mb-4 size-8 text-cmda-green" aria-hidden="true" />
-              <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                No upcoming events yet
-              </h3>
-              <p className="mt-2 text-sm text-muted-foreground">
-                Events will be published here by the national office as they are announced.
-              </p>
-            </div>
-          </Reveal>
-        )}
-      </div>
-    </Section>
-  );
-}
-
-function Announcements({ announcements }: { announcements?: AnnouncementRecord[] | null | undefined }) {
-  if (!announcements?.length) return null;
-  return (
-    <Section className="paper">
-      <SectionHead eyebrow="Announcements" title="Student notices" />
-      <div className="mt-16 grid gap-6 sm:grid-cols-2">
-        {announcements.map((announcement) => (
-          <AnnouncementCard key={announcement._id} announcement={announcement} />
-        ))}
-      </div>
-    </Section>
-  );
-}
 
 function StudentsArmPage() {
   const { data } = Route.useLoaderData();
@@ -272,10 +165,14 @@ function StudentsArmPage() {
         </div>
       </Section>
 
-      <Nec nec={data.nec} />
-      <Zones zones={data.zones} />
-      <Events events={data.events} />
-      <Announcements announcements={data.announcements} />
+      <ArmNec nec={data.nec} title="Students' national leadership" />
+      <ArmZones
+        zones={data.zones}
+        title="Student chapters across 3 zones"
+        intro="Click a chapter to explore its leadership, activities and events."
+      />
+      <ArmEvents events={data.events} title="Events for students" />
+      <ArmAnnouncements announcements={data.announcements} title="Student notices" />
 
       {/* Newsletters */}
       <Section className="paper">
