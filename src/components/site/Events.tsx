@@ -122,14 +122,14 @@ export function Events() {
 
 const tiers = [
   {
-    title: "Doctors & Dentists",
-    desc: "Fellowship, CPD, chapter life, mentorship and mission opportunities.",
-    points: ["Chapter membership", "Conference discounts", "Digital membership card"],
-  },
-  {
-    title: "Medical & Dental Students",
+    title: "Students' Arm",
     desc: "Discipleship, EXCEL formation, leadership training and clinical mentoring.",
     points: ["55 student chapters", "Scholarship access", "Leadership pipeline"],
+  },
+  {
+    title: "Doctors' Arm",
+    desc: "Fellowship, CPD, chapter life, mentorship and mission opportunities.",
+    points: ["Chapter membership", "Conference discounts", "Digital membership card"],
   },
   {
     title: "Global Network",
