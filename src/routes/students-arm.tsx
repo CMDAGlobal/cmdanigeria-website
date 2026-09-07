@@ -56,18 +56,70 @@ const highlights = [
 ];
 
 const chapters = [
-  { zone: "South-South", count: 8, schools: ["University of Benin", "University of Port Harcourt", "Ambrose Alli University"] },
-  { zone: "South-West", count: 10, schools: ["University of Lagos", "Obafemi Awolowo University", "University of Ibadan"] },
-  { zone: "South-East", count: 7, schools: ["University of Nigeria Nsukka", "Nnamdi Azikiwe University", "Imo State University"] },
-  { zone: "North-Central", count: 8, schools: ["University of Jos", "University of Ilorin", "Benue State University"] },
-  { zone: "North-West", count: 6, schools: ["Ahmadu Bello University", "Bayero University", "Usmanu Danfodiyo University"] },
-  { zone: "North-East", count: 5, schools: ["University of Maiduguri", "Modibbo Adama University", "Taraba State University"] },
+  {
+    zone: "Eastern Zone",
+    count: 13,
+    schools: [
+      "AEFUTH — Alex Ekwueme University Teaching Hospital",
+      "COOUTH — Chukwuemeka Odumegwu Ojukwu University Teaching Hospital",
+      "EBSUTH — Ebonyi State University Teaching Hospital",
+      "ESUTH — Enugu State University Teaching Hospital",
+      "GUTH — Gregory University Teaching Hospital",
+      "IMSUTH — Imo State University Teaching Hospital",
+      "NDUTH — Niger Delta University Teaching Hospital",
+      "NAUTH — Nnamdi Azikiwe University Teaching Hospital",
+      "UNTH — University of Nigeria Teaching Hospital",
+      "UCTH — University of Calabar Teaching Hospital",
+      "UUTH — University of Uyo Teaching Hospital",
+      "UPTH — University of Port-Harcourt Teaching Hospital",
+      "RSUTH — Rivers State University Teaching Hospital",
+    ],
+  },
+  {
+    zone: "Western Zone",
+    count: 16,
+    schools: [
+      "ABUADTH — Afe Babalola University Teaching Hospital",
+      "AAU/ISTH — Ambrose Alli University / Irrua Specialist Teaching Hospital",
+      "BUTH — Bowen University Teaching Hospital",
+      "DELSUTH — Delta State University Teaching Hospital",
+      "EKSUTH — Ekiti State University Teaching Hospital",
+      "IUTH — Igbinedion University Teaching Hospital",
+      "UNIMEDTH — University of Medical Sciences Teaching Hospital",
+      "LASUTH — Lagos State University Teaching Hospital",
+      "LUTH — Lagos University Teaching Hospital",
+      "LTH — Lautech Teaching Hospital",
+      "OAUTH — Obafemi Awolowo University Teaching Hospital",
+      "OOUTH — Olabisi Onabanjo University Teaching Hospital",
+      "UNIOSUNTH — Osun State University Teaching Hospital",
+      "UCH — University College Hospital, Ibadan",
+      "UBTH — University of Benin Teaching Hospital",
+      "UITH — University of Ilorin Teaching Hospital",
+    ],
+  },
+  {
+    zone: "Northern Zone",
+    count: 11,
+    schools: [
+      "ABUTH — Ahmadu Bello University Teaching Hospital",
+      "ATBUTH — Abubakar Tafawa Balewa University Teaching Hospital",
+      "AKTH — Aminu Kano University Teaching Hospital",
+      "BDTH-KASU — Barau-Dikko University Teaching Hospital",
+      "BHUTH — Bingham University Teaching Hospital",
+      "BSUTH — Benue State University Teaching Hospital",
+      "GSUTH — Gombe State University Teaching Hospital",
+      "JUTH — Jos University Teaching Hospital",
+      "UATH — University of Abuja Teaching Hospital",
+      "UDUTH — Usman Dan Fodio University Teaching Hospital",
+      "UMTH — University of Maiduguri Teaching Hospital",
+    ],
+  },
 ];
 
 const stats = [
   { value: "9,700+", label: "Active student members" },
-  { value: "55+", label: "Student chapters" },
-  { value: "36+FCT", label: "States covered" },
+  { value: "40", label: "Student chapters" },
+  { value: "3", label: "Zones (Eastern, Western, Northern)" },
   { value: "60+", label: "Universities represented" },
 ];
 
@@ -190,7 +242,7 @@ function StudentsArmPage() {
       <Section className="paper">
         <SectionHead
           eyebrow="Our chapters"
-          title="55+ student chapters across 6 zones"
+          title="40 student chapters across 3 zones"
         />
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {chapters.map((z) => (
@@ -206,14 +258,14 @@ function StudentsArmPage() {
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">chapters</p>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  {z.schools.map((s) => (
+                  {z.schools.slice(0, 5).map((s) => (
                     <span key={s} className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
                       {s}
                     </span>
                   ))}
-                  {z.count > 3 && (
+                  {z.count > 5 && (
                     <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
-                      +{z.count - 3} more
+                      +{z.count - 5} more
                     </span>
                   )}
                 </div>
