@@ -1051,9 +1051,11 @@ activities — is created **once** in the CMS and then automatically appears eve
 node scripts/seed-content.mjs
 ```
 
-This creates the five Global Network regions plus the Students' Arm zones (Eastern, Western,
-Northern) with all their chapters and arm events. It is idempotent — rerunning skips anything whose
-slug already exists. People, chapter executives, announcements and media are added in the Studio.
+This creates the five Global Network regions, the Students' Arm zones (Eastern, Western,
+Northern) with all their chapters and events, and the Doctors' Arm zones (South-South,
+South-West, South-East, North-Central, North-West, North-East) with their chapters and events.
+It is idempotent — rerunning skips anything whose slug already exists. People, chapter
+executives, zonal leadership, announcements and media are added in the Studio.
 
 ### Manage content in the Studio
 
@@ -1085,6 +1087,7 @@ An admin never edits the React pages directly. Instead:
 
 ### Next phases
 
-The shared schema (`src/sanity/schema/`) and card components
-(`src/components/site/org/`) already cover the Doctors' Arm (zones, chapters). The Doctors' Arm
-page still needs switching from static to CMS-driven content.
+The core network is now fully CMS-driven: Global Network regions, Students' Arm (NEC, zones,
+chapters), and Doctors' Arm (NEC, zones, chapters) all load from Sanity with static fallbacks.
+Ongoing content work happens in the Studio — adding people to pages they're referenced on,
+publishing events/announcements, and attaching media galleries.
