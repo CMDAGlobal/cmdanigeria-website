@@ -23,6 +23,11 @@ import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
 import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
 import { Route as GlobalNetworkRouteImport } from './routes/global-network'
+import { Route as GlobalNetworkAmericasCaribbeanRouteImport } from './routes/global-network/americas-caribbean'
+import { Route as GlobalNetworkUkEuropeRouteImport } from './routes/global-network/uk-europe'
+import { Route as GlobalNetworkMiddleEastRouteImport } from './routes/global-network/middle-east'
+import { Route as GlobalNetworkAustralasiaRouteImport } from './routes/global-network/australasia'
+import { Route as GlobalNetworkAfricaRouteImport } from './routes/global-network/africa'
 import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
 import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
@@ -102,6 +107,36 @@ const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 
+const GlobalNetworkAmericasCaribbeanRoute = GlobalNetworkAmericasCaribbeanRouteImport.update({
+  id: '/global-network/americas-caribbean',
+  path: '/global-network/americas-caribbean',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const GlobalNetworkUkEuropeRoute = GlobalNetworkUkEuropeRouteImport.update({
+  id: '/global-network/uk-europe',
+  path: '/global-network/uk-europe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const GlobalNetworkMiddleEastRoute = GlobalNetworkMiddleEastRouteImport.update({
+  id: '/global-network/middle-east',
+  path: '/global-network/middle-east',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const GlobalNetworkAustralasiaRoute = GlobalNetworkAustralasiaRouteImport.update({
+  id: '/global-network/australasia',
+  path: '/global-network/australasia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
+const GlobalNetworkAfricaRoute = GlobalNetworkAfricaRouteImport.update({
+  id: '/global-network/africa',
+  path: '/global-network/africa',
+  getParentRoute: () => rootRouteImport,
+} as any)
+
 const MediaResourcesRoute = MediaResourcesRouteImport.update({
   id: '/media-resources',
   path: '/media-resources',
@@ -159,6 +194,11 @@ export interface FileRoutesByFullPath {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
+  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
+  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
+  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
+  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
@@ -182,6 +222,11 @@ export interface FileRoutesByTo {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
+  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
+  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
+  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
+  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
@@ -206,6 +251,11 @@ export interface FileRoutesById {
   '/students-arm': typeof StudentsArmRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/global-network': typeof GlobalNetworkRoute
+  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
+  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
+  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
+  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
+  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
@@ -231,6 +281,11 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/global-network/americas-caribbean'
+    | '/global-network/uk-europe'
+    | '/global-network/middle-east'
+    | '/global-network/australasia'
+    | '/global-network/africa'
     | '/media-resources'
     | '/ministries/ifehl'
     | '/ministries/imm'
@@ -254,6 +309,11 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/global-network/americas-caribbean'
+    | '/global-network/uk-europe'
+    | '/global-network/middle-east'
+    | '/global-network/australasia'
+    | '/global-network/africa'
     | '/media-resources'
     | '/ministries/ifehl'
     | '/ministries/imm'
@@ -277,6 +337,11 @@ export interface FileRouteTypes {
     | '/students-arm'
     | '/doctors-arm'
     | '/global-network'
+    | '/global-network/americas-caribbean'
+    | '/global-network/uk-europe'
+    | '/global-network/middle-east'
+    | '/global-network/australasia'
+    | '/global-network/africa'
     | '/media-resources'
     | '/ministries/ifehl'
     | '/ministries/imm'
@@ -301,6 +366,11 @@ export interface RootRouteChildren {
   StudentsArmRoute: typeof StudentsArmRoute
   DoctorsArmRoute: typeof DoctorsArmRoute
   GlobalNetworkRoute: typeof GlobalNetworkRoute
+  GlobalNetworkAmericasCaribbeanRoute: typeof GlobalNetworkAmericasCaribbeanRoute
+  GlobalNetworkUkEuropeRoute: typeof GlobalNetworkUkEuropeRoute
+  GlobalNetworkMiddleEastRoute: typeof GlobalNetworkMiddleEastRoute
+  GlobalNetworkAustralasiaRoute: typeof GlobalNetworkAustralasiaRoute
+  GlobalNetworkAfricaRoute: typeof GlobalNetworkAfricaRoute
   MediaResourcesRoute: typeof MediaResourcesRoute
   MinistriesIfehlRoute: typeof MinistriesIfehlRoute
   MinistriesImmRoute: typeof MinistriesImmRoute
@@ -410,6 +480,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GlobalNetworkRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/global-network/americas-caribbean': {
+      id: '/global-network/americas-caribbean'
+      path: '/global-network/americas-caribbean'
+      fullPath: '/global-network/americas-caribbean'
+      preLoaderRoute: typeof GlobalNetworkAmericasCaribbeanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network/uk-europe': {
+      id: '/global-network/uk-europe'
+      path: '/global-network/uk-europe'
+      fullPath: '/global-network/uk-europe'
+      preLoaderRoute: typeof GlobalNetworkUkEuropeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network/middle-east': {
+      id: '/global-network/middle-east'
+      path: '/global-network/middle-east'
+      fullPath: '/global-network/middle-east'
+      preLoaderRoute: typeof GlobalNetworkMiddleEastRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network/australasia': {
+      id: '/global-network/australasia'
+      path: '/global-network/australasia'
+      fullPath: '/global-network/australasia'
+      preLoaderRoute: typeof GlobalNetworkAustralasiaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network/africa': {
+      id: '/global-network/africa'
+      path: '/global-network/africa'
+      fullPath: '/global-network/africa'
+      preLoaderRoute: typeof GlobalNetworkAfricaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/media-resources': {
       id: '/media-resources'
       path: '/media-resources'
@@ -477,6 +582,11 @@ const rootRouteChildren: RootRouteChildren = {
   StudentsArmRoute: StudentsArmRoute,
   DoctorsArmRoute: DoctorsArmRoute,
   GlobalNetworkRoute: GlobalNetworkRoute,
+  GlobalNetworkAmericasCaribbeanRoute: GlobalNetworkAmericasCaribbeanRoute,
+  GlobalNetworkUkEuropeRoute: GlobalNetworkUkEuropeRoute,
+  GlobalNetworkMiddleEastRoute: GlobalNetworkMiddleEastRoute,
+  GlobalNetworkAustralasiaRoute: GlobalNetworkAustralasiaRoute,
+  GlobalNetworkAfricaRoute: GlobalNetworkAfricaRoute,
   MediaResourcesRoute: MediaResourcesRoute,
   MinistriesIfehlRoute: MinistriesIfehlRoute,
   MinistriesImmRoute: MinistriesImmRoute,

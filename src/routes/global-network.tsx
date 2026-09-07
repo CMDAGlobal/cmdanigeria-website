@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
-import { Globe, Handshake, MapPin, Users, Heart, Briefcase, CalendarDays, Newspaper } from "lucide-react";
+import { Globe, Handshake, MapPin, Users, Heart, Briefcase, CalendarDays, Newspaper, ArrowUpRight } from "lucide-react";
 
 const title = "Global Network | CMDA Nigeria";
 const description =
@@ -25,33 +25,33 @@ export const Route = createFileRoute("/global-network")({
 const regions = [
   {
     region: "The Americas / Caribbean",
-    count: 2,
-    countries: ["United States", "Canada"],
-    desc: "CMDA alumni networks in the US and Canada provide mentorship, mission partnerships and professional connections for Nigerian-trained doctors practising abroad.",
+    count: 1,
+    desc: "CMDA alumni networks in the United States, Canada and the Caribbean provide mentorship, mission partnerships and professional connections for Nigerian-trained doctors practising abroad.",
+    to: "/global-network/americas-caribbean",
   },
   {
     region: "UK / Europe",
-    count: 2,
-    countries: ["United Kingdom", "Germany"],
-    desc: "A vibrant community of CMDA members in the UK and Europe engaged in NHS and European hospital practice, mission support and ongoing connection with the home fellowship.",
+    count: 1,
+    desc: "A vibrant community of CMDA members across the UK and Europe engaged in NHS and European hospital practice, mission support and ongoing connection with the home fellowship.",
+    to: "/global-network/uk-europe",
   },
   {
     region: "Middle East",
-    count: 2,
-    countries: ["UAE", "Saudi Arabia"],
+    count: 1,
     desc: "Nigerian Christian healthcare professionals in the Gulf region maintain fellowship and support mission initiatives from their stations abroad.",
+    to: "/global-network/middle-east",
   },
   {
     region: "Australasia",
-    count: 2,
-    countries: ["Australia", "New Zealand"],
-    desc: "A growing network of CMDA alumni in Australasia connected through digital fellowship and periodic in-person gatherings.",
+    count: 1,
+    desc: "A growing network of CMDA alumni in Australia and New Zealand connected through digital fellowship and periodic in-person gatherings.",
+    to: "/global-network/australasia",
   },
   {
     region: "Africa",
-    count: 2,
-    countries: ["Nigeria", "Ghana"],
+    count: 1,
     desc: "Beyond Nigeria, CMDA alumni serve across the African continent in hospitals, universities, public health programmes and rural mission stations.",
+    to: "/global-network/africa",
   },
 ];
 
@@ -166,30 +166,35 @@ function GlobalNetworkPage() {
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {regions.map((r) => (
             <Reveal key={r.region}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+              <Link
+                to={r.to}
+                className="group flex h-full flex-col border border-border bg-background p-6 transition-all hover:border-cmda-green hover:shadow-card"
+              >
                 <div className="flex items-center justify-between">
-                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground transition-colors group-hover:text-cmda-green">
                     {r.region}
                   </h3>
-                  <span className="font-display text-2xl font-extrabold text-cmda-green">
-                    {r.count}
-                  </span>
+                  <ArrowUpRight
+                    className="size-5 text-cmda-green transition-transform duration-500 group-hover:translate-x-1 group-hover:-translate-y-1"
+                    aria-hidden="true"
+                  />
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground">countries</p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {r.countries.map((c) => (
-                    <span
-                      key={c}
-                      className="rounded-none border border-cmda-green/30 bg-cmda-green/5 px-2 py-0.5 text-[0.65rem] font-semibold text-cmda-green"
-                    >
-                      {c}
-                    </span>
-                  ))}
-                </div>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{r.desc}</p>
-              </div>
+                <p className="mt-4 flex-1 text-sm leading-relaxed text-muted-foreground">{r.desc}</p>
+                <span className="mt-4 text-sm font-semibold text-cmda-green">
+                  Explore region
+                </span>
+              </Link>
             </Reveal>
           ))}
+          <Reveal>
+            <div className="flex h-full flex-col items-center justify-center border border-dashed border-cmda-green/40 bg-cmda-green/5 p-6 text-center">
+              <MapPin className="mb-3 size-8 text-cmda-green" aria-hidden="true" />
+              <h3 className="font-display text-lg font-bold text-foreground">Your region not listed?</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Contact us — we may be starting a network in your region soon.
+              </p>
+            </div>
+          </Reveal>
         </div>
       </Section>
 
