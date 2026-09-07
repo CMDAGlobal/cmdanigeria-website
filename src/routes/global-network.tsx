@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
-import { Globe, Handshake, MapPin, Users, Heart, Briefcase } from "lucide-react";
+import { Globe, Handshake, MapPin, Users, Heart, Briefcase, CalendarDays, Newspaper } from "lucide-react";
 
 const title = "Global Network | CMDA Nigeria";
 const description =
@@ -25,24 +25,61 @@ export const Route = createFileRoute("/global-network")({
 const regions = [
   {
     region: "North America",
+    count: 2,
     countries: ["United States", "Canada"],
     desc: "CMDA alumni networks in the US and Canada provide mentorship, mission partnerships and professional connections for Nigerian-trained doctors practising abroad.",
   },
   {
     region: "United Kingdom",
+    count: 1,
     countries: ["United Kingdom"],
     desc: "A vibrant community of CMDA members in the UK engaged in NHS practice, mission support and ongoing connection with the home fellowship.",
   },
   {
     region: "Africa",
+    count: 4,
     countries: ["Nigeria", "Ghana", "South Africa", "Kenya"],
     desc: "Beyond Nigeria, CMDA alumni serve across the African continent in hospitals, universities, public health programmes and rural mission stations.",
   },
   {
     region: "Middle East & Asia",
+    count: 3,
     countries: ["UAE", "Saudi Arabia", "India"],
     desc: "Nigerian Christian healthcare professionals in the Gulf and Asia maintain fellowship and support mission initiatives from their stations abroad.",
   },
+  {
+    region: "Europe",
+    count: 3,
+    countries: ["Germany", "Netherlands", "Sweden"],
+    desc: "European-based alumni contribute to research collaborations, clinical electives and mission support from their stations across the continent.",
+  },
+  {
+    region: "Oceania",
+    count: 2,
+    countries: ["Australia", "New Zealand"],
+    desc: "A growing network of CMDA alumni in Oceania connected through digital fellowship and periodic in-person gatherings.",
+  },
+];
+
+const stats = [
+  { value: "20+", label: "Countries with CMDA members" },
+  { value: "75+", label: "Global network members" },
+  { value: "6", label: "Continents represented" },
+  { value: "4", label: "Regional hubs" },
+];
+
+const events = [
+  { date: "TBA 2026", title: "The Americas In-Person Retreat", place: "United States", type: "Retreat" },
+  { date: "TBA", title: "UK CMDA Fellowship Gathering", place: "London, UK", type: "Fellowship" },
+  { date: "Monthly", title: "Global Prayer & Devotional Call", place: "Online", type: "Prayer" },
+  { date: "Annually", title: "CMDA Global Alumni Webinar", place: "Online", type: "Webinar" },
+];
+
+const newsletters = [
+  { title: "Global Network Digest", desc: "Quarterly newsletter connecting CMDA alumni worldwide with updates on missions, member achievements and upcoming events." },
+  { title: "CMDA Annual Report", desc: "Comprehensive overview of the Association's activities including global network contributions and impact." },
+  { title: "The Prescription", desc: "Monthly devotional resource connecting Scripture to healthcare practice — available to all CMDA members globally." },
+  { title: "Wholeness Magazine", desc: "Flagship publication with articles, news and testimonies from CMDA Nigeria's fellowship — digital access for global members." },
 ];
 
 const ways = [
@@ -92,9 +129,9 @@ function GlobalNetworkPage() {
         <div className="mx-auto max-w-4xl text-center">
           <Reveal>
             <div className="flex items-center justify-center gap-4">
-              <span className="h-px w-10 bg-gold" aria-hidden="true" />
-              <p className="eyebrow text-primary">Our reach</p>
-              <span className="h-px w-10 bg-gold" aria-hidden="true" />
+              <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+              <p className="eyebrow text-cmda-green">Our reach</p>
+              <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
             </div>
             <h2 className="display-2 mt-6 text-balance">
               A fellowship that transcends borders
@@ -108,24 +145,48 @@ function GlobalNetworkPage() {
         </div>
       </Section>
 
+      {/* Stats */}
+      <Section className="bg-primary-deep text-primary-foreground">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 lg:grid-cols-4">
+          {stats.map((s) => (
+            <Reveal key={s.label}>
+              <div className="text-center">
+                <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green-light lg:text-4xl">
+                  {s.value}
+                </p>
+                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">
+                  {s.label}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
       {/* Regions */}
       <Section className="bg-muted">
         <SectionHead
           eyebrow="Where we are"
-          title="Our global footprint"
+          title="Our global footprint — 20+ countries across 6 continents"
         />
-        <div className="mt-16 grid gap-8 sm:grid-cols-2">
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {regions.map((r) => (
             <Reveal key={r.region}>
-              <div className="border border-border bg-background p-8 transition-shadow hover:shadow-card">
-                <h3 className="font-display text-xl font-bold tracking-tight text-foreground">
-                  {r.region}
-                </h3>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                    {r.region}
+                  </h3>
+                  <span className="font-display text-2xl font-extrabold text-cmda-green">
+                    {r.count}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">countries</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {r.countries.map((c) => (
                     <span
                       key={c}
-                      className="rounded-none border border-gold/30 bg-gold/5 px-3 py-1 text-xs font-semibold text-gold"
+                      className="rounded-none border border-cmda-green/30 bg-cmda-green/5 px-2 py-0.5 text-[0.65rem] font-semibold text-cmda-green"
                     >
                       {c}
                     </span>
@@ -147,12 +208,61 @@ function GlobalNetworkPage() {
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {ways.map((w) => (
             <Reveal key={w.title}>
-              <div className="border-t border-gold/40 pt-6">
-                <w.icon className="mb-4 size-7 text-primary" aria-hidden="true" />
+              <div className="border-t border-cmda-green/40 pt-6">
+                <w.icon className="mb-4 size-7 text-cmda-green" aria-hidden="true" />
                 <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
                   {w.title}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{w.desc}</p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      {/* Upcoming Events */}
+      <Section className="bg-muted">
+        <SectionHead
+          eyebrow="Upcoming events"
+          title="Events for global members"
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {events.map((e) => (
+            <Reveal key={e.title}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <span className="eyebrow text-cmda-green">{e.type}</span>
+                <h3 className="mt-3 font-display text-base font-bold tracking-tight text-foreground">
+                  {e.title}
+                </h3>
+                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="size-4" aria-hidden="true" />
+                  {e.date}
+                </p>
+                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  {e.place}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      {/* Newsletters */}
+      <Section className="paper">
+        <SectionHead
+          eyebrow="Newsletters & publications"
+          title="Stay connected from wherever you are"
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2">
+          {newsletters.map((n) => (
+            <Reveal key={n.title}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <Newspaper className="mb-3 size-6 text-cmda-green" aria-hidden="true" />
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  {n.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{n.desc}</p>
               </div>
             </Reveal>
           ))}

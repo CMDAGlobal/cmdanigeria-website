@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
-import { BookOpen, Heart, Users, Stethoscope, GraduationCap, Globe } from "lucide-react";
+import { BookOpen, Heart, Users, Stethoscope, GraduationCap, Globe, CalendarDays, MapPin, Newspaper } from "lucide-react";
 
 const title = "Students' Arm | CMDA Nigeria";
 const description =
@@ -55,12 +55,33 @@ const highlights = [
   },
 ];
 
-const timeline = [
-  { year: "1981", event: "Student fellowship established as ICMDA-SS (NCCMDA)" },
-  { year: "1985", event: "First student journal published; 600+ participants at the Port Harcourt conference" },
-  { year: "1990s", event: "Became the largest Christian medical student body in the world" },
-  { year: "2000s", event: "Expanded to over 60 student chapters across Nigerian universities" },
-  { year: "Today", event: "9,700+ active student members in chapters nationwide" },
+const chapters = [
+  { zone: "South-South", count: 8, schools: ["University of Benin", "University of Port Harcourt", "Ambrose Alli University"] },
+  { zone: "South-West", count: 10, schools: ["University of Lagos", "Obafemi Awolowo University", "University of Ibadan"] },
+  { zone: "South-East", count: 7, schools: ["University of Nigeria Nsukka", "Nnamdi Azikiwe University", "Imo State University"] },
+  { zone: "North-Central", count: 8, schools: ["University of Jos", "University of Ilorin", "Benue State University"] },
+  { zone: "North-West", count: 6, schools: ["Ahmadu Bello University", "Bayero University", "Usmanu Danfodiyo University"] },
+  { zone: "North-East", count: 5, schools: ["University of Maiduguri", "Modibbo Adama University", "Taraba State University"] },
+];
+
+const stats = [
+  { value: "9,700+", label: "Active student members" },
+  { value: "55+", label: "Student chapters" },
+  { value: "36+FCT", label: "States covered" },
+  { value: "60+", label: "Universities represented" },
+];
+
+const events = [
+  { date: "20–23 Aug 2026", title: "National Conference — Students", place: "Benin City, Edo State", type: "Conference" },
+  { date: "TBA", title: "Zonal Prayer & Missions Conference", place: "Various Zones", type: "Conference" },
+  { date: "TBA", title: "EXCEL National Training Week", place: "TBA", type: "Training" },
+];
+
+const newsletters = [
+  { title: "Wholeness Journal", desc: "Annual academic and devotional journal featuring peer-reviewed articles, reflections, and chapter reports from across Nigeria." },
+  { title: "Wholeness Magazine", desc: "Flagship publication with news, reports, enriching articles and future plans for CMDA student members." },
+  { title: "Missions Exploits", desc: "Annual publication documenting the missions activities and experiences of student members." },
+  { title: "Chapter Newsletters", desc: "Regular newsletters from local chapters sharing fellowship updates, testimonies and prayer points." },
 ];
 
 function StudentsArmPage() {
@@ -78,8 +99,8 @@ function StudentsArmPage() {
           <Reveal>
             <div className="space-y-6">
               <div className="flex items-center gap-4">
-                <span className="h-px w-10 bg-gold" aria-hidden="true" />
-                <p className="eyebrow text-primary">Our story</p>
+                <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
+                <p className="eyebrow text-cmda-green">Our story</p>
               </div>
               <h2 className="display-2 text-balance">
                 From 17 chapters to a nationwide movement
@@ -116,13 +137,31 @@ function StudentsArmPage() {
                 />
               </div>
               <div className="absolute -bottom-8 -right-4 hidden w-56 bg-primary-deep p-6 text-primary-foreground shadow-elegant sm:block lg:-right-12">
-                <p className="font-display text-4xl leading-none font-extrabold text-gold">9,700+</p>
+                <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">9,700+</p>
                 <p className="mt-3 text-xs leading-relaxed text-primary-foreground/75">
                   Active student members across Nigeria
                 </p>
               </div>
             </div>
           </Reveal>
+        </div>
+      </Section>
+
+      {/* Stats */}
+      <Section className="bg-primary-deep text-primary-foreground">
+        <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 lg:grid-cols-4">
+          {stats.map((s) => (
+            <Reveal key={s.label}>
+              <div className="text-center">
+                <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green-light lg:text-4xl">
+                  {s.value}
+                </p>
+                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">
+                  {s.label}
+                </p>
+              </div>
+            </Reveal>
+          ))}
         </div>
       </Section>
 
@@ -136,7 +175,7 @@ function StudentsArmPage() {
           {highlights.map((h) => (
             <Reveal key={h.title}>
               <div className="border border-border bg-background p-8 transition-shadow hover:shadow-card">
-                <h.icon className="mb-4 size-8 text-primary" aria-hidden="true" />
+                <h.icon className="mb-4 size-8 text-cmda-green" aria-hidden="true" />
                 <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
                   {h.title}
                 </h3>
@@ -147,20 +186,86 @@ function StudentsArmPage() {
         </div>
       </Section>
 
-      {/* Timeline */}
+      {/* Chapters by Zone */}
       <Section className="paper">
         <SectionHead
-          eyebrow="Our journey"
-          title="Key milestones"
+          eyebrow="Our chapters"
+          title="55+ student chapters across 6 zones"
         />
-        <div className="mx-auto mt-16 max-w-3xl">
-          {timeline.map((t, i) => (
-            <Reveal key={t.year}>
-              <div className="flex gap-6 border-b border-border py-6">
-                <span className="shrink-0 font-display text-lg font-extrabold text-primary">
-                  {t.year}
-                </span>
-                <p className="text-base leading-relaxed text-muted-foreground">{t.event}</p>
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {chapters.map((z) => (
+            <Reveal key={z.zone}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                    {z.zone}
+                  </h3>
+                  <span className="font-display text-2xl font-extrabold text-cmda-green">
+                    {z.count}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">chapters</p>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {z.schools.map((s) => (
+                    <span key={s} className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
+                      {s}
+                    </span>
+                  ))}
+                  {z.count > 3 && (
+                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
+                      +{z.count - 3} more
+                    </span>
+                  )}
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      {/* Upcoming Events */}
+      <Section className="bg-muted">
+        <SectionHead
+          eyebrow="Upcoming events"
+          title="Events for students"
+        />
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {events.map((e) => (
+            <Reveal key={e.title}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <span className="eyebrow text-cmda-green">{e.type}</span>
+                <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
+                  {e.title}
+                </h3>
+                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                  <CalendarDays className="size-4" aria-hidden="true" />
+                  {e.date}
+                </p>
+                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                  <MapPin className="size-4" aria-hidden="true" />
+                  {e.place}
+                </p>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      {/* Newsletters */}
+      <Section className="paper">
+        <SectionHead
+          eyebrow="Newsletters & publications"
+          title="Stay informed and inspired"
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-2">
+          {newsletters.map((n) => (
+            <Reveal key={n.title}>
+              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <Newspaper className="mb-3 size-6 text-cmda-green" aria-hidden="true" />
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  {n.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{n.desc}</p>
               </div>
             </Reveal>
           ))}
