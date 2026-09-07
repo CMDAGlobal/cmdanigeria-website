@@ -24,48 +24,42 @@ export const Route = createFileRoute("/global-network")({
 
 const regions = [
   {
-    region: "North America",
+    region: "The Americas / Caribbean",
     count: 2,
     countries: ["United States", "Canada"],
     desc: "CMDA alumni networks in the US and Canada provide mentorship, mission partnerships and professional connections for Nigerian-trained doctors practising abroad.",
   },
   {
-    region: "United Kingdom",
-    count: 1,
-    countries: ["United Kingdom"],
-    desc: "A vibrant community of CMDA members in the UK engaged in NHS practice, mission support and ongoing connection with the home fellowship.",
+    region: "UK / Europe",
+    count: 2,
+    countries: ["United Kingdom", "Germany"],
+    desc: "A vibrant community of CMDA members in the UK and Europe engaged in NHS and European hospital practice, mission support and ongoing connection with the home fellowship.",
+  },
+  {
+    region: "Middle East",
+    count: 2,
+    countries: ["UAE", "Saudi Arabia"],
+    desc: "Nigerian Christian healthcare professionals in the Gulf region maintain fellowship and support mission initiatives from their stations abroad.",
+  },
+  {
+    region: "Australasia",
+    count: 2,
+    countries: ["Australia", "New Zealand"],
+    desc: "A growing network of CMDA alumni in Australasia connected through digital fellowship and periodic in-person gatherings.",
   },
   {
     region: "Africa",
-    count: 4,
-    countries: ["Nigeria", "Ghana", "South Africa", "Kenya"],
-    desc: "Beyond Nigeria, CMDA alumni serve across the African continent in hospitals, universities, public health programmes and rural mission stations.",
-  },
-  {
-    region: "Middle East & Asia",
-    count: 3,
-    countries: ["UAE", "Saudi Arabia", "India"],
-    desc: "Nigerian Christian healthcare professionals in the Gulf and Asia maintain fellowship and support mission initiatives from their stations abroad.",
-  },
-  {
-    region: "Europe",
-    count: 3,
-    countries: ["Germany", "Netherlands", "Sweden"],
-    desc: "European-based alumni contribute to research collaborations, clinical electives and mission support from their stations across the continent.",
-  },
-  {
-    region: "Oceania",
     count: 2,
-    countries: ["Australia", "New Zealand"],
-    desc: "A growing network of CMDA alumni in Oceania connected through digital fellowship and periodic in-person gatherings.",
+    countries: ["Nigeria", "Ghana"],
+    desc: "Beyond Nigeria, CMDA alumni serve across the African continent in hospitals, universities, public health programmes and rural mission stations.",
   },
 ];
 
 const stats = [
   { value: "20+", label: "Countries with CMDA members" },
   { value: "75+", label: "Global network members" },
-  { value: "6", label: "Continents represented" },
-  { value: "4", label: "Regional hubs" },
+  { value: "5", label: "Global regions" },
+  { value: "20+", label: "Years of diaspora connection" },
 ];
 
 const events = [
@@ -167,7 +161,7 @@ function GlobalNetworkPage() {
       <Section className="bg-muted">
         <SectionHead
           eyebrow="Where we are"
-          title="Our global footprint — 20+ countries across 6 continents"
+          title="Our global footprint — 5 regions across the world"
         />
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {regions.map((r) => (
