@@ -14,7 +14,7 @@ const title = "Who We Are | CMDA Nigeria";
 const description =
   "Since 1972, CMDA Nigeria has united Christian doctors, dentists and students around whole-person care — our story, mission, vision and statement of faith.";
 
-export const Route = createFileRoute("/about")({
+export const Route = createFileRoute("/about/")({
   component: AboutPage,
   head: () => ({
     meta: [

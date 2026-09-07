@@ -1045,26 +1045,26 @@ activities — is created **once** in the CMS and then automatically appears eve
 4. Set `zapier`/CORS if you need browser access to the API from your site domain
    (Dashboard → API → CORS origins → add `https://your-domain` and `http://localhost:3000`).
 
-### Seed the initial regions
+### Seed the initial content
 
 ```sh
-node scripts/seed-regions.mjs
+node scripts/seed-content.mjs
 ```
 
-This creates the five Global Network regions (with their current stats, events, activities and
-newsletters). Combining with sanitize/delete lets you run it repeatedly; it skips anything whose
-slug already exists.
+This creates the five Global Network regions plus the Students' Arm zones (Eastern, Western,
+Northern) with all their chapters and arm events. It is idempotent — rerunning skips anything whose
+slug already exists. People, chapter executives, announcements and media are added in the Studio.
 
-### Admin studio
+### Manage content in the Studio
 
 The CMS admin is embedded in the app at **`/studio`** on the live site (and dev server). From
 there you can create and edit the following document types — references link everything together:
 
 - **Region** — Global Network regions (overview, countries, mission, focus, stats, gallery).
-- **Person** — any leader. Give them a `region`, `zone` or `chapter` reference and they appear
-  on that page automatically.
-- **Zone** — Doctors' Arm zones.
-- **Chapter** — student/doctor/global chapters. Assign `arm`, `region`, `zone`.
+- **Zone** — zonal groupings used by both the Students' Arm and Doctors' Arm.
+- **Person** — any leader. Give them a `region`, `zone` or `chapter` reference (or tick
+  **National / NEC member**) and they appear on that page automatically.
+- **Chapter** — student, doctor or global chapters. Assign `arm`, `region`, `zone`.
 - **Event / Announcement / Activity** — set `arm` and reference a region/zone/chapter and they
   show up on those pages instantly.
 
@@ -1075,12 +1075,16 @@ An admin never edits the React pages directly. Instead:
 - A region page lists `Person` docs whose `region` references it.
 - `Event`, `Announcement` and `Activity` docs reference a region/zone/chapter and appear within
   them.
+- Student chapters belong to a zone via the `zone` reference and get their own page at
+  `/chapters/<slug>`; chapter executives (`exco`) are `Person` docs whose `memberOfChapter`
+  points at the chapter.
+- A `Person` with **National / NEC member** ticked appears in the national leadership section of
+  their arm.
 - When Sanity is not configured (no `SANITY_PROJECT_ID`), the site falls back to the static
   content in `src/sanity/fallback.ts` so nothing breaks.
 
 ### Next phases
 
 The shared schema (`src/sanity/schema/`) and card components
-(`src/components/site/org/`) already cover the Student Arm (NEC, chapters) and Doctors Arm
-(zones, chapters). Those pages will switch from static to CMS-driven content in the next
-milestones.
+(`src/components/site/org/`) already cover the Doctors' Arm (zones, chapters). The Doctors' Arm
+page still needs switching from static to CMS-driven content.

@@ -25,6 +25,8 @@ import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
 import { Route as AboutHistoryRouteImport } from './routes/about/history'
+import { Route as ChaptersIndexRouteImport } from './routes/chapters/index'
+import { Route as ChaptersSlugRouteImport } from './routes/chapters/$slug'
 import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
 import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
@@ -113,6 +115,16 @@ const AboutHistoryRoute = AboutHistoryRouteImport.update({
   path: '/about/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChaptersIndexRoute = ChaptersIndexRouteImport.update({
+  id: '/chapters/',
+  path: '/chapters/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChaptersSlugRoute = ChaptersSlugRouteImport.update({
+  id: '/chapters/$slug',
+  path: '/chapters/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GlobalNetworkSlugRoute = GlobalNetworkSlugRouteImport.update({
   id: '/$slug',
   path: '/$slug',
@@ -167,6 +179,7 @@ export interface FileRoutesByFullPath {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -175,6 +188,7 @@ export interface FileRoutesByFullPath {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/about/': typeof AboutIndexRoute
+  '/chapters/': typeof ChaptersIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -192,6 +206,7 @@ export interface FileRoutesByTo {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -200,6 +215,7 @@ export interface FileRoutesByTo {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/about': typeof AboutIndexRoute
+  '/chapters': typeof ChaptersIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -218,6 +234,7 @@ export interface FileRoutesById {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -226,6 +243,7 @@ export interface FileRoutesById {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/about/': typeof AboutIndexRoute
+  '/chapters/': typeof ChaptersIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -245,6 +263,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -253,6 +272,7 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/about/'
+    | '/chapters/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -270,6 +290,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -278,6 +299,7 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/about'
+    | '/chapters'
   id:
     | '__root__'
     | '/'
@@ -295,6 +317,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -303,6 +326,7 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/about/'
+    | '/chapters/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -321,7 +345,9 @@ export interface RootRouteChildren {
   StudioRoute: typeof StudioRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
   AboutHistoryRoute: typeof AboutHistoryRoute
+  ChaptersSlugRoute: typeof ChaptersSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
+  ChaptersIndexRoute: typeof ChaptersIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -438,6 +464,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/chapters/': {
+      id: '/chapters/'
+      path: '/chapters'
+      fullPath: '/chapters/'
+      preLoaderRoute: typeof ChaptersIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chapters/$slug': {
+      id: '/chapters/$slug'
+      path: '/chapters/$slug'
+      fullPath: '/chapters/$slug'
+      preLoaderRoute: typeof ChaptersSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/global-network/$slug': {
       id: '/global-network/$slug'
       path: '/$slug'
@@ -540,7 +580,9 @@ const rootRouteChildren: RootRouteChildren = {
   StudioRoute: StudioRoute,
   WhatWeDoRoute: WhatWeDoRoute,
   AboutHistoryRoute: AboutHistoryRoute,
+  ChaptersSlugRoute: ChaptersSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
+  ChaptersIndexRoute: ChaptersIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

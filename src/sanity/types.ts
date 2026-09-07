@@ -33,6 +33,12 @@ export interface LeaderRecord {
   order?: number | null;
 }
 
+export interface ZoneRef {
+  _id?: string | null;
+  name?: string | null;
+  slug?: { current?: string | null } | null;
+}
+
 export interface ChapterRecord {
   _id: string;
   name: string;
@@ -43,7 +49,43 @@ export interface ChapterRecord {
   arm?: Arm | null;
   establishedAt?: string | null;
   logo?: SanityImage | null;
+  zone?: ZoneRef | null;
   order?: number | null;
+}
+
+export interface ChapterDetail extends ChapterRecord {
+  description?: PortableTextBlock[] | null;
+  membership?: StatEntry[] | null;
+  exco?: LeaderRecord[] | null;
+  events?: EventRecord[] | null;
+  gallery?: SanityImage[] | null;
+}
+
+export interface ZoneRecord {
+  _id: string;
+  name: string;
+  slug: { current?: string | null } | null;
+  eyebrow?: string | null;
+  tagline?: string | null;
+  intro?: string | null;
+  countries?: string[] | null;
+  stats?: StatEntry[] | null;
+  chapterCount?: number;
+  sampleChapters?: ChapterRecord[] | null;
+}
+
+export interface ZoneDetail extends ZoneRecord {
+  overview?: PortableTextBlock[] | null;
+  chapters?: ChapterRecord[] | null;
+  leaders?: LeaderRecord[] | null;
+  gallery?: SanityImage[] | null;
+}
+
+export interface ArmOverview {
+  nec?: LeaderRecord[] | null;
+  zones?: ZoneRecord[] | null;
+  events?: EventRecord[] | null;
+  announcements?: AnnouncementRecord[] | null;
 }
 
 export interface EventRecord {

@@ -1,5 +1,15 @@
 import type { PortableTextBlock } from "@portabletext/types";
-import type { RegionDetail, RegionListEntry } from "./types";
+import type {
+  AnnouncementRecord,
+  ArmOverview,
+  ChapterDetail,
+  EventRecord,
+  RegionDetail,
+  RegionListEntry,
+  StatEntry,
+  ZoneDetail,
+  ZoneRecord,
+} from "./types";
 
 function pt(...paragraphs: string[]): PortableTextBlock[] {
   return paragraphs.map((text) => ({
@@ -460,4 +470,236 @@ export function getFallbackRegion(slug: string): RegionDetail | undefined {
   if (!region) return undefined;
   const { slug: s, ...rest } = region;
   return { ...rest, slug: { current: s } };
+}
+
+interface FallbackChapter {
+  slug: string;
+  name: string;
+  institution: string;
+}
+
+interface FallbackZone {
+  _id: string;
+  slug: string;
+  name: string;
+  eyebrow: string;
+  tagline: string;
+  intro: string;
+  stats: StatEntry[];
+  chapters: FallbackChapter[];
+}
+
+function chapter(name: string, institution: string): FallbackChapter {
+  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  return { slug, name, institution };
+}
+
+const studentZones: FallbackZone[] = [
+  {
+    _id: "fallback-zone-east",
+    slug: "eastern",
+    name: "Eastern Zone",
+    eyebrow: "Students' Arm — Eastern Zone",
+    tagline: "The Eastern Zone",
+    intro:
+      "The Eastern Zone unites student chapters across eastern Nigeria's teaching hospitals and universities, fostering fellowship, mentorship and medical missions.",
+    stats: [
+      { value: "13", label: "Student chapters" },
+      { value: "9,700+", label: "Student members" },
+      { value: "10+", label: "Universities represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("AEFUTH", "Alex Ekwueme Federal University Teaching Hospital"),
+      chapter("COOUTH", "Chukwuemeka Odumegwu Ojukwu University Teaching Hospital"),
+      chapter("EBSUTH", "Ebonyi State University Teaching Hospital"),
+      chapter("ESUTH", "Enugu State University Teaching Hospital"),
+      chapter("GUTH", "Gregory University Teaching Hospital"),
+      chapter("IMSUTH", "Imo State University Teaching Hospital"),
+      chapter("NDUTH", "Niger Delta University Teaching Hospital"),
+      chapter("NAUTH", "Nnamdi Azikiwe University Teaching Hospital"),
+      chapter("UNTH", "University of Nigeria Teaching Hospital"),
+      chapter("UCTH", "University of Calabar Teaching Hospital"),
+      chapter("UUTH", "University of Uyo Teaching Hospital"),
+      chapter("UPTH", "University of Port Harcourt Teaching Hospital"),
+      chapter("RSUTH", "Rivers State University Teaching Hospital"),
+    ],
+  },
+  {
+    _id: "fallback-zone-west",
+    slug: "western",
+    name: "Western Zone",
+    eyebrow: "Students' Arm — Western Zone",
+    tagline: "The Western Zone",
+    intro:
+      "The Western Zone covers student chapters across western Nigeria, from Lagos and Ibadan to Benin and Ilorin, with vibrant fellowship and outreach networks.",
+    stats: [
+      { value: "16", label: "Student chapters" },
+      { value: "9,700+", label: "Student members" },
+      { value: "12+", label: "Universities represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("ABUADTH", "Afe Babalola University Teaching Hospital"),
+      chapter("AAU/ISTH", "Ambrose Alli University / Irrua Specialist Teaching Hospital"),
+      chapter("BUTH", "Bowen University Teaching Hospital"),
+      chapter("DELSUTH", "Delta State University Teaching Hospital"),
+      chapter("EKSUTH", "Ekiti State University Teaching Hospital"),
+      chapter("IUTH", "Igbinedion University Teaching Hospital"),
+      chapter("UNIMEDTH", "University of Medical Sciences Teaching Hospital"),
+      chapter("LASUTH", "Lagos State University Teaching Hospital"),
+      chapter("LUTH", "Lagos University Teaching Hospital"),
+      chapter("LTH", "Lautech Teaching Hospital"),
+      chapter("OAUTH", "Obafemi Awolowo University Teaching Hospital"),
+      chapter("OOUTH", "Olabisi Onabanjo University Teaching Hospital"),
+      chapter("UNIOSUNTH", "Osun State University Teaching Hospital"),
+      chapter("UCH", "University College Hospital, Ibadan"),
+      chapter("UBTH", "University of Benin Teaching Hospital"),
+      chapter("UITH", "University of Ilorin Teaching Hospital"),
+    ],
+  },
+  {
+    _id: "fallback-zone-north",
+    slug: "northern",
+    name: "Northern Zone",
+    eyebrow: "Students' Arm — Northern Zone",
+    tagline: "The Northern Zone",
+    intro:
+      "The Northern Zone connects student chapters across northern Nigeria, from Abuja and Jos to Kano and Maiduguri, serving communities through health and hope.",
+    stats: [
+      { value: "11", label: "Student chapters" },
+      { value: "9,700+", label: "Student members" },
+      { value: "9+", label: "Universities represented" },
+      { value: "1", label: "Annual zonal conference" },
+    ],
+    chapters: [
+      chapter("ABUTH", "Ahmadu Bello University Teaching Hospital"),
+      chapter("ATBUTH", "Abubakar Tafawa Balewa University Teaching Hospital"),
+      chapter("AKTH", "Aminu Kano University Teaching Hospital"),
+      chapter("BDTH-KASU", "Barau-Dikko University Teaching Hospital"),
+      chapter("BHUTH", "Bingham University Teaching Hospital"),
+      chapter("BSUTH", "Benue State University Teaching Hospital"),
+      chapter("GSUTH", "Gombe State University Teaching Hospital"),
+      chapter("JUTH", "Jos University Teaching Hospital"),
+      chapter("UATH", "University of Abuja Teaching Hospital"),
+      chapter("UDUTH", "Usmanu Danfodiyo University Teaching Hospital"),
+      chapter("UMTH", "University of Maiduguri Teaching Hospital"),
+    ],
+  },
+];
+
+const studentEvents: EventRecord[] = [
+  {
+    _id: "fallback-event-stu-1",
+    title: "National Conference — Students",
+    slug: { current: "national-conference-students" },
+    type: "conference",
+    arm: "students",
+    startDate: "2026-08-20T09:00:00.000Z",
+    endDate: "2026-08-23T18:00:00.000Z",
+    location: "Benin City, Edo State",
+    mode: "inperson",
+    description: pt(
+      "The flagship gathering of CMDA Nigeria's student movement — worship, training, fellowship and strategic planning with student leaders from across Nigeria.",
+    ),
+  },
+  {
+    _id: "fallback-event-stu-2",
+    title: "Zonal Prayer & Missions Conference",
+    slug: { current: "zonal-prayer-missions-conference" },
+    type: "conference",
+    arm: "students",
+    startDate: "2027-01-15T09:00:00.000Z",
+    location: "Various Zones",
+    mode: "inperson",
+    description: pt(
+      "Each zone comes together for prayer, missions mobilisation and community health outreach.",
+    ),
+  },
+  {
+    _id: "fallback-event-stu-3",
+    title: "EXCEL National Training Week",
+    slug: { current: "excel-national-training-week" },
+    type: "training",
+    arm: "students",
+    startDate: "2027-05-10T09:00:00.000Z",
+    mode: "hybrid",
+    description: pt(
+      "Equipping student leaders in evangelism, character, excellence, academics and leadership.",
+    ),
+  },
+];
+
+export function fallbackStudentsArm(): ArmOverview {
+  return {
+    nec: [],
+    zones: studentZones.map((zone) => {
+      const entry: Record<string, unknown> = {
+        _id: zone._id,
+        name: zone.name,
+        slug: { current: zone.slug },
+        eyebrow: zone.eyebrow,
+        tagline: zone.tagline,
+        intro: zone.intro,
+        stats: zone.stats,
+        chapterCount: zone.chapters.length,
+        sampleChapters: zone.chapters.map((item) => ({
+          _id: `fallback-${item.slug}`,
+          name: item.name,
+          slug: { current: item.slug },
+          institution: item.institution,
+          country: "Nigeria",
+          arm: "students",
+        })),
+      };
+      return entry as unknown as ZoneRecord;
+    }),
+    events: studentEvents,
+    announcements: [],
+  };
+}
+
+export function getFallbackChapter(slug: string): ChapterDetail | undefined {
+  for (const zone of studentZones) {
+    const found = zone.chapters.find((item) => item.slug === slug);
+    if (!found) continue;
+    return {
+      _id: `fallback-${found.slug}`,
+      name: found.name,
+      slug: { current: found.slug },
+      institution: found.institution,
+      country: "Nigeria",
+      arm: "students",
+      zone: { _id: zone._id, name: zone.name, slug: { current: zone.slug } },
+      description: pt(
+        `Welcome to the ${found.name} chapter of CMDA Nigeria's Students' Arm, hosted at ${found.institution}. The chapter gathers students for weekly fellowship, Bible studies, prayer, community health outreach and academic support.`,
+      ),
+      membership: [],
+      exco: [],
+      events: [],
+      gallery: [],
+    };
+  }
+  return undefined;
+}
+
+export function getFallbackZone(slug: string): ZoneDetail | undefined {
+  const zone = studentZones.find((item) => item.slug === slug);
+  if (!zone) return undefined;
+  const { chapters, ...rest } = zone;
+  return {
+    ...rest,
+    slug: { current: zone.slug },
+    overview: pt(zone.intro),
+    leaders: [],
+    gallery: [],
+    chapters: chapters.map((item) => ({
+      _id: `fallback-${item.slug}`,
+      name: item.name,
+      slug: { current: item.slug },
+      institution: item.institution,
+      country: "Nigeria",
+      arm: "students",
+    })),
+  } as ZoneDetail;
 }

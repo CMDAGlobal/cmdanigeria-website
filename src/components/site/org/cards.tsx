@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
 import { ArrowUpRight, CalendarDays, MapPin, Newspaper } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -236,25 +237,42 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementR
   );
 }
 
-export function ChapterCard({ chapter }: { chapter: ChapterRecord }) {
+export function ChapterCard({
+  chapter,
+  to,
+  params,
+}: {
+  chapter: ChapterRecord;
+  to?: "/chapters/$slug";
+  params?: { slug: string };
+}) {
   const subtitle = [chapter.institution, chapter.location, chapter.country].filter(Boolean).join(" · ");
+  const card = (
+    <div className="flex h-full flex-col border border-border bg-background p-6 transition-all hover:border-cmda-green hover:shadow-card">
+      <div className="flex items-start justify-between gap-4">
+        <Avatar
+          image={chapter.logo}
+          name={chapter.name}
+          className="size-14 shrink-0 rounded-none border border-border object-cover"
+        />
+        <ArrowUpRight className="size-5 shrink-0 text-cmda-green" aria-hidden="true" />
+      </div>
+      <h3 className="mt-4 font-display text-base font-bold tracking-tight text-foreground">{chapter.name}</h3>
+      {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
+      {chapter.establishedAt ? (
+        <p className="mt-2 text-xs text-muted-foreground">Est. {chapter.establishedAt}</p>
+      ) : null}
+    </div>
+  );
   return (
     <Reveal className="h-full">
-      <div className="flex h-full flex-col border border-border bg-background p-6 transition-all hover:border-cmda-green hover:shadow-card">
-        <div className="flex items-start justify-between gap-4">
-          <Avatar
-            image={chapter.logo}
-            name={chapter.name}
-            className="size-14 shrink-0 rounded-none border border-border object-cover"
-          />
-          <ArrowUpRight className="size-5 shrink-0 text-cmda-green" aria-hidden="true" />
-        </div>
-        <h3 className="mt-4 font-display text-base font-bold tracking-tight text-foreground">{chapter.name}</h3>
-        {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
-        {chapter.establishedAt ? (
-          <p className="mt-2 text-xs text-muted-foreground">Est. {chapter.establishedAt}</p>
-        ) : null}
-      </div>
+      {to ? (
+        <Link to={to} params={params as { slug: string }} className="block h-full">
+          {card}
+        </Link>
+      ) : (
+        card
+      )}
     </Reveal>
   );
 }

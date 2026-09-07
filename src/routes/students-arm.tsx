@@ -1,14 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
+import { AnnouncementCard, EventCard, LeaderCard } from "@/components/site/org/cards";
+import { fetchArmOverview } from "@/sanity/data";
+import type { AnnouncementRecord, EventRecord, LeaderRecord, ZoneRecord } from "@/sanity/types";
 import { cn } from "@/lib/utils";
-import { BookOpen, Heart, Users, Stethoscope, GraduationCap, Globe, CalendarDays, MapPin, Newspaper } from "lucide-react";
+import { ArrowUpRight, BookOpen, CalendarDays, Globe, GraduationCap, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
 
 const title = "Students' Arm | CMDA Nigeria";
 const description =
   "The student fellowship of CMDA Nigeria — equipping medical and dental students for faith, excellence and service since 1981.";
 
 export const Route = createFileRoute("/students-arm")({
+  loader: async () => ({ data: await fetchArmOverview({ data: "students" }) }),
   component: StudentsArmPage,
   head: () => ({
     meta: [
@@ -55,78 +59,11 @@ const highlights = [
   },
 ];
 
-const chapters = [
-  {
-    zone: "Eastern Zone",
-    count: 13,
-    schools: [
-      "AEFUTH — Alex Ekwueme University Teaching Hospital",
-      "COOUTH — Chukwuemeka Odumegwu Ojukwu University Teaching Hospital",
-      "EBSUTH — Ebonyi State University Teaching Hospital",
-      "ESUTH — Enugu State University Teaching Hospital",
-      "GUTH — Gregory University Teaching Hospital",
-      "IMSUTH — Imo State University Teaching Hospital",
-      "NDUTH — Niger Delta University Teaching Hospital",
-      "NAUTH — Nnamdi Azikiwe University Teaching Hospital",
-      "UNTH — University of Nigeria Teaching Hospital",
-      "UCTH — University of Calabar Teaching Hospital",
-      "UUTH — University of Uyo Teaching Hospital",
-      "UPTH — University of Port-Harcourt Teaching Hospital",
-      "RSUTH — Rivers State University Teaching Hospital",
-    ],
-  },
-  {
-    zone: "Western Zone",
-    count: 16,
-    schools: [
-      "ABUADTH — Afe Babalola University Teaching Hospital",
-      "AAU/ISTH — Ambrose Alli University / Irrua Specialist Teaching Hospital",
-      "BUTH — Bowen University Teaching Hospital",
-      "DELSUTH — Delta State University Teaching Hospital",
-      "EKSUTH — Ekiti State University Teaching Hospital",
-      "IUTH — Igbinedion University Teaching Hospital",
-      "UNIMEDTH — University of Medical Sciences Teaching Hospital",
-      "LASUTH — Lagos State University Teaching Hospital",
-      "LUTH — Lagos University Teaching Hospital",
-      "LTH — Lautech Teaching Hospital",
-      "OAUTH — Obafemi Awolowo University Teaching Hospital",
-      "OOUTH — Olabisi Onabanjo University Teaching Hospital",
-      "UNIOSUNTH — Osun State University Teaching Hospital",
-      "UCH — University College Hospital, Ibadan",
-      "UBTH — University of Benin Teaching Hospital",
-      "UITH — University of Ilorin Teaching Hospital",
-    ],
-  },
-  {
-    zone: "Northern Zone",
-    count: 11,
-    schools: [
-      "ABUTH — Ahmadu Bello University Teaching Hospital",
-      "ATBUTH — Abubakar Tafawa Balewa University Teaching Hospital",
-      "AKTH — Aminu Kano University Teaching Hospital",
-      "BDTH-KASU — Barau-Dikko University Teaching Hospital",
-      "BHUTH — Bingham University Teaching Hospital",
-      "BSUTH — Benue State University Teaching Hospital",
-      "GSUTH — Gombe State University Teaching Hospital",
-      "JUTH — Jos University Teaching Hospital",
-      "UATH — University of Abuja Teaching Hospital",
-      "UDUTH — Usman Dan Fodio University Teaching Hospital",
-      "UMTH — University of Maiduguri Teaching Hospital",
-    ],
-  },
-];
-
 const stats = [
   { value: "9,700+", label: "Active student members" },
   { value: "40", label: "Student chapters" },
   { value: "3", label: "Zones (Eastern, Western, Northern)" },
   { value: "60+", label: "Universities represented" },
-];
-
-const events = [
-  { date: "20–23 Aug 2026", title: "National Conference — Students", place: "Benin City, Edo State", type: "Conference" },
-  { date: "TBA", title: "Zonal Prayer & Missions Conference", place: "Various Zones", type: "Conference" },
-  { date: "TBA", title: "EXCEL National Training Week", place: "TBA", type: "Training" },
 ];
 
 const newsletters = [
@@ -136,7 +73,114 @@ const newsletters = [
   { title: "Chapter Newsletters", desc: "Regular newsletters from local chapters sharing fellowship updates, testimonies and prayer points." },
 ];
 
+function Nec({ nec }: { nec?: LeaderRecord[] | null | undefined }) {
+  if (!nec?.length) return null;
+  return (
+    <Section className="bg-muted" id="nec">
+      <SectionHead
+        eyebrow="National Executive Committee (NEC)"
+        title="Students' national leadership"
+        intro="A committed team of student leaders coordinating the fellowship nationwide. Names are managed from the CMS."
+      />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        {nec.map((leader) => (
+          <LeaderCard key={leader._id} leader={leader} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function Zones({ zones }: { zones?: ZoneRecord[] | null | undefined }) {
+  if (!zones?.length) return null;
+  return (
+    <Section className="paper">
+      <SectionHead
+        eyebrow="Our chapters"
+        title="Student chapters across 3 zones"
+        intro="Click a chapter to explore its leadership, activities and events."
+      />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {zones.map((zone) => (
+          <Reveal key={zone._id}>
+            <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
+              <div className="flex items-center justify-between">
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{zone.name}</h3>
+                <span className="font-display text-2xl font-extrabold text-cmda-green">
+                  {zone.chapterCount ?? 0}
+                </span>
+              </div>
+              <p className="mt-1 text-xs text-muted-foreground">chapters</p>
+              {zone.intro ? <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{zone.intro}</p> : null}
+              {zone.sampleChapters?.length ? (
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {zone.sampleChapters.map((chapter) => (
+                    <Link
+                      key={chapter._id}
+                      to="/chapters/$slug"
+                      params={{ slug: chapter.slug?.current ?? chapter._id }}
+                      className="group inline-flex items-center gap-1 border border-border bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:border-cmda-green hover:text-cmda-green"
+                    >
+                      {chapter.name}
+                      <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                    </Link>
+                  ))}
+                  {(zone.chapterCount ?? 0) > 8 ? (
+                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.7rem] text-muted-foreground">
+                      +{(zone.chapterCount ?? 0) - 8} more
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+function Events({ events }: { events?: EventRecord[] | null | undefined }) {
+  return (
+    <Section className="bg-muted">
+      <SectionHead eyebrow="Upcoming events" title="Events for students" />
+      <div className="mt-16 grid gap-6 lg:grid-cols-3">
+        {events?.length ? (
+          events.map((event) => <EventCard key={event._id} event={event} />)
+        ) : (
+          <Reveal className="lg:col-span-3">
+            <div className="border border-border bg-background p-8 text-center">
+              <CalendarDays className="mx-auto mb-4 size-8 text-cmda-green" aria-hidden="true" />
+              <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                No upcoming events yet
+              </h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Events will be published here by the national office as they are announced.
+              </p>
+            </div>
+          </Reveal>
+        )}
+      </div>
+    </Section>
+  );
+}
+
+function Announcements({ announcements }: { announcements?: AnnouncementRecord[] | null | undefined }) {
+  if (!announcements?.length) return null;
+  return (
+    <Section className="paper">
+      <SectionHead eyebrow="Announcements" title="Student notices" />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2">
+        {announcements.map((announcement) => (
+          <AnnouncementCard key={announcement._id} announcement={announcement} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 function StudentsArmPage() {
+  const { data } = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -154,25 +198,22 @@ function StudentsArmPage() {
                 <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
                 <p className="eyebrow text-cmda-green">Our story</p>
               </div>
-              <h2 className="display-2 text-balance">
-                From 17 chapters to a nationwide movement
-              </h2>
+              <h2 className="display-2 text-balance">From 17 chapters to a nationwide movement</h2>
               <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
                 <p>
-                  The medical students' movement was founded in 1981 as the Intercollegiate
-                  Christian Medical and Dental Association — Students Section (ICMDA-SS). Within a
-                  decade it had become the largest student body of its kind in the world.
+                  The medical students' movement was founded in 1981 as the Intercollegiate Christian
+                  Medical and Dental Association — Students Section (ICMDA-SS). Within a decade it had
+                  become the largest student body of its kind in the world.
                 </p>
                 <p>
-                  In 1985, students produced the first edition of their journal after securing a
-                  loan of ₦30,000. The journal was launched at the annual conference in Port
-                  Harcourt, which attracted more than 600 participants from 17 university teaching
-                  hospitals.
+                  In 1985, students produced the first edition of their journal after securing a loan of
+                  ₦30,000. The journal was launched at the annual conference in Port Harcourt, which
+                  attracted more than 600 participants from 17 university teaching hospitals.
                 </p>
                 <p>
-                  Today, the student arm spans over 60 chapters across Nigerian universities,
-                  with 9,700+ active members engaged in academic excellence, spiritual growth,
-                  clinical outreach and leadership development.
+                  Today, the student arm spans over 60 chapters across Nigerian universities, with 9,700+
+                  active members engaged in academic excellence, spiritual growth, clinical outreach and
+                  leadership development.
                 </p>
               </div>
             </div>
@@ -208,9 +249,7 @@ function StudentsArmPage() {
                 <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green-light lg:text-4xl">
                   {s.value}
                 </p>
-                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">
-                  {s.label}
-                </p>
+                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">{s.label}</p>
               </div>
             </Reveal>
           ))}
@@ -219,18 +258,13 @@ function StudentsArmPage() {
 
       {/* Highlights */}
       <Section className="bg-muted">
-        <SectionHead
-          eyebrow="What we do"
-          title="Equipping students for faith and practice"
-        />
+        <SectionHead eyebrow="What we do" title="Equipping students for faith and practice" />
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {highlights.map((h) => (
             <Reveal key={h.title}>
               <div className="border border-border bg-background p-8 transition-shadow hover:shadow-card">
                 <h.icon className="mb-4 size-8 text-cmda-green" aria-hidden="true" />
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                  {h.title}
-                </h3>
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{h.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{h.desc}</p>
               </div>
             </Reveal>
@@ -238,85 +272,20 @@ function StudentsArmPage() {
         </div>
       </Section>
 
-      {/* Chapters by Zone */}
-      <Section className="paper">
-        <SectionHead
-          eyebrow="Our chapters"
-          title="40 student chapters across 3 zones"
-        />
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {chapters.map((z) => (
-            <Reveal key={z.zone}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                    {z.zone}
-                  </h3>
-                  <span className="font-display text-2xl font-extrabold text-cmda-green">
-                    {z.count}
-                  </span>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">chapters</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  {z.schools.slice(0, 5).map((s) => (
-                    <span key={s} className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
-                      {s}
-                    </span>
-                  ))}
-                  {z.count > 5 && (
-                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.65rem] text-muted-foreground">
-                      +{z.count - 5} more
-                    </span>
-                  )}
-                </div>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* Upcoming Events */}
-      <Section className="bg-muted">
-        <SectionHead
-          eyebrow="Upcoming events"
-          title="Events for students"
-        />
-        <div className="mt-16 grid gap-6 lg:grid-cols-3">
-          {events.map((e) => (
-            <Reveal key={e.title}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
-                <span className="eyebrow text-cmda-green">{e.type}</span>
-                <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
-                  {e.title}
-                </h3>
-                <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                  <CalendarDays className="size-4" aria-hidden="true" />
-                  {e.date}
-                </p>
-                <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
-                  <MapPin className="size-4" aria-hidden="true" />
-                  {e.place}
-                </p>
-              </div>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
+      <Nec nec={data.nec} />
+      <Zones zones={data.zones} />
+      <Events events={data.events} />
+      <Announcements announcements={data.announcements} />
 
       {/* Newsletters */}
       <Section className="paper">
-        <SectionHead
-          eyebrow="Newsletters & publications"
-          title="Stay informed and inspired"
-        />
+        <SectionHead eyebrow="Newsletters & publications" title="Stay informed and inspired" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {newsletters.map((n) => (
             <Reveal key={n.title}>
               <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
                 <Newspaper className="mb-3 size-6 text-cmda-green" aria-hidden="true" />
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                  {n.title}
-                </h3>
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{n.title}</h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{n.desc}</p>
               </div>
             </Reveal>
@@ -329,8 +298,8 @@ function StudentsArmPage() {
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Ready to join the fellowship?</h2>
           <p className="lede mt-6 text-primary-foreground/75">
-            Connect with a CMDA chapter at your university and start your journey of faith,
-            excellence and service.
+            Connect with a CMDA chapter at your university and start your journey of faith, excellence
+            and service.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/membership" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>

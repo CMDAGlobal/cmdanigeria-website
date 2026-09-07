@@ -17,6 +17,17 @@ export const person = defineType({
     defineField({ name: "headshot", title: "Headshot", type: "image", options: { hotspot: true } }),
     defineField({ name: "position", title: "Position / title", type: "string" }),
     defineField({ name: "chapterRole", title: "Chapter role (e.g. President, Secretary)", type: "string" }),
+    defineField({
+      name: "isNational",
+      title: "National / NEC member",
+      description: "Shows this person in the National Executive Committee (NEC) section of their arm.",
+      type: "boolean",
+      initialValue: false,
+      hidden: ({ parent }) => {
+        const arm = (parent as { arm?: string } | undefined)?.arm;
+        return arm !== "students" && arm !== "doctors";
+      },
+    }),
     defineField({ name: "institution", title: "Institution", type: "string" }),
     defineField({ name: "chapter", title: "Chapter", type: "string" }),
     defineField({ name: "country", title: "Country / State", type: "string" }),
@@ -34,7 +45,10 @@ export const person = defineType({
       title: "Zone",
       type: "reference",
       to: [{ type: "zone" }],
-      hidden: ({ parent }) => (parent as { arm?: string } | undefined)?.arm !== "doctors",
+      hidden: ({ parent }) => {
+        const arm = (parent as { arm?: string } | undefined)?.arm;
+        return arm !== "students" && arm !== "doctors";
+      },
     }),
     defineField({
       name: "memberOfChapter",

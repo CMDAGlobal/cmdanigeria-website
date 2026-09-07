@@ -65,7 +65,10 @@ export const event = defineType({
       title: "Related zone(s)",
       type: "array",
       of: [defineArrayMember({ type: "reference", to: [{ type: "zone" }] })],
-      hidden: ({ parent }) => (parent as { arm?: string } | undefined)?.arm !== "doctors",
+      hidden: ({ parent }) => {
+        const arm = (parent as { arm?: string } | undefined)?.arm;
+        return arm !== "students" && arm !== "doctors";
+      },
     }),
     defineField({
       name: "chapters",

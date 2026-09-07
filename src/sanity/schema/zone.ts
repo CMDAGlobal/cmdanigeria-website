@@ -3,7 +3,7 @@ import { galleryImage, statItem } from "./objects";
 
 export const zone = defineType({
   name: "zone",
-  title: "Zone (Doctors' Arm)",
+  title: "Zone",
   type: "document",
   groups: [
     { name: "content", title: "Content", default: true },
