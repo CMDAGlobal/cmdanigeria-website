@@ -1027,3 +1027,60 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Content management (Sanity CMS)
+
+The website is database-driven. Content is stored in [Sanity](https://www.sanity.io) and every
+section the public site shows — regions, leadership, chapters, zones, events, announcements and
+activities — is created **once** in the CMS and then automatically appears everywhere it belongs.
+
+### Set up your Sanity project
+
+1. Create a free project at [sanity.io/manage](https://www.sanity.io/manage) (project ID + dataset, e.g. `production`).
+2. Copy `.env.example` to `.env` and fill in:
+   - `SANITY_PROJECT_ID` — your project ID (server-side reads).
+   - `VITE_SANITY_PROJECT_ID` — same value, so the embedded admin studio can render in the browser.
+   - `SANITY_WRITE_TOKEN` — a token with editor/write access, used by the seed script.
+3. Add the same variables to your **Vercel project → Settings → Environment Variables**.
+4. Set `zapier`/CORS if you need browser access to the API from your site domain
+   (Dashboard → API → CORS origins → add `https://your-domain` and `http://localhost:3000`).
+
+### Seed the initial regions
+
+```sh
+node scripts/seed-regions.mjs
+```
+
+This creates the five Global Network regions (with their current stats, events, activities and
+newsletters). Combining with sanitize/delete lets you run it repeatedly; it skips anything whose
+slug already exists.
+
+### Admin studio
+
+The CMS admin is embedded in the app at **`/studio`** on the live site (and dev server). From
+there you can create and edit the following document types — references link everything together:
+
+- **Region** — Global Network regions (overview, countries, mission, focus, stats, gallery).
+- **Person** — any leader. Give them a `region`, `zone` or `chapter` reference and they appear
+  on that page automatically.
+- **Zone** — Doctors' Arm zones.
+- **Chapter** — student/doctor/global chapters. Assign `arm`, `region`, `zone`.
+- **Event / Announcement / Activity** — set `arm` and reference a region/zone/chapter and they
+  show up on those pages instantly.
+
+### How the connections work
+
+An admin never edits the React pages directly. Instead:
+
+- A region page lists `Person` docs whose `region` references it.
+- `Event`, `Announcement` and `Activity` docs reference a region/zone/chapter and appear within
+  them.
+- When Sanity is not configured (no `SANITY_PROJECT_ID`), the site falls back to the static
+  content in `src/sanity/fallback.ts` so nothing breaks.
+
+### Next phases
+
+The shared schema (`src/sanity/schema/`) and card components
+(`src/components/site/org/`) already cover the Student Arm (NEC, chapters) and Doctors Arm
+(zones, chapters). Those pages will switch from static to CMS-driven content in the next
+milestones.

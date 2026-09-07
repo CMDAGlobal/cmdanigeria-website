@@ -10,30 +10,27 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AboutIndexRouteImport } from './routes/about/index'
-import { Route as AboutHistoryRouteImport } from './routes/about/history'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
 import { Route as EventsRouteImport } from './routes/events'
 import { Route as GiveRouteImport } from './routes/give'
+import { Route as GlobalNetworkRouteImport } from './routes/global-network'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as MinistriesRouteImport } from './routes/ministries'
 import { Route as PublicationsRouteImport } from './routes/publications'
-import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
-import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
-import { Route as GlobalNetworkRouteImport } from './routes/global-network'
-import { Route as GlobalNetworkAmericasCaribbeanRouteImport } from './routes/global-network/americas-caribbean'
-import { Route as GlobalNetworkUkEuropeRouteImport } from './routes/global-network/uk-europe'
-import { Route as GlobalNetworkMiddleEastRouteImport } from './routes/global-network/middle-east'
-import { Route as GlobalNetworkAustralasiaRouteImport } from './routes/global-network/australasia'
-import { Route as GlobalNetworkAfricaRouteImport } from './routes/global-network/africa'
-import { Route as MediaResourcesRouteImport } from './routes/media-resources'
+import { Route as StudioRouteImport } from './routes/studio'
+import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
+import { Route as AboutIndexRouteImport } from './routes/about/index'
+import { Route as AboutHistoryRouteImport } from './routes/about/history'
+import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
+import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
 import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
-import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
-import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministries/saline-training'
+import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
 
 const IndexRoute = IndexRouteImport.update({
@@ -41,19 +38,14 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AboutIndexRoute = AboutIndexRouteImport.update({
-  id: '/about',
-  path: '/about',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AboutHistoryRoute = AboutHistoryRouteImport.update({
-  id: '/about/history',
-  path: '/about/history',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DoctorsArmRoute = DoctorsArmRouteImport.update({
+  id: '/doctors-arm',
+  path: '/doctors-arm',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EventsRoute = EventsRouteImport.update({
@@ -66,9 +58,19 @@ const GiveRoute = GiveRouteImport.update({
   path: '/give',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
+  id: '/global-network',
+  path: '/global-network',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MediaResourcesRoute = MediaResourcesRouteImport.update({
+  id: '/media-resources',
+  path: '/media-resources',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MembershipRoute = MembershipRouteImport.update({
@@ -86,298 +88,240 @@ const PublicationsRoute = PublicationsRouteImport.update({
   path: '/publications',
   getParentRoute: () => rootRouteImport,
 } as any)
-const WhatWeDoRoute = WhatWeDoRouteImport.update({
-  id: '/what-we-do',
-  path: '/what-we-do',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const StudentsArmRoute = StudentsArmRouteImport.update({
   id: '/students-arm',
   path: '/students-arm',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DoctorsArmRoute = DoctorsArmRouteImport.update({
-  id: '/doctors-arm',
-  path: '/doctors-arm',
+const StudioRoute = StudioRouteImport.update({
+  id: '/studio',
+  path: '/studio',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
-  id: '/global-network',
-  path: '/global-network',
+const WhatWeDoRoute = WhatWeDoRouteImport.update({
+  id: '/what-we-do',
+  path: '/what-we-do',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const GlobalNetworkAmericasCaribbeanRoute = GlobalNetworkAmericasCaribbeanRouteImport.update({
-  id: '/global-network/americas-caribbean',
-  path: '/global-network/americas-caribbean',
+const AboutIndexRoute = AboutIndexRouteImport.update({
+  id: '/about/',
+  path: '/about/',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const GlobalNetworkUkEuropeRoute = GlobalNetworkUkEuropeRouteImport.update({
-  id: '/global-network/uk-europe',
-  path: '/global-network/uk-europe',
+const AboutHistoryRoute = AboutHistoryRouteImport.update({
+  id: '/about/history',
+  path: '/about/history',
   getParentRoute: () => rootRouteImport,
 } as any)
-
-const GlobalNetworkMiddleEastRoute = GlobalNetworkMiddleEastRouteImport.update({
-  id: '/global-network/middle-east',
-  path: '/global-network/middle-east',
-  getParentRoute: () => rootRouteImport,
+const GlobalNetworkSlugRoute = GlobalNetworkSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => GlobalNetworkRoute,
 } as any)
-
-const GlobalNetworkAustralasiaRoute = GlobalNetworkAustralasiaRouteImport.update({
-  id: '/global-network/australasia',
-  path: '/global-network/australasia',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const GlobalNetworkAfricaRoute = GlobalNetworkAfricaRouteImport.update({
-  id: '/global-network/africa',
-  path: '/global-network/africa',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const MediaResourcesRoute = MediaResourcesRouteImport.update({
-  id: '/media-resources',
-  path: '/media-resources',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const MinistriesIfehlRoute = MinistriesIfehlRouteImport.update({
-  id: '/ministries/ifehl',
-  path: '/ministries/ifehl',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const MinistriesImmRoute = MinistriesImmRouteImport.update({
-  id: '/ministries/imm',
-  path: '/ministries/imm',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
 const MinistriesExcelRoute = MinistriesExcelRouteImport.update({
-  id: '/ministries/excel',
-  path: '/ministries/excel',
-  getParentRoute: () => rootRouteImport,
+  id: '/excel',
+  path: '/excel',
+  getParentRoute: () => MinistriesRoute,
 } as any)
-
+const MinistriesIfehlRoute = MinistriesIfehlRouteImport.update({
+  id: '/ifehl',
+  path: '/ifehl',
+  getParentRoute: () => MinistriesRoute,
+} as any)
+const MinistriesImmRoute = MinistriesImmRouteImport.update({
+  id: '/imm',
+  path: '/imm',
+  getParentRoute: () => MinistriesRoute,
+} as any)
+const MinistriesSalineTrainingRoute =
+  MinistriesSalineTrainingRouteImport.update({
+    id: '/saline-training',
+    path: '/saline-training',
+    getParentRoute: () => MinistriesRoute,
+  } as any)
 const MinistriesTheLadyDoctorRoute = MinistriesTheLadyDoctorRouteImport.update({
-  id: '/ministries/the-lady-doctor',
-  path: '/ministries/the-lady-doctor',
-  getParentRoute: () => rootRouteImport,
+  id: '/the-lady-doctor',
+  path: '/the-lady-doctor',
+  getParentRoute: () => MinistriesRoute,
 } as any)
-
-const MinistriesSalineTrainingRoute = MinistriesSalineTrainingRouteImport.update({
-  id: '/ministries/saline-training',
-  path: '/ministries/saline-training',
-  getParentRoute: () => rootRouteImport,
-} as any)
-
-const MinistriesWholenessMissionsRoute = MinistriesWholenessMissionsRouteImport.update({
-  id: '/ministries/wholeness-missions',
-  path: '/ministries/wholeness-missions',
-  getParentRoute: () => rootRouteImport,
-} as any)
+const MinistriesWholenessMissionsRoute =
+  MinistriesWholenessMissionsRouteImport.update({
+    id: '/wholeness-missions',
+    path: '/wholeness-missions',
+    getParentRoute: () => MinistriesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/about': typeof AboutIndexRoute
-  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
+  '/doctors-arm': typeof DoctorsArmRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
+  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
-  '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRoute
-  '/publications': typeof PublicationsRoute
-  '/what-we-do': typeof WhatWeDoRoute
-  '/students-arm': typeof StudentsArmRoute
-  '/doctors-arm': typeof DoctorsArmRoute
-  '/global-network': typeof GlobalNetworkRoute
-  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
-  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
-  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
-  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
-  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/membership': typeof MembershipRoute
+  '/ministries': typeof MinistriesRouteWithChildren
+  '/publications': typeof PublicationsRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/studio': typeof StudioRoute
+  '/what-we-do': typeof WhatWeDoRoute
+  '/about/history': typeof AboutHistoryRoute
+  '/global-network/$slug': typeof GlobalNetworkSlugRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/excel': typeof MinistriesExcelRoute
-  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/about/': typeof AboutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/about': typeof AboutIndexRoute
-  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
+  '/doctors-arm': typeof DoctorsArmRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
+  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
-  '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRoute
-  '/publications': typeof PublicationsRoute
-  '/what-we-do': typeof WhatWeDoRoute
-  '/students-arm': typeof StudentsArmRoute
-  '/doctors-arm': typeof DoctorsArmRoute
-  '/global-network': typeof GlobalNetworkRoute
-  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
-  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
-  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
-  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
-  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/membership': typeof MembershipRoute
+  '/ministries': typeof MinistriesRouteWithChildren
+  '/publications': typeof PublicationsRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/studio': typeof StudioRoute
+  '/what-we-do': typeof WhatWeDoRoute
+  '/about/history': typeof AboutHistoryRoute
+  '/global-network/$slug': typeof GlobalNetworkSlugRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/excel': typeof MinistriesExcelRoute
-  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/about': typeof AboutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/about': typeof AboutIndexRoute
-  '/about/history': typeof AboutHistoryRoute
   '/contact': typeof ContactRoute
+  '/doctors-arm': typeof DoctorsArmRoute
   '/events': typeof EventsRoute
   '/give': typeof GiveRoute
+  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
-  '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRoute
-  '/publications': typeof PublicationsRoute
-  '/what-we-do': typeof WhatWeDoRoute
-  '/students-arm': typeof StudentsArmRoute
-  '/doctors-arm': typeof DoctorsArmRoute
-  '/global-network': typeof GlobalNetworkRoute
-  '/global-network/americas-caribbean': typeof GlobalNetworkAmericasCaribbeanRoute
-  '/global-network/uk-europe': typeof GlobalNetworkUkEuropeRoute
-  '/global-network/middle-east': typeof GlobalNetworkMiddleEastRoute
-  '/global-network/australasia': typeof GlobalNetworkAustralasiaRoute
-  '/global-network/africa': typeof GlobalNetworkAfricaRoute
   '/media-resources': typeof MediaResourcesRoute
+  '/membership': typeof MembershipRoute
+  '/ministries': typeof MinistriesRouteWithChildren
+  '/publications': typeof PublicationsRoute
+  '/students-arm': typeof StudentsArmRoute
+  '/studio': typeof StudioRoute
+  '/what-we-do': typeof WhatWeDoRoute
+  '/about/history': typeof AboutHistoryRoute
+  '/global-network/$slug': typeof GlobalNetworkSlugRoute
+  '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/excel': typeof MinistriesExcelRoute
-  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/about/': typeof AboutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/about'
-    | '/about/history'
     | '/contact'
+    | '/doctors-arm'
     | '/events'
     | '/give'
+    | '/global-network'
     | '/impact'
+    | '/media-resources'
     | '/membership'
     | '/ministries'
     | '/publications'
-    | '/what-we-do'
     | '/students-arm'
-    | '/doctors-arm'
-    | '/global-network'
-    | '/global-network/americas-caribbean'
-    | '/global-network/uk-europe'
-    | '/global-network/middle-east'
-    | '/global-network/australasia'
-    | '/global-network/africa'
-    | '/media-resources'
+    | '/studio'
+    | '/what-we-do'
+    | '/about/history'
+    | '/global-network/$slug'
+    | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/excel'
-    | '/ministries/the-lady-doctor'
     | '/ministries/saline-training'
+    | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/about/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/about'
-    | '/about/history'
     | '/contact'
+    | '/doctors-arm'
     | '/events'
     | '/give'
+    | '/global-network'
     | '/impact'
+    | '/media-resources'
     | '/membership'
     | '/ministries'
     | '/publications'
-    | '/what-we-do'
     | '/students-arm'
-    | '/doctors-arm'
-    | '/global-network'
-    | '/global-network/americas-caribbean'
-    | '/global-network/uk-europe'
-    | '/global-network/middle-east'
-    | '/global-network/australasia'
-    | '/global-network/africa'
-    | '/media-resources'
+    | '/studio'
+    | '/what-we-do'
+    | '/about/history'
+    | '/global-network/$slug'
+    | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/excel'
-    | '/ministries/the-lady-doctor'
     | '/ministries/saline-training'
+    | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/about'
   id:
     | '__root__'
     | '/'
-    | '/about'
-    | '/about/history'
     | '/contact'
+    | '/doctors-arm'
     | '/events'
     | '/give'
+    | '/global-network'
     | '/impact'
+    | '/media-resources'
     | '/membership'
     | '/ministries'
     | '/publications'
-    | '/what-we-do'
     | '/students-arm'
-    | '/doctors-arm'
-    | '/global-network'
-    | '/global-network/americas-caribbean'
-    | '/global-network/uk-europe'
-    | '/global-network/middle-east'
-    | '/global-network/australasia'
-    | '/global-network/africa'
-    | '/media-resources'
+    | '/studio'
+    | '/what-we-do'
+    | '/about/history'
+    | '/global-network/$slug'
+    | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/excel'
-    | '/ministries/the-lady-doctor'
     | '/ministries/saline-training'
+    | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/about/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AboutIndexRoute: typeof AboutIndexRoute
-  AboutHistoryRoute: typeof AboutHistoryRoute
   ContactRoute: typeof ContactRoute
+  DoctorsArmRoute: typeof DoctorsArmRoute
   EventsRoute: typeof EventsRoute
   GiveRoute: typeof GiveRoute
+  GlobalNetworkRoute: typeof GlobalNetworkRouteWithChildren
   ImpactRoute: typeof ImpactRoute
-  MembershipRoute: typeof MembershipRoute
-  MinistriesRoute: typeof MinistriesRoute
-  PublicationsRoute: typeof PublicationsRoute
-  WhatWeDoRoute: typeof WhatWeDoRoute
-  StudentsArmRoute: typeof StudentsArmRoute
-  DoctorsArmRoute: typeof DoctorsArmRoute
-  GlobalNetworkRoute: typeof GlobalNetworkRoute
-  GlobalNetworkAmericasCaribbeanRoute: typeof GlobalNetworkAmericasCaribbeanRoute
-  GlobalNetworkUkEuropeRoute: typeof GlobalNetworkUkEuropeRoute
-  GlobalNetworkMiddleEastRoute: typeof GlobalNetworkMiddleEastRoute
-  GlobalNetworkAustralasiaRoute: typeof GlobalNetworkAustralasiaRoute
-  GlobalNetworkAfricaRoute: typeof GlobalNetworkAfricaRoute
   MediaResourcesRoute: typeof MediaResourcesRoute
-  MinistriesIfehlRoute: typeof MinistriesIfehlRoute
-  MinistriesImmRoute: typeof MinistriesImmRoute
-  MinistriesExcelRoute: typeof MinistriesExcelRoute
-  MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
-  MinistriesSalineTrainingRoute: typeof MinistriesSalineTrainingRoute
-  MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
+  MembershipRoute: typeof MembershipRoute
+  MinistriesRoute: typeof MinistriesRouteWithChildren
+  PublicationsRoute: typeof PublicationsRoute
+  StudentsArmRoute: typeof StudentsArmRoute
+  StudioRoute: typeof StudioRoute
+  WhatWeDoRoute: typeof WhatWeDoRoute
+  AboutHistoryRoute: typeof AboutHistoryRoute
+  AboutIndexRoute: typeof AboutIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -389,25 +333,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/about': {
-      id: '/about'
-      path: '/about'
-      fullPath: '/about'
-      preLoaderRoute: typeof AboutIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/about/history': {
-      id: '/about/history'
-      path: '/about/history'
-      fullPath: '/about/history'
-      preLoaderRoute: typeof AboutHistoryRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contact': {
       id: '/contact'
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/doctors-arm': {
+      id: '/doctors-arm'
+      path: '/doctors-arm'
+      fullPath: '/doctors-arm'
+      preLoaderRoute: typeof DoctorsArmRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/events': {
@@ -424,11 +361,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GiveRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/global-network': {
+      id: '/global-network'
+      path: '/global-network'
+      fullPath: '/global-network'
+      preLoaderRoute: typeof GlobalNetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/impact': {
       id: '/impact'
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/media-resources': {
+      id: '/media-resources'
+      path: '/media-resources'
+      fullPath: '/media-resources'
+      preLoaderRoute: typeof MediaResourcesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/membership': {
@@ -452,13 +403,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/what-we-do': {
-      id: '/what-we-do'
-      path: '/what-we-do'
-      fullPath: '/what-we-do'
-      preLoaderRoute: typeof WhatWeDoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/students-arm': {
       id: '/students-arm'
       path: '/students-arm'
@@ -466,134 +410,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StudentsArmRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/doctors-arm': {
-      id: '/doctors-arm'
-      path: '/doctors-arm'
-      fullPath: '/doctors-arm'
-      preLoaderRoute: typeof DoctorsArmRouteImport
+    '/studio': {
+      id: '/studio'
+      path: '/studio'
+      fullPath: '/studio'
+      preLoaderRoute: typeof StudioRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/global-network': {
-      id: '/global-network'
-      path: '/global-network'
-      fullPath: '/global-network'
-      preLoaderRoute: typeof GlobalNetworkRouteImport
+    '/what-we-do': {
+      id: '/what-we-do'
+      path: '/what-we-do'
+      fullPath: '/what-we-do'
+      preLoaderRoute: typeof WhatWeDoRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/global-network/americas-caribbean': {
-      id: '/global-network/americas-caribbean'
-      path: '/global-network/americas-caribbean'
-      fullPath: '/global-network/americas-caribbean'
-      preLoaderRoute: typeof GlobalNetworkAmericasCaribbeanRouteImport
+    '/about/': {
+      id: '/about/'
+      path: '/about'
+      fullPath: '/about/'
+      preLoaderRoute: typeof AboutIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/global-network/uk-europe': {
-      id: '/global-network/uk-europe'
-      path: '/global-network/uk-europe'
-      fullPath: '/global-network/uk-europe'
-      preLoaderRoute: typeof GlobalNetworkUkEuropeRouteImport
+    '/about/history': {
+      id: '/about/history'
+      path: '/about/history'
+      fullPath: '/about/history'
+      preLoaderRoute: typeof AboutHistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/global-network/middle-east': {
-      id: '/global-network/middle-east'
-      path: '/global-network/middle-east'
-      fullPath: '/global-network/middle-east'
-      preLoaderRoute: typeof GlobalNetworkMiddleEastRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/global-network/australasia': {
-      id: '/global-network/australasia'
-      path: '/global-network/australasia'
-      fullPath: '/global-network/australasia'
-      preLoaderRoute: typeof GlobalNetworkAustralasiaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/global-network/africa': {
-      id: '/global-network/africa'
-      path: '/global-network/africa'
-      fullPath: '/global-network/africa'
-      preLoaderRoute: typeof GlobalNetworkAfricaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/media-resources': {
-      id: '/media-resources'
-      path: '/media-resources'
-      fullPath: '/media-resources'
-      preLoaderRoute: typeof MediaResourcesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ministries/ifehl': {
-      id: '/ministries/ifehl'
-      path: '/ministries/ifehl'
-      fullPath: '/ministries/ifehl'
-      preLoaderRoute: typeof MinistriesIfehlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ministries/imm': {
-      id: '/ministries/imm'
-      path: '/ministries/imm'
-      fullPath: '/ministries/imm'
-      preLoaderRoute: typeof MinistriesImmRouteImport
-      parentRoute: typeof rootRouteImport
+    '/global-network/$slug': {
+      id: '/global-network/$slug'
+      path: '/$slug'
+      fullPath: '/global-network/$slug'
+      preLoaderRoute: typeof GlobalNetworkSlugRouteImport
+      parentRoute: typeof GlobalNetworkRoute
     }
     '/ministries/excel': {
       id: '/ministries/excel'
-      path: '/ministries/excel'
+      path: '/excel'
       fullPath: '/ministries/excel'
       preLoaderRoute: typeof MinistriesExcelRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof MinistriesRoute
     }
-    '/ministries/the-lady-doctor': {
-      id: '/ministries/the-lady-doctor'
-      path: '/ministries/the-lady-doctor'
-      fullPath: '/ministries/the-lady-doctor'
-      preLoaderRoute: typeof MinistriesTheLadyDoctorRouteImport
-      parentRoute: typeof rootRouteImport
+    '/ministries/ifehl': {
+      id: '/ministries/ifehl'
+      path: '/ifehl'
+      fullPath: '/ministries/ifehl'
+      preLoaderRoute: typeof MinistriesIfehlRouteImport
+      parentRoute: typeof MinistriesRoute
+    }
+    '/ministries/imm': {
+      id: '/ministries/imm'
+      path: '/imm'
+      fullPath: '/ministries/imm'
+      preLoaderRoute: typeof MinistriesImmRouteImport
+      parentRoute: typeof MinistriesRoute
     }
     '/ministries/saline-training': {
       id: '/ministries/saline-training'
-      path: '/ministries/saline-training'
+      path: '/saline-training'
       fullPath: '/ministries/saline-training'
       preLoaderRoute: typeof MinistriesSalineTrainingRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof MinistriesRoute
+    }
+    '/ministries/the-lady-doctor': {
+      id: '/ministries/the-lady-doctor'
+      path: '/the-lady-doctor'
+      fullPath: '/ministries/the-lady-doctor'
+      preLoaderRoute: typeof MinistriesTheLadyDoctorRouteImport
+      parentRoute: typeof MinistriesRoute
     }
     '/ministries/wholeness-missions': {
       id: '/ministries/wholeness-missions'
-      path: '/ministries/wholeness-missions'
+      path: '/wholeness-missions'
       fullPath: '/ministries/wholeness-missions'
       preLoaderRoute: typeof MinistriesWholenessMissionsRouteImport
-      parentRoute: typeof rootRouteImport
+      parentRoute: typeof MinistriesRoute
     }
   }
 }
 
-const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  AboutIndexRoute: AboutIndexRoute,
-  AboutHistoryRoute: AboutHistoryRoute,
-  ContactRoute: ContactRoute,
-  EventsRoute: EventsRoute,
-  GiveRoute: GiveRoute,
-  ImpactRoute: ImpactRoute,
-  MembershipRoute: MembershipRoute,
-  MinistriesRoute: MinistriesRoute,
-  PublicationsRoute: PublicationsRoute,
-  WhatWeDoRoute: WhatWeDoRoute,
-  StudentsArmRoute: StudentsArmRoute,
-  DoctorsArmRoute: DoctorsArmRoute,
-  GlobalNetworkRoute: GlobalNetworkRoute,
-  GlobalNetworkAmericasCaribbeanRoute: GlobalNetworkAmericasCaribbeanRoute,
-  GlobalNetworkUkEuropeRoute: GlobalNetworkUkEuropeRoute,
-  GlobalNetworkMiddleEastRoute: GlobalNetworkMiddleEastRoute,
-  GlobalNetworkAustralasiaRoute: GlobalNetworkAustralasiaRoute,
-  GlobalNetworkAfricaRoute: GlobalNetworkAfricaRoute,
-  MediaResourcesRoute: MediaResourcesRoute,
+interface GlobalNetworkRouteChildren {
+  GlobalNetworkSlugRoute: typeof GlobalNetworkSlugRoute
+}
+
+const GlobalNetworkRouteChildren: GlobalNetworkRouteChildren = {
+  GlobalNetworkSlugRoute: GlobalNetworkSlugRoute,
+}
+
+const GlobalNetworkRouteWithChildren = GlobalNetworkRoute._addFileChildren(
+  GlobalNetworkRouteChildren,
+)
+
+interface MinistriesRouteChildren {
+  MinistriesExcelRoute: typeof MinistriesExcelRoute
+  MinistriesIfehlRoute: typeof MinistriesIfehlRoute
+  MinistriesImmRoute: typeof MinistriesImmRoute
+  MinistriesSalineTrainingRoute: typeof MinistriesSalineTrainingRoute
+  MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
+  MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
+}
+
+const MinistriesRouteChildren: MinistriesRouteChildren = {
+  MinistriesExcelRoute: MinistriesExcelRoute,
   MinistriesIfehlRoute: MinistriesIfehlRoute,
   MinistriesImmRoute: MinistriesImmRoute,
-  MinistriesExcelRoute: MinistriesExcelRoute,
-  MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
   MinistriesSalineTrainingRoute: MinistriesSalineTrainingRoute,
+  MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
   MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
+}
+
+const MinistriesRouteWithChildren = MinistriesRoute._addFileChildren(
+  MinistriesRouteChildren,
+)
+
+const rootRouteChildren: RootRouteChildren = {
+  IndexRoute: IndexRoute,
+  ContactRoute: ContactRoute,
+  DoctorsArmRoute: DoctorsArmRoute,
+  EventsRoute: EventsRoute,
+  GiveRoute: GiveRoute,
+  GlobalNetworkRoute: GlobalNetworkRouteWithChildren,
+  ImpactRoute: ImpactRoute,
+  MediaResourcesRoute: MediaResourcesRoute,
+  MembershipRoute: MembershipRoute,
+  MinistriesRoute: MinistriesRouteWithChildren,
+  PublicationsRoute: PublicationsRoute,
+  StudentsArmRoute: StudentsArmRoute,
+  StudioRoute: StudioRoute,
+  WhatWeDoRoute: WhatWeDoRoute,
+  AboutHistoryRoute: AboutHistoryRoute,
+  AboutIndexRoute: AboutIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
