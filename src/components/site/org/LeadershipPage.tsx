@@ -63,15 +63,15 @@ export function LeadershipPage({ leadership }: { leadership: LeadershipTeams | n
         tone="paper"
       />
       <LeadershipSection
-        leaders={leadership?.managementTeam}
-        title="Management Team"
-        intro="The management team leads the day-to-day operations and coordination of the secretariat."
-        tone="muted"
-      />
-      <LeadershipSection
         leaders={leadership?.studentNec}
         title="Student NEC"
         intro="The National Executive Committee of the Students' Arm represents students and dental students across Nigerian universities."
+        tone="muted"
+      />
+      <LeadershipSection
+        leaders={leadership?.managementTeam}
+        title="Management Team"
+        intro="The management team leads the day-to-day operations and coordination of the secretariat."
         tone="paper"
       />
       <section className="px-6 py-20 text-center lg:px-10">
