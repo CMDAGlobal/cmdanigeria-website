@@ -5,6 +5,7 @@ import type {
   ArmOverview,
   ChapterDetail,
   EventRecord,
+  LeadershipTeams,
   RegionDetail,
   RegionListEntry,
   StatEntry,
@@ -837,6 +838,10 @@ export function fallbackStudentsArm(): ArmOverview {
 
 export function fallbackDoctorsArm(): ArmOverview {
   return overviewFromZones("doctors", doctorZones, doctorEvents);
+}
+
+export function fallbackLeadership(): LeadershipTeams {
+  return { boardOfTrustees: [], governingBoard: [], managementTeam: [], studentNec: [] };
 }
 
 function overviewFromZones(arm: Arm, zones: FallbackZone[], events: EventRecord[]): ArmOverview {

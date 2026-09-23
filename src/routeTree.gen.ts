@@ -25,6 +25,7 @@ import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
 import { Route as AboutHistoryRouteImport } from './routes/about/history'
+import { Route as AboutLeadershipRouteImport } from './routes/about/leadership'
 import { Route as ChaptersIndexRouteImport } from './routes/chapters/index'
 import { Route as ChaptersSlugRouteImport } from './routes/chapters/$slug'
 import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
@@ -116,6 +117,11 @@ const AboutHistoryRoute = AboutHistoryRouteImport.update({
   path: '/about/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AboutLeadershipRoute = AboutLeadershipRouteImport.update({
+  id: '/about/leadership',
+  path: '/about/leadership',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChaptersIndexRoute = ChaptersIndexRouteImport.update({
   id: '/chapters/',
   path: '/chapters/',
@@ -185,6 +191,7 @@ export interface FileRoutesByFullPath {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/about/leadership': typeof AboutLeadershipRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -213,6 +220,7 @@ export interface FileRoutesByTo {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/about/leadership': typeof AboutLeadershipRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -242,6 +250,7 @@ export interface FileRoutesById {
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
+  '/about/leadership': typeof AboutLeadershipRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -272,6 +281,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/about/leadership'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -300,6 +310,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/about/leadership'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -328,6 +339,7 @@ export interface FileRouteTypes {
     | '/studio'
     | '/what-we-do'
     | '/about/history'
+    | '/about/leadership'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -357,6 +369,7 @@ export interface RootRouteChildren {
   StudioRoute: typeof StudioRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
   AboutHistoryRoute: typeof AboutHistoryRoute
+  AboutLeadershipRoute: typeof AboutLeadershipRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
@@ -475,6 +488,13 @@ declare module '@tanstack/react-router' {
       path: '/about/history'
       fullPath: '/about/history'
       preLoaderRoute: typeof AboutHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/about/leadership': {
+      id: '/about/leadership'
+      path: '/about/leadership'
+      fullPath: '/about/leadership'
+      preLoaderRoute: typeof AboutLeadershipRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chapters/': {
@@ -600,6 +620,7 @@ const rootRouteChildren: RootRouteChildren = {
   StudioRoute: StudioRoute,
   WhatWeDoRoute: WhatWeDoRoute,
   AboutHistoryRoute: AboutHistoryRoute,
+  AboutLeadershipRoute: AboutLeadershipRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,

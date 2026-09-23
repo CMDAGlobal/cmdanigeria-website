@@ -18,7 +18,7 @@ const nav = [
           items: [
             { label: "Our Story", to: "/about", icon: BookOpen, desc: "Who we are and what drives us" },
             { label: "Our History", to: "/about/history", icon: History, desc: "Five decades of faith and service" },
-            { label: "Leadership", to: "/about#leadership-development", icon: Award, desc: "Forming servant-leaders" },
+            { label: "Leadership", to: "/about/leadership", icon: Award, desc: "Trustees, board, management and student NEC" },
           ],
         },
         {

@@ -88,6 +88,13 @@ export interface ArmOverview {
   announcements?: AnnouncementRecord[] | null;
 }
 
+export interface LeadershipTeams {
+  boardOfTrustees?: LeaderRecord[] | null;
+  governingBoard?: LeaderRecord[] | null;
+  managementTeam?: LeaderRecord[] | null;
+  studentNec?: LeaderRecord[] | null;
+}
+
 export interface EventRecord {
   _id: string;
   title: string;

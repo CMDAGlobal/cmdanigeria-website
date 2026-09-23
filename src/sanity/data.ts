@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getClient } from "./client";
 import {
   fallbackDoctorsArm,
+  fallbackLeadership,
   fallbackRegionList,
   fallbackStudentsArm,
   getFallbackChapter,
@@ -12,6 +13,7 @@ import {
   armAnnouncementsQuery,
   armEventsQuery,
   chapterQuery,
+  leadershipQuery,
   necQuery,
   regionListQuery,
   regionQuery,
@@ -25,6 +27,7 @@ import type {
   ChapterDetail,
   EventRecord,
   LeaderRecord,
+  LeadershipTeams,
   RegionDetail,
   RegionListEntry,
   ZoneDetail,
@@ -113,3 +116,17 @@ export const fetchZone = createServerFn({ method: "GET", strict: false })
       return getFallbackZone(data) ?? null;
     }
   });
+
+export const fetchLeadership = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<LeadershipTeams> => {
+    const client = getClient();
+    if (!client) return fallbackLeadership();
+    try {
+      const teams = await client.fetch<LeadershipTeams | null>(leadershipQuery);
+      return teams ?? fallbackLeadership();
+    } catch (error) {
+      console.error("[sanity] fetchLeadership failed", error);
+      return fallbackLeadership();
+    }
+  },
+);

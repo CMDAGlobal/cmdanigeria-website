@@ -28,6 +28,19 @@ export const person = defineType({
         return arm !== "students" && arm !== "doctors";
       },
     }),
+    defineField({
+      name: "leadershipTeam",
+      title: "National leadership team",
+      description: "Shows this person on the Leadership page (Who We Are > Leadership).",
+      type: "string",
+      options: {
+        list: [
+          { title: "Board of Trustees", value: "board-of-trustees" },
+          { title: "Governing Board", value: "governing-board" },
+          { title: "Management Team", value: "management-team" },
+        ],
+      },
+    }),
     defineField({ name: "institution", title: "Institution", type: "string" }),
     defineField({ name: "chapter", title: "Chapter", type: "string" }),
     defineField({ name: "country", title: "Country / State", type: "string" }),

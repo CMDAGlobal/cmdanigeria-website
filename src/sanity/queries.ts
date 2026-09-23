@@ -74,6 +74,15 @@ export const necQuery = `
 *[_type == "person" && arm == $arm && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
 `;
 
+export const leadershipQuery = `
+{
+  "boardOfTrustees": *[_type == "person" && leadershipTeam == "board-of-trustees"] | order(order asc, _createdAt asc) ${personProjection},
+  "governingBoard": *[_type == "person" && leadershipTeam == "governing-board"] | order(order asc, _createdAt asc) ${personProjection},
+  "managementTeam": *[_type == "person" && leadershipTeam == "management-team"] | order(order asc, _createdAt asc) ${personProjection},
+  "studentNec": *[_type == "person" && arm == "students" && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
+}
+`;
+
 export const zonesQuery = `
 *[_type == "zone"] | order(order asc, name asc) {
   _id, name, slug, eyebrow, tagline, intro, countries, stats, order,
