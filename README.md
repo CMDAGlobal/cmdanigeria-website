@@ -1091,3 +1091,60 @@ The core network is now fully CMS-driven: Global Network regions, Students' Arm 
 chapters), and Doctors' Arm (NEC, zones, chapters) all load from Sanity with static fallbacks.
 Ongoing content work happens in the Studio — adding people to pages they're referenced on,
 publishing events/announcements, and attaching media galleries.
+
+## Admin governance (RBAC, auth, audit logs)
+
+Sanity remains the content source of truth. A separate governance layer in PostgreSQL
+(Neon is expected) powers the future admin dashboard: who may sign in, what they may do, and a
+tamper-evident audit trail of privileged actions.
+
+### Data model (`src/admin/db/schema.ts`)
+
+- `admin_users` — login credentials (`email`, `password_hash`, `is_active`).
+- `admin_roles` / `admin_permissions` — catalogues seeded at migration time.
+- `admin_role_permissions` / `admin_user_roles` — role→permission and user→role+scope grants
+  (a grant binds a user's role to a scope: an arm, a region, or a chapter).
+- `admin_sessions` — opaque, hashed (SHA-256) session tokens with expiry and last-seen tracking.
+- `admin_audit_logs` — actor, action, target, scope, outcome and `ip_address`/`user_agent`.
+
+### Roles and scopes (`src/admin/rbac/`)
+
+Four roles are defined: `super_admin` (system-wide), `arm_admin` (an arm, e.g. `doctors`),
+`chapter_admin` (a chapter, e.g. `students/lagos`) and `content_editor` (inherits its scope's
+content permissions). Each role holds grants for the 33 `PermissionKey`s (users, chapters,
+events, news, settings, audit logs, …). `can(actor, permission, scope?)` enforces that the
+actor's granted scope contains the requested scope — a chapter admin cannot act on another
+chapter, and non-system scopes cannot request system-wide operations.
+
+### Setup
+
+1. Create a Neon (or any Postgres) database and set `ADMIN_DATABASE_URL` in `.env`.
+2. Apply the schema and seed roles/permissions:
+   ```sh
+   npm run admin:migrate
+   ```
+3. Create the initial Super Admin:
+   ```sh
+   npm run admin:bootstrap
+   ```
+   (reads `ADMIN_BOOTSTRAP_EMAIL`, `ADMIN_BOOTSTRAP_NAME`, `ADMIN_BOOTSTRAP_PASSWORD` from the
+   environment; `ADMIN_SESSION_TTL_MS` defaults session lifetime to 7 days).
+
+Both scripts are idempotent and safe to rerun. Passwords are PBKDF2-SHA256 with 310k
+iterations and a per-user salt.
+
+### Auth endpoints (`src/admin/auth/server.ts`)
+
+`loginAction`, `logoutAction` and `meAction` are TanStack Start server functions. The session
+cookie (`cmda_admin`) is `HttpOnly`, `SameSite=Lax`, `Secure` in production. Every denied URL
+check is recorded as an `authorization.denied` audit entry.
+
+### Tests
+
+```sh
+npm run test
+```
+
+`src/admin/rbac/engine.test.ts` and `src/admin/auth/auth.test.ts` cover the full permission
+matrix, scope containment (including cross-chapter IDOR rejections) and password/token
+handling.
