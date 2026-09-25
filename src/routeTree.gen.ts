@@ -26,6 +26,8 @@ import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
 import { Route as AboutIndexRouteImport } from './routes/about/index'
 import { Route as AboutHistoryRouteImport } from './routes/about/history'
 import { Route as AboutLeadershipRouteImport } from './routes/about/leadership'
+import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
+import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ChaptersIndexRouteImport } from './routes/chapters/index'
 import { Route as ChaptersSlugRouteImport } from './routes/chapters/$slug'
 import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
@@ -36,6 +38,17 @@ import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministrie
 import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
 import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
+import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
+import { Route as AdminLayoutAnnouncementsRouteImport } from './routes/admin/_layout/announcements'
+import { Route as AdminLayoutAuditRouteImport } from './routes/admin/_layout/audit'
+import { Route as AdminLayoutChaptersRouteImport } from './routes/admin/_layout/chapters'
+import { Route as AdminLayoutEventsRouteImport } from './routes/admin/_layout/events'
+import { Route as AdminLayoutMediaRouteImport } from './routes/admin/_layout/media'
+import { Route as AdminLayoutNewsRouteImport } from './routes/admin/_layout/news'
+import { Route as AdminLayoutOutreachesRouteImport } from './routes/admin/_layout/outreaches'
+import { Route as AdminLayoutPagesRouteImport } from './routes/admin/_layout/pages'
+import { Route as AdminLayoutSettingsRouteImport } from './routes/admin/_layout/settings'
+import { Route as AdminLayoutUsersRouteImport } from './routes/admin/_layout/users'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -122,6 +135,16 @@ const AboutLeadershipRoute = AboutLeadershipRouteImport.update({
   path: '/about/leadership',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLayoutRoute = AdminLayoutRouteImport.update({
+  id: '/admin/_layout',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ChaptersIndexRoute = ChaptersIndexRouteImport.update({
   id: '/chapters/',
   path: '/chapters/',
@@ -174,6 +197,62 @@ const ZonesSlugRoute = ZonesSlugRouteImport.update({
   path: '/zones/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLayoutIndexRoute = AdminLayoutIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutAnnouncementsRoute =
+  AdminLayoutAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => AdminLayoutRoute,
+  } as any)
+const AdminLayoutAuditRoute = AdminLayoutAuditRouteImport.update({
+  id: '/audit',
+  path: '/audit',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutChaptersRoute = AdminLayoutChaptersRouteImport.update({
+  id: '/chapters',
+  path: '/chapters',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutEventsRoute = AdminLayoutEventsRouteImport.update({
+  id: '/events',
+  path: '/events',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutMediaRoute = AdminLayoutMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutNewsRoute = AdminLayoutNewsRouteImport.update({
+  id: '/news',
+  path: '/news',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutOutreachesRoute = AdminLayoutOutreachesRouteImport.update({
+  id: '/outreaches',
+  path: '/outreaches',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutPagesRoute = AdminLayoutPagesRouteImport.update({
+  id: '/pages',
+  path: '/pages',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutSettingsRoute = AdminLayoutSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutUsersRoute = AdminLayoutUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -192,6 +271,8 @@ export interface FileRoutesByFullPath {
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
   '/about/leadership': typeof AboutLeadershipRoute
+  '/admin': typeof AdminLayoutRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -203,6 +284,17 @@ export interface FileRoutesByFullPath {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
+  '/admin/audit': typeof AdminLayoutAuditRoute
+  '/admin/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/events': typeof AdminLayoutEventsRoute
+  '/admin/media': typeof AdminLayoutMediaRoute
+  '/admin/news': typeof AdminLayoutNewsRoute
+  '/admin/outreaches': typeof AdminLayoutOutreachesRoute
+  '/admin/pages': typeof AdminLayoutPagesRoute
+  '/admin/settings': typeof AdminLayoutSettingsRoute
+  '/admin/users': typeof AdminLayoutUsersRoute
+  '/admin/': typeof AdminLayoutIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -221,6 +313,7 @@ export interface FileRoutesByTo {
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
   '/about/leadership': typeof AboutLeadershipRoute
+  '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -232,6 +325,17 @@ export interface FileRoutesByTo {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
+  '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
+  '/admin/audit': typeof AdminLayoutAuditRoute
+  '/admin/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/events': typeof AdminLayoutEventsRoute
+  '/admin/media': typeof AdminLayoutMediaRoute
+  '/admin/news': typeof AdminLayoutNewsRoute
+  '/admin/outreaches': typeof AdminLayoutOutreachesRoute
+  '/admin/pages': typeof AdminLayoutPagesRoute
+  '/admin/settings': typeof AdminLayoutSettingsRoute
+  '/admin/users': typeof AdminLayoutUsersRoute
+  '/admin': typeof AdminLayoutIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -251,6 +355,8 @@ export interface FileRoutesById {
   '/what-we-do': typeof WhatWeDoRoute
   '/about/history': typeof AboutHistoryRoute
   '/about/leadership': typeof AboutLeadershipRoute
+  '/admin/_layout': typeof AdminLayoutRouteWithChildren
+  '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
@@ -262,6 +368,17 @@ export interface FileRoutesById {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/admin/_layout/announcements': typeof AdminLayoutAnnouncementsRoute
+  '/admin/_layout/audit': typeof AdminLayoutAuditRoute
+  '/admin/_layout/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/_layout/events': typeof AdminLayoutEventsRoute
+  '/admin/_layout/media': typeof AdminLayoutMediaRoute
+  '/admin/_layout/news': typeof AdminLayoutNewsRoute
+  '/admin/_layout/outreaches': typeof AdminLayoutOutreachesRoute
+  '/admin/_layout/pages': typeof AdminLayoutPagesRoute
+  '/admin/_layout/settings': typeof AdminLayoutSettingsRoute
+  '/admin/_layout/users': typeof AdminLayoutUsersRoute
+  '/admin/_layout/': typeof AdminLayoutIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -282,6 +399,8 @@ export interface FileRouteTypes {
     | '/what-we-do'
     | '/about/history'
     | '/about/leadership'
+    | '/admin'
+    | '/admin/login'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -293,6 +412,17 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/admin/announcements'
+    | '/admin/audit'
+    | '/admin/chapters'
+    | '/admin/events'
+    | '/admin/media'
+    | '/admin/news'
+    | '/admin/outreaches'
+    | '/admin/pages'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/admin/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,6 +441,7 @@ export interface FileRouteTypes {
     | '/what-we-do'
     | '/about/history'
     | '/about/leadership'
+    | '/admin/login'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -322,6 +453,17 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about'
     | '/chapters'
+    | '/admin/announcements'
+    | '/admin/audit'
+    | '/admin/chapters'
+    | '/admin/events'
+    | '/admin/media'
+    | '/admin/news'
+    | '/admin/outreaches'
+    | '/admin/pages'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/admin'
   id:
     | '__root__'
     | '/'
@@ -340,6 +482,8 @@ export interface FileRouteTypes {
     | '/what-we-do'
     | '/about/history'
     | '/about/leadership'
+    | '/admin/_layout'
+    | '/admin/login'
     | '/chapters/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
@@ -351,6 +495,17 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/admin/_layout/announcements'
+    | '/admin/_layout/audit'
+    | '/admin/_layout/chapters'
+    | '/admin/_layout/events'
+    | '/admin/_layout/media'
+    | '/admin/_layout/news'
+    | '/admin/_layout/outreaches'
+    | '/admin/_layout/pages'
+    | '/admin/_layout/settings'
+    | '/admin/_layout/users'
+    | '/admin/_layout/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -370,6 +525,8 @@ export interface RootRouteChildren {
   WhatWeDoRoute: typeof WhatWeDoRoute
   AboutHistoryRoute: typeof AboutHistoryRoute
   AboutLeadershipRoute: typeof AboutLeadershipRoute
+  AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
@@ -497,6 +654,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLeadershipRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_layout': {
+      id: '/admin/_layout'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/chapters/': {
       id: '/chapters/'
       path: '/chapters'
@@ -567,6 +738,83 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ZonesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/_layout/': {
+      id: '/admin/_layout/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminLayoutIndexRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/announcements': {
+      id: '/admin/_layout/announcements'
+      path: '/announcements'
+      fullPath: '/admin/announcements'
+      preLoaderRoute: typeof AdminLayoutAnnouncementsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/audit': {
+      id: '/admin/_layout/audit'
+      path: '/audit'
+      fullPath: '/admin/audit'
+      preLoaderRoute: typeof AdminLayoutAuditRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/chapters': {
+      id: '/admin/_layout/chapters'
+      path: '/chapters'
+      fullPath: '/admin/chapters'
+      preLoaderRoute: typeof AdminLayoutChaptersRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/events': {
+      id: '/admin/_layout/events'
+      path: '/events'
+      fullPath: '/admin/events'
+      preLoaderRoute: typeof AdminLayoutEventsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/media': {
+      id: '/admin/_layout/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AdminLayoutMediaRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/news': {
+      id: '/admin/_layout/news'
+      path: '/news'
+      fullPath: '/admin/news'
+      preLoaderRoute: typeof AdminLayoutNewsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/outreaches': {
+      id: '/admin/_layout/outreaches'
+      path: '/outreaches'
+      fullPath: '/admin/outreaches'
+      preLoaderRoute: typeof AdminLayoutOutreachesRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/pages': {
+      id: '/admin/_layout/pages'
+      path: '/pages'
+      fullPath: '/admin/pages'
+      preLoaderRoute: typeof AdminLayoutPagesRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/settings': {
+      id: '/admin/_layout/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AdminLayoutSettingsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/users': {
+      id: '/admin/_layout/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AdminLayoutUsersRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
   }
 }
 
@@ -604,6 +852,38 @@ const MinistriesRouteWithChildren = MinistriesRoute._addFileChildren(
   MinistriesRouteChildren,
 )
 
+interface AdminLayoutRouteChildren {
+  AdminLayoutAnnouncementsRoute: typeof AdminLayoutAnnouncementsRoute
+  AdminLayoutAuditRoute: typeof AdminLayoutAuditRoute
+  AdminLayoutChaptersRoute: typeof AdminLayoutChaptersRoute
+  AdminLayoutEventsRoute: typeof AdminLayoutEventsRoute
+  AdminLayoutMediaRoute: typeof AdminLayoutMediaRoute
+  AdminLayoutNewsRoute: typeof AdminLayoutNewsRoute
+  AdminLayoutOutreachesRoute: typeof AdminLayoutOutreachesRoute
+  AdminLayoutPagesRoute: typeof AdminLayoutPagesRoute
+  AdminLayoutSettingsRoute: typeof AdminLayoutSettingsRoute
+  AdminLayoutUsersRoute: typeof AdminLayoutUsersRoute
+  AdminLayoutIndexRoute: typeof AdminLayoutIndexRoute
+}
+
+const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
+  AdminLayoutAnnouncementsRoute: AdminLayoutAnnouncementsRoute,
+  AdminLayoutAuditRoute: AdminLayoutAuditRoute,
+  AdminLayoutChaptersRoute: AdminLayoutChaptersRoute,
+  AdminLayoutEventsRoute: AdminLayoutEventsRoute,
+  AdminLayoutMediaRoute: AdminLayoutMediaRoute,
+  AdminLayoutNewsRoute: AdminLayoutNewsRoute,
+  AdminLayoutOutreachesRoute: AdminLayoutOutreachesRoute,
+  AdminLayoutPagesRoute: AdminLayoutPagesRoute,
+  AdminLayoutSettingsRoute: AdminLayoutSettingsRoute,
+  AdminLayoutUsersRoute: AdminLayoutUsersRoute,
+  AdminLayoutIndexRoute: AdminLayoutIndexRoute,
+}
+
+const AdminLayoutRouteWithChildren = AdminLayoutRoute._addFileChildren(
+  AdminLayoutRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
@@ -621,6 +901,8 @@ const rootRouteChildren: RootRouteChildren = {
   WhatWeDoRoute: WhatWeDoRoute,
   AboutHistoryRoute: AboutHistoryRoute,
   AboutLeadershipRoute: AboutLeadershipRoute,
+  AdminLayoutRoute: AdminLayoutRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
