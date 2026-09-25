@@ -3,22 +3,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Building2 } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { ContentModule } from "@/components/admin/ContentModule";
 
 export const Route = createFileRoute("/admin/_layout/chapters")({
-  component: ChaptersModulePage,
+  component: ChaptersPage,
   head: () => ({
     meta: [{ title: "Chapters · Admin · CMDA Nigeria" }],
   }),
 });
 
-function ChaptersModulePage() {
+function ChaptersPage() {
   return (
-    <ModulePlaceholder
+    <ContentModule
+      module="chapters"
+      studioType="chapter"
       title="Chapters"
-      description="Manage CMDA Nigeria chapters, their leaders and chapter-level content."
+      description="Every CMDA Nigeria chapter, with its institution, location and arm."
       icon={Building2}
       permission="chapters.read"
+      dateHeading="Established"
+      searchPlaceholder="Search chapters, institutions or slugs"
+      emptyMessage="No chapters have been created yet."
+      listHeading="All chapters"
     />
   );
 }

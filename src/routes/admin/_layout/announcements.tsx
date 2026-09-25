@@ -3,22 +3,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Megaphone } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { ContentModule } from "@/components/admin/ContentModule";
 
 export const Route = createFileRoute("/admin/_layout/announcements")({
-  component: AnnouncementsModulePage,
+  component: AnnouncementsPage,
   head: () => ({
     meta: [{ title: "Announcements · Admin · CMDA Nigeria" }],
   }),
 });
 
-function AnnouncementsModulePage() {
+function AnnouncementsPage() {
   return (
-    <ModulePlaceholder
+    <ContentModule
+      module="announcements"
+      studioType="announcement"
       title="Announcements"
-      description="Share time-sensitive notices and communications with chapters and arms."
+      description="Notices for members, pinned items and time-sensitive circulars."
       icon={Megaphone}
       permission="announcements.read"
+      dateHeading="Published"
+      searchPlaceholder="Search announcements or categories"
+      emptyMessage="No announcements have been posted yet."
+      listHeading="All announcements"
     />
   );
 }

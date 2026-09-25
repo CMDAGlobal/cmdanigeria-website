@@ -3,22 +3,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Newspaper } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { ContentModule } from "@/components/admin/ContentModule";
 
 export const Route = createFileRoute("/admin/_layout/news")({
-  component: NewsModulePage,
+  component: NewsPage,
   head: () => ({
     meta: [{ title: "News · Admin · CMDA Nigeria" }],
   }),
 });
 
-function NewsModulePage() {
+function NewsPage() {
   return (
-    <ModulePlaceholder
+    <ContentModule
+      module="news"
+      studioType="post"
       title="News"
-      description="Publish and manage news articles and updates for the CMDA Nigeria website."
+      description="Articles, press releases, public statements and media coverage for the newsroom."
       icon={Newspaper}
       permission="news.read"
+      dateHeading="Published"
+      searchPlaceholder="Search headlines, categories or slugs"
+      emptyMessage="No news items have been published yet."
+      listHeading="All news items"
     />
   );
 }

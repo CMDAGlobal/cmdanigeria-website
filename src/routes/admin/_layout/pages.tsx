@@ -3,22 +3,27 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { FileText } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { ContentModule } from "@/components/admin/ContentModule";
 
 export const Route = createFileRoute("/admin/_layout/pages")({
-  component: PagesModulePage,
+  component: PagesPage,
   head: () => ({
     meta: [{ title: "Pages · Admin · CMDA Nigeria" }],
   }),
 });
 
-function PagesModulePage() {
+function PagesPage() {
   return (
-    <ModulePlaceholder
+    <ContentModule
+      module="pages"
+      studioType="page"
       title="Pages"
-      description="Edit content for the public-facing pages of the CMDA Nigeria website."
+      description="Standalone page content, its section and whether it is published."
       icon={FileText}
       permission="pages.read"
+      searchPlaceholder="Search page titles, paths or sections"
+      emptyMessage="No pages have been created yet."
+      listHeading="All pages"
     />
   );
 }

@@ -1,24 +1,16 @@
 "use client";
 
 import { createFileRoute } from "@tanstack/react-router";
-import { Settings2 } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { AdminSettings } from "@/components/admin/AdminSettings";
 
 export const Route = createFileRoute("/admin/_layout/settings")({
-  component: SettingsModulePage,
+  component: SettingsPage,
   head: () => ({
     meta: [{ title: "Settings · Admin · CMDA Nigeria" }],
   }),
 });
 
-function SettingsModulePage() {
-  return (
-    <ModulePlaceholder
-      title="Settings"
-      description="Platform-wide configuration and preferences for the admin console."
-      icon={Settings2}
-      permission="settings.read"
-    />
-  );
+function SettingsPage() {
+  return <AdminSettings />;
 }

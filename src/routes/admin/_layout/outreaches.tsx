@@ -3,22 +3,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { HeartHandshake } from "lucide-react";
 
-import { ModulePlaceholder } from "@/components/admin/ModulePlaceholder";
+import { ContentModule } from "@/components/admin/ContentModule";
 
 export const Route = createFileRoute("/admin/_layout/outreaches")({
-  component: OutreachesModulePage,
+  component: OutreachesPage,
   head: () => ({
     meta: [{ title: "Outreaches · Admin · CMDA Nigeria" }],
   }),
 });
 
-function OutreachesModulePage() {
+function OutreachesPage() {
   return (
-    <ModulePlaceholder
+    <ContentModule
+      module="outreaches"
+      studioType="outreach"
       title="Outreaches"
-      description="Coordinate community outreaches and humanitarian campaigns across the association."
+      description="Outreach campaigns, community health work and partner-led missions."
       icon={HeartHandshake}
       permission="outreaches.read"
+      dateHeading="Starts"
+      searchPlaceholder="Search campaigns, partners or locations"
+      emptyMessage="No outreach campaigns have been created yet."
+      listHeading="All campaigns"
     />
   );
 }
