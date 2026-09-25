@@ -42,3 +42,11 @@ AppData/
 Application Data/
 Temporary Internet Files/
 INetCache/
+
+# Vercel
+.vercel
+
+# Local environment files (keep .env.example tracked)
+.env
+.env.local
+.env.*.local

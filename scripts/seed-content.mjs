@@ -20,7 +20,7 @@ if (!projectId || !token) {
 const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
 
 async function docsExist(type, slugs) {
-  const { results } = await client.fetch(
+  const results = await client.fetch(
     `*[_type == $type && slug.current in $slugs] { _id, slug }`,
     { type, slugs },
   );
@@ -37,10 +37,11 @@ async function seedArmZones(arm, zones) {
     let zoneRef = null;
 
     if (existingZones.has(zoneSlug)) {
-      const [{ _id }] = await client.fetch(`*[_type == "zone" && slug.current == $zoneSlug][0] { _id }`, {
-        zoneSlug,
-      });
-      zoneRef = _id;
+      const existingZone = await client.fetch(
+        `*[_type == "zone" && slug.current == $zoneSlug][0] { _id }`,
+        { zoneSlug },
+      );
+      zoneRef = existingZone?._id ?? null;
       console.log(`skip zone ${zoneSlug}: already exists`);
     } else {
       const doc = await client.create({
@@ -63,7 +64,7 @@ async function seedArmZones(arm, zones) {
 
     for (const [ci, chapter] of (zone.sampleChapters ?? []).entries()) {
       const chapterSlug = chapter.slug?.current ?? `${zoneSlug}-chapter-${ci}`;
-      const { results: dupes } = await client.fetch(
+      const dupes = await client.fetch(
         `*[_type == "chapter" && slug.current == $chapterSlug] { _id }`,
         { chapterSlug },
       );
@@ -165,7 +166,7 @@ for (const [index, slug] of regionSlugs.entries()) {
   for (const [i, item] of events.entries()) {
     if (!item) continue;
     const slug = item.slug.current;
-    const { results: dupes } = await client.fetch(
+    const dupes = await client.fetch(
       `*[_type == "event" && slug.current == $slug] { _id }`,
       { slug },
     );
