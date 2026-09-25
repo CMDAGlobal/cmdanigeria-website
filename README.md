@@ -1005,18 +1005,6 @@ The final product should position CMDA Nigeria as the premier Christian healthca
 
 I have added the CMDA Logo
 
-This project was built with [Lovable](https://lovable.dev).
-
-**Live app**: https://cmdanigeria.lovable.app
-
-## Build with Lovable
-
-Continue developing this project in the [Lovable editor](https://lovable.dev/projects/7c0f4a3d-81ed-4e91-a536-2a802e3bab6a).
-
-- **Ship faster**: describe what you want to build and Lovable handles the code.
-- **Stay in sync**: every change made in Lovable is committed straight to this repository.
-- **Full ownership**: this code is yours. Push to `main` on GitHub and your changes sync back into Lovable, ready for your next prompt.
-
 ## Development
 
 Prefer working locally? You need Node.js and npm — [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating).
