@@ -1,18 +1,34 @@
 import { useEffect, useState } from "react";
 import { Reveal, useInView } from "./primitives";
+import type { ChapterCounts } from "@/sanity/types";
 
 type Stat = { value: number; suffix?: string; label: string };
 
-const stats: Stat[] = [
-  { value: 50, suffix: "+", label: "Years of ministry" },
-  { value: 11000, suffix: "+", label: "Members nationwide" },
-  { value: 9700, suffix: "+", label: "Student members" },
-  { value: 1200, suffix: "+", label: "Doctors & dentists" },
-  { value: 55, label: "Student chapters" },
-  { value: 50, label: "Doctor chapters" },
-  { value: 75, suffix: "+", label: "Global members" },
-  { value: 37, label: "States + FCT" },
-];
+const FOUNDING_YEAR = 1972;
+
+// Marketing totals kept as editable constants (no authoritative source in the CMS yet).
+const MEMBERS_NATIONWIDE = 11_000;
+const STUDENT_MEMBERS = 9_700;
+const DOCTORS_DENTISTS = 1_200;
+const GLOBAL_MEMBERS = 75;
+const STATES_AND_FCT = 37;
+const FALLBACK_STUDENT_CHAPTERS = 55;
+const FALLBACK_DOCTOR_CHAPTERS = 50;
+
+const YEARS_OF_MINISTRY = new Date().getFullYear() - FOUNDING_YEAR;
+
+function buildStats(chapters?: ChapterCounts | null): Stat[] {
+  return [
+    { value: YEARS_OF_MINISTRY, suffix: "+", label: "Years of ministry" },
+    { value: MEMBERS_NATIONWIDE, suffix: "+", label: "Members nationwide" },
+    { value: STUDENT_MEMBERS, suffix: "+", label: "Student members" },
+    { value: DOCTORS_DENTISTS, suffix: "+", label: "Doctors & dentists" },
+    { value: chapters?.students ?? FALLBACK_STUDENT_CHAPTERS, label: "Student chapters" },
+    { value: chapters?.doctors ?? FALLBACK_DOCTOR_CHAPTERS, label: "Doctor chapters" },
+    { value: GLOBAL_MEMBERS, suffix: "+", label: "Global members" },
+    { value: STATES_AND_FCT, label: "States + FCT" },
+  ];
+}
 
 function useCounter(target: number, active: boolean) {
   const [value, setValue] = useState(0);
@@ -48,11 +64,15 @@ function StatItem({ stat, active }: { stat: Stat; active: boolean }) {
   );
 }
 
-export function ImpactStats() {
+export function ImpactStats({ chapters }: { chapters?: ChapterCounts | null }) {
   const { ref, inView } = useInView<HTMLDivElement>();
+  const stats = buildStats(chapters);
 
   return (
-    <section id="impact-stats" className="relative overflow-hidden bg-primary-deep px-6 py-20 lg:px-10 lg:py-24">
+    <section
+      id="impact-stats"
+      className="relative overflow-hidden bg-primary-deep px-6 py-20 lg:px-10 lg:py-24"
+    >
       {/* Background image */}
       <div
         aria-hidden="true"

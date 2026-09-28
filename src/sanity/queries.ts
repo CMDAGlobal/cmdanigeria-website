@@ -152,3 +152,8 @@ export const zoneQuery = `
   "gallery": coalesce(gallery[]{ ${imageProjection} }, [])
 }
 `;
+
+export const chapterCountsQuery = `{
+  "students": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == "students"]),
+  "doctors": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == "doctors"])
+}`;

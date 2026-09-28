@@ -181,3 +181,8 @@ export interface RegionDetail extends RegionListEntry {
   newsletters?: NewsletterEntry[] | null;
   gallery?: SanityImage[] | null;
 }
+
+export interface ChapterCounts {
+  students: number;
+  doctors: number;
+}

@@ -7,12 +7,14 @@ import { ReasonsToJoin } from "@/components/site/ReasonsToJoin";
 
 import { Reveal, Section, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
+import { fetchChapterCounts } from "@/sanity/data";
 
 const title = "CMDA Nigeria | Christian Medical and Dental Association";
 const description =
   "CMDA Nigeria equips Christian doctors, dentists and medical students for whole-person care — with clinical excellence, compassion and integrity across Nigeria and beyond.";
 
 export const Route = createFileRoute("/")({
+  loader: async () => ({ chapters: await fetchChapterCounts() }),
   component: Index,
   head: () => ({
     meta: [
@@ -41,10 +43,11 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
+  const { chapters } = Route.useLoaderData();
   return (
     <>
       <Hero />
-      <ImpactStats />
+      <ImpactStats chapters={chapters} />
       <WhoWeAre />
       <Ministries />
       <ReasonsToJoin />
@@ -79,7 +82,10 @@ function Index() {
             <Link to="/give" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
               Donate Today
             </Link>
-            <Link to="/what-we-do" className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}>
+            <Link
+              to="/what-we-do"
+              className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}
+            >
               What We Do
             </Link>
           </div>

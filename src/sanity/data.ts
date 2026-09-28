@@ -12,6 +12,7 @@ import {
 import {
   armAnnouncementsQuery,
   armEventsQuery,
+  chapterCountsQuery,
   chapterQuery,
   eventListQuery,
   leadershipQuery,
@@ -27,6 +28,7 @@ import type {
   AnnouncementRecord,
   Arm,
   ArmOverview,
+  ChapterCounts,
   ChapterDetail,
   EventRecord,
   LeaderRecord,
@@ -173,6 +175,23 @@ export const fetchEvents = createServerFn({ method: "GET", strict: false }).hand
     } catch (error) {
       console.error("[sanity] fetchEvents failed", error);
       return [];
+    }
+  },
+);
+
+export const fetchChapterCounts = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<ChapterCounts | null> => {
+    const client = getClient();
+    if (!client) return null;
+    try {
+      const counts = await client.fetch<ChapterCounts | null>(chapterCountsQuery);
+      if (!counts || typeof counts.students !== "number" || typeof counts.doctors !== "number") {
+        return null;
+      }
+      return counts;
+    } catch (error) {
+      console.error("[sanity] fetchChapterCounts failed", error);
+      return null;
     }
   },
 );
