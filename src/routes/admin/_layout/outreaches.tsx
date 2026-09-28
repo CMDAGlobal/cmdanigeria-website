@@ -25,6 +25,7 @@ function OutreachesPage() {
       searchPlaceholder="Search campaigns, partners or locations"
       emptyMessage="No outreach campaigns have been created yet."
       listHeading="All campaigns"
+      noun="outreach"
     />
   );
 }

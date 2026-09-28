@@ -25,6 +25,7 @@ function EventsPage() {
       searchPlaceholder="Search events, venues or slugs"
       emptyMessage="No events have been scheduled yet."
       listHeading="All events"
+      noun="event"
     />
   );
 }

@@ -277,9 +277,16 @@ export async function createContent(input: CreateContentInput): Promise<ContentM
     const org = await loadCoverOrg();
     assertUnitsConsistent(meta, org, selfSlug);
 
-    const chapterRefs = await resolveUnitRefs(client, "chapter", meta.chapters);
-    const zoneRefs = await resolveUnitRefs(client, "zone", meta.zones);
-    const regionRefs = await resolveUnitRefs(client, "region", meta.regions);
+    // Chapters never store unit refs (the document is its own unit), and the
+    // new chapter cannot be resolved before it exists.
+    let chapterRefs = new Map<string, string>();
+    let zoneRefs = new Map<string, string>();
+    let regionRefs = new Map<string, string>();
+    if (config.type !== "chapter") {
+      chapterRefs = await resolveUnitRefs(client, "chapter", meta.chapters);
+      zoneRefs = await resolveUnitRefs(client, "zone", meta.zones);
+      regionRefs = await resolveUnitRefs(client, "region", meta.regions);
+    }
 
     scope = deriveWriteScope(meta);
     const authorized = await authorizeActor(config.writePermission, scope);
@@ -356,6 +363,10 @@ export async function updateContent(input: UpdateContentInput): Promise<ContentM
         : undefined;
     if (config.type === "chapter") {
       meta = { ...meta, chapters: selfSlug ? [selfSlug] : [] };
+      if ("arm" in fields) {
+        const armValue = fields["arm"];
+        meta = { ...meta, arm: typeof armValue === "string" ? armValue : null };
+      }
     } else if (touchesScope) {
       meta = {
         arm: "arm" in fields ? ((fields["arm"] as string | null) ?? null) : current.meta.arm,

@@ -7,11 +7,16 @@ import {
 } from "@/sanity/config";
 import { query } from "../db/client";
 import { getCurrentActor } from "../auth/actions";
+import { isAuthorizationError } from "../auth/guard";
 import { AuthorizationError } from "../rbac/engine";
 import type { PermissionKey } from "../rbac/permissions";
 import type { CurrentActorResult } from "../auth/actions";
 import { grantsFromRoles, visibleToGrants, buildScopeMeta } from "./scope";
+import { getOrgOptions } from "./org";
+import { assignableScopeOptions } from "./forms";
 import { CONTENT_QUERIES, DOCUMENT_COUNT_QUERY, MEDIA_QUERY } from "./queries";
+import { MODULE_MUTATIONS, parseModuleConfig } from "./validate";
+import type { ModuleMutationConfig } from "./validate";
 import {
   announcementStats,
   chapterStats,
@@ -28,15 +33,19 @@ import {
   type RawContentRow,
 } from "./mappers";
 import type {
+  ContentDocInput,
+  ContentDocPayload,
   ContentItem,
   ContentModuleKey,
   ContentModulePayload,
+  ContentScopeOptionsPayload,
   ContentStat,
   MediaAsset,
   MediaPayload,
   ScopeGrant,
   SettingsPayload,
 } from "./types";
+import { emptyScopeMeta, emptyScopeOptions } from "./types";
 
 export type { ContentModuleKey, ContentModulePayload, MediaAsset, MediaPayload, SettingsPayload };
 
@@ -292,4 +301,143 @@ export async function getAdminSettings(): Promise<SettingsPayload> {
     },
     documentCounts,
   };
+}
+
+const SCOPE_REF_KEYS = ["regions", "zones", "chapters"] as const;
+
+const READ_MESSAGES: Record<string, string> = {
+  auth_required: "Your session has expired. Please sign in again.",
+  permission_not_granted: "You do not have permission to view this content.",
+  invalid_module: "Unknown content module.",
+  content_not_found: "That item no longer exists.",
+  no_content_client: "The content store is not configured for this environment.",
+};
+
+function readErrorMessage(reason: string): string {
+  return READ_MESSAGES[reason] ?? "Something went wrong. Please try again.";
+}
+
+/** Single-doc projection covering every field the module allowlist may edit. */
+function docDetailQuery(config: ModuleMutationConfig): string {
+  const parts: string[] = [];
+  const seen = new Set<string>();
+  const add = (expr: string, key: string): void => {
+    if (seen.has(key)) return;
+    seen.add(key);
+    parts.push(expr);
+  };
+  for (const key of config.allowed) {
+    if (key === "slug") {
+      add(`"slug": slug.current`, key);
+    } else if ((SCOPE_REF_KEYS as readonly string[]).includes(key)) {
+      add(`"${key}": ${key}[]->slug.current`, key);
+    } else {
+      add(key, key);
+    }
+  }
+  add(`"title": title`, "title");
+  add(`"name": name`, "name");
+  return `*[_type == $type && _id == $id && !(_id in path("drafts.**"))][0]{ _id, ${parts.join(", ")} }`;
+}
+
+/**
+ * Loads one editable document for the dashboard form: allowlisted fields
+ * (scope arrays and arm excluded — reported through `scope` instead), the
+ * derived scope meta, and a visibility check mirroring the module list so a
+ * scoped actor cannot read items outside their grants by id.
+ */
+export async function getContentDoc(input: ContentDocInput): Promise<ContentDocPayload> {
+  const empty: ContentDocPayload = { ok: false, title: null, fields: {}, scope: emptyScopeMeta() };
+  try {
+    const config = parseModuleConfig(input?.module);
+    if (!config) return { ...empty, error: readErrorMessage("invalid_module") };
+
+    const id = typeof input?.id === "string" ? input.id.trim() : "";
+    if (!id || id.length > 64) return { ...empty, error: readErrorMessage("content_not_found") };
+
+    const session = await requireActor();
+    const moduleKey = input.module as ContentModuleKey;
+    assertPermission(session, MODULE_CONFIG[moduleKey].permission);
+
+    const client = getClient();
+    if (!client) return { ...empty, error: readErrorMessage("no_content_client") };
+
+    const doc = await client.fetch<Record<string, unknown> | null>(docDetailQuery(config), {
+      type: config.type,
+      id,
+    });
+    if (!doc || typeof doc["_id"] !== "string") {
+      return { ...empty, error: readErrorMessage("content_not_found") };
+    }
+
+    const fields: Record<string, unknown> = {};
+    for (const key of config.allowed) {
+      if (key === "arm" || (SCOPE_REF_KEYS as readonly string[]).includes(key)) continue;
+      if (doc[key] !== undefined) fields[key] = doc[key];
+    }
+
+    const scope = buildScopeMeta({
+      arm: doc["arm"],
+      regions: doc["regions"],
+      zones: doc["zones"],
+      chapters: doc["chapters"],
+    });
+    if (config.type === "chapter") {
+      // A chapter document is itself the unit it is scoped to.
+      const slug = typeof fields["slug"] === "string" && fields["slug"] ? fields["slug"] : null;
+      scope.chapters = slug ? [slug] : [];
+    }
+
+    const grants: ScopeGrant[] = grantsFromRoles(session.roles);
+    if (!visibleToGrants(scope, grants)) {
+      return { ...empty, error: readErrorMessage("content_not_found") };
+    }
+
+    const rawTitle = doc[config.titleField];
+    const title = typeof rawTitle === "string" && rawTitle.trim() ? rawTitle.trim() : null;
+    return { ok: true, id: doc["_id"], title, fields, scope };
+  } catch (error) {
+    if (isAuthorizationError(error)) {
+      return { ...empty, error: readErrorMessage(error.reason) };
+    }
+    console.error("[admin:content] getContentDoc failed", error);
+    return { ...empty, error: readErrorMessage("unexpected_error") };
+  }
+}
+
+/**
+ * Organisation units the current actor may tag content with — grant-filtered
+ * (system grants get everything, arm grants their arm, region grants their
+ * region, chapter grants only their chapter). Requires any content write
+ * permission so read-only visitors never load it.
+ */
+export async function getContentScopeOptions(): Promise<ContentScopeOptionsPayload> {
+  try {
+    const session = await requireActor();
+    const writePermissions = Object.values(MODULE_MUTATIONS).map(
+      (config) => config.writePermission,
+    );
+    if (!session.permissions.some((permission) => writePermissions.includes(permission))) {
+      throw new AuthorizationError("permission_not_granted", {
+        actorUserId: session.user.id,
+        permission: writePermissions[0] ?? "events.write",
+      });
+    }
+
+    const org = await getOrgOptions();
+    const assignable = assignableScopeOptions(grantsFromRoles(session.roles), org);
+    return {
+      ok: true,
+      arms: assignable.arms,
+      chapters: assignable.chapters,
+      zones: assignable.zones,
+      regions: assignable.regions,
+    };
+  } catch (error) {
+    if (isAuthorizationError(error)) {
+      return { ...emptyScopeOptions(), error: readErrorMessage(error.reason) };
+    }
+    console.error("[admin:content] getContentScopeOptions failed", error);
+    return { ...emptyScopeOptions(), error: readErrorMessage("unexpected_error") };
+  }
 }

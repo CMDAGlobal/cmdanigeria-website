@@ -121,6 +121,35 @@ export interface ContentMutationResult {
   id?: string;
 }
 
+/** Untrusted wire shape for content mutations — normalized server-side. */
+export interface ContentDocPayload {
+  ok: boolean;
+  error?: string;
+  id?: string;
+  title: string | null;
+  fields: Record<string, unknown>;
+  scope: ContentScopeMeta;
+}
+
+export interface ScopeUnitOptionPayload {
+  slug: string;
+  title: string;
+  arm?: string;
+}
+
+export interface ContentScopeOptionsPayload {
+  ok: boolean;
+  error?: string;
+  arms: string[];
+  chapters: ScopeUnitOptionPayload[];
+  zones: ScopeUnitOptionPayload[];
+  regions: ScopeUnitOptionPayload[];
+}
+
+export function emptyScopeOptions(): ContentScopeOptionsPayload {
+  return { ok: false, arms: [], chapters: [], zones: [], regions: [] };
+}
+
 export function emptyScopeMeta(): ContentScopeMeta {
   return { arm: null, regions: [], zones: [], chapters: [] };
 }

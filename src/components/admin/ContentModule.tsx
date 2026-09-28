@@ -1,7 +1,15 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarClock, ExternalLink, MoreHorizontal, Search, Trash2 } from "lucide-react";
+import {
+  CalendarClock,
+  ExternalLink,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Search,
+  Trash2,
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -59,6 +67,7 @@ import {
 import type { PermissionKey } from "@/admin/rbac/permissions";
 import { useContentModule, useDeleteContent, useSetPublication } from "./admin-content";
 import { hasPermission, useAdminSession } from "./admin-session";
+import { ContentEditorDialog } from "./ContentEditorDialog";
 import { NoAccess } from "./NoAccess";
 
 export interface ContentModuleProps {
@@ -72,6 +81,8 @@ export interface ContentModuleProps {
   searchPlaceholder: string;
   emptyMessage: string;
   listHeading: string;
+  /** Singular noun used by the create button, e.g. "event". */
+  noun?: string;
 }
 
 const MAX_ROWS = 200;
@@ -122,6 +133,7 @@ export function ContentModule({
   searchPlaceholder,
   emptyMessage,
   listHeading,
+  noun = "item",
 }: ContentModuleProps) {
   const session = useAdminSession();
   const query = useContentModule(module);
@@ -130,6 +142,10 @@ export function ContentModule({
   const [status, setStatus] = useState("all");
   const [statusItem, setStatusItem] = useState<ContentItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<ContentItem | null>(null);
+  const [editor, setEditor] = useState<{ open: boolean; item: ContentItem | null }>({
+    open: false,
+    item: null,
+  });
   const [nextStatus, setNextStatus] = useState<ContentPublicationStatus>("published");
   const [publishAtLocal, setPublishAtLocal] = useState("");
 
@@ -236,12 +252,20 @@ export function ContentModule({
           <h2 className="font-display text-2xl font-bold tracking-tight">{title}</h2>
           <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
         </div>
-        <Button variant="outline" asChild className="shrink-0">
-          <a href={`/studio/${studioType}`} target="_blank" rel="noreferrer">
-            <ExternalLink className="h-4 w-4" />
-            Open in Studio
-          </a>
-        </Button>
+        <div className="flex shrink-0 items-center gap-2">
+          {canWrite && configured ? (
+            <Button onClick={() => setEditor({ open: true, item: null })}>
+              <Plus className="h-4 w-4" />
+              New {noun}
+            </Button>
+          ) : null}
+          <Button variant="outline" asChild>
+            <a href={`/studio/${studioType}`} target="_blank" rel="noreferrer">
+              <ExternalLink className="h-4 w-4" />
+              Open in Studio
+            </a>
+          </Button>
+        </div>
       </div>
 
       {query.data?.stats.length ? (
@@ -266,7 +290,7 @@ export function ContentModule({
           <CardTitle>{listHeading}</CardTitle>
           <CardDescription>
             {configured
-              ? "Scoped to your role. Use the row menu for publication and deletion, or open Studio for full editing."
+              ? "Scoped to your role. Create and edit in the dashboard, use the row menu for publication and deletion, or open Studio for full editing."
               : "The content store is not configured for this environment."}
           </CardDescription>
         </CardHeader>
@@ -401,6 +425,14 @@ export function ContentModule({
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent align="end">
+                                {canWrite ? (
+                                  <DropdownMenuItem
+                                    onSelect={() => setEditor({ open: true, item })}
+                                  >
+                                    <Pencil className="mr-2 h-4 w-4" />
+                                    Edit…
+                                  </DropdownMenuItem>
+                                ) : null}
                                 {canWrite && supportsPublication ? (
                                   <DropdownMenuItem onSelect={() => openStatusDialog(item)}>
                                     <CalendarClock className="mr-2 h-4 w-4" />
@@ -434,6 +466,14 @@ export function ContentModule({
           )}
         </CardContent>
       </Card>
+
+      <ContentEditorDialog
+        module={module}
+        open={editor.open}
+        onOpenChange={(open) => setEditor((prev) => ({ ...prev, open }))}
+        item={editor.item}
+        noun={noun}
+      />
 
       <Dialog
         open={statusItem !== null}

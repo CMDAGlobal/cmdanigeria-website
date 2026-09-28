@@ -25,6 +25,7 @@ function AnnouncementsPage() {
       searchPlaceholder="Search announcements or categories"
       emptyMessage="No announcements have been posted yet."
       listHeading="All announcements"
+      noun="announcement"
     />
   );
 }

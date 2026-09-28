@@ -25,6 +25,7 @@ function ChaptersPage() {
       searchPlaceholder="Search chapters, institutions or slugs"
       emptyMessage="No chapters have been created yet."
       listHeading="All chapters"
+      noun="chapter"
     />
   );
 }

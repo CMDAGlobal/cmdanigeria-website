@@ -5,15 +5,19 @@ import {
   createContentAction,
   deleteContentAction,
   getAdminSettingsAction,
+  getContentDocAction,
   getContentModuleAction,
+  getContentScopeOptionsAction,
   getMediaLibraryAction,
   setPublicationAction,
   updateContentAction,
 } from "@/admin/content/server";
 import type {
   ContentDocInput,
+  ContentDocPayload,
   ContentModuleKey,
   ContentMutationResult,
+  ContentScopeOptionsPayload,
   CreateContentInput,
   SetPublicationInput,
   UpdateContentInput,
@@ -66,6 +70,26 @@ export function useSetPublication(module: ContentModuleKey) {
   return useMutation<ContentMutationResult, Error, SetPublicationInput>({
     mutationFn: (input) => setPublicationAction({ data: input }),
     onSuccess: invalidate,
+  });
+}
+
+export function useContentDoc(module: ContentModuleKey, id: string | null, enabled: boolean) {
+  return useQuery<ContentDocPayload>({
+    queryKey: ["admin-content-doc", module, id] as const,
+    queryFn: () => getContentDocAction({ data: { module, id: id as string } }),
+    enabled: enabled && id !== null,
+    staleTime: 15_000,
+    retry: false,
+  });
+}
+
+export function useContentScopeOptions(enabled: boolean) {
+  return useQuery<ContentScopeOptionsPayload>({
+    queryKey: ["admin-scope-options"] as const,
+    queryFn: () => getContentScopeOptionsAction(),
+    enabled,
+    staleTime: 60_000,
+    retry: false,
   });
 }
 

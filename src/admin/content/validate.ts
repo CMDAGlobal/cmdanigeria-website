@@ -82,7 +82,7 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     deletePermission: "announcements.delete",
     auditPrefix: "announcement",
     titleField: "title",
-    required: ["title", "publishedAt"],
+    required: ["title", "publishedAt", "body"],
     allowed: [
       "title",
       "slug",
@@ -102,7 +102,7 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     deletePermission: "news.delete",
     auditPrefix: "news",
     titleField: "title",
-    required: ["title", "publishedAt"],
+    required: ["title", "publishedAt", "kind"],
     allowed: [
       "title",
       "slug",
@@ -281,7 +281,11 @@ export function validateFields(
     for (const key of config.required) {
       if (!(key in input)) continue;
       const value = input[key];
-      if (value === null || (typeof value === "string" && value.trim() === "")) {
+      if (
+        value === null ||
+        (typeof value === "string" && value.trim() === "") ||
+        (Array.isArray(value) && value.length === 0)
+      ) {
         throw new ContentInputError("invalid_input");
       }
     }

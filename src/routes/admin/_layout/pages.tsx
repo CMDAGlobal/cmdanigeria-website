@@ -24,6 +24,7 @@ function PagesPage() {
       searchPlaceholder="Search page titles, paths or sections"
       emptyMessage="No pages have been created yet."
       listHeading="All pages"
+      noun="page"
     />
   );
 }

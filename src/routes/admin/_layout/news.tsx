@@ -25,6 +25,7 @@ function NewsPage() {
       searchPlaceholder="Search headlines, categories or slugs"
       emptyMessage="No news items have been published yet."
       listHeading="All news items"
+      noun="news item"
     />
   );
 }

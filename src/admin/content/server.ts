@@ -1,9 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
 import type {
   ContentDocInput,
+  ContentDocPayload,
   ContentModuleKey,
   ContentModulePayload,
   ContentMutationResult,
+  ContentScopeOptionsPayload,
   CreateContentInput,
   MediaPayload,
   SetPublicationInput,
@@ -13,15 +15,18 @@ import type {
 
 export type {
   ContentDocInput,
+  ContentDocPayload,
   ContentItem,
   ContentModuleKey,
   ContentModulePayload,
   ContentMutationResult,
+  ContentScopeOptionsPayload,
   ContentStat,
   ContentStatus,
   CreateContentInput,
   MediaAsset,
   MediaPayload,
+  ScopeUnitOptionPayload,
   SetPublicationInput,
   SettingsPayload,
   StatusTone,
@@ -41,6 +46,21 @@ export const getMediaLibraryAction = createServerFn({ method: "GET", strict: fal
     return getMediaLibrary();
   },
 );
+
+export const getContentDocAction = createServerFn({ method: "GET", strict: false })
+  .validator((data: ContentDocInput) => data)
+  .handler(async ({ data }): Promise<ContentDocPayload> => {
+    const { getContentDoc } = await import("./actions");
+    return getContentDoc(data);
+  });
+
+export const getContentScopeOptionsAction = createServerFn({
+  method: "GET",
+  strict: false,
+}).handler(async (): Promise<ContentScopeOptionsPayload> => {
+  const { getContentScopeOptions } = await import("./actions");
+  return getContentScopeOptions();
+});
 
 export const getAdminSettingsAction = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<SettingsPayload> => {
