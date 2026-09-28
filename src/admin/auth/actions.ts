@@ -8,6 +8,7 @@ import type { Actor, RoleScopePair } from "../rbac/engine";
 import { effectivePermissions } from "../rbac/engine";
 import type { PermissionKey } from "../rbac/permissions";
 import type { ArmKey, RoleKey } from "../rbac/roles";
+import { ROLE_DEFINITIONS } from "../rbac/roles";
 import {
   deleteExpiredSessions,
   createSessionRecord,
@@ -149,7 +150,7 @@ function toEffectiveRole(pair: RoleScopePair): EffectiveRole {
   if (pair.scope.arm) scope.arm = pair.scope.arm;
   if (pair.scope.regionSlug) scope.regionSlug = pair.scope.regionSlug;
   if (pair.scope.chapterSlug) scope.chapterSlug = pair.scope.chapterSlug;
-  return { key: pair.roleKey, name: pair.roleKey, scope };
+  return { key: pair.roleKey, name: ROLE_DEFINITIONS[pair.roleKey].name, scope };
 }
 
 export async function getCurrentActor(): Promise<CurrentActorResult | null> {

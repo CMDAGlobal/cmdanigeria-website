@@ -27,6 +27,11 @@ const lagosChapterAdmin: Actor = makeActor([
   { roleKey: "chapter_admin", scope: lagosChapterScope },
 ]);
 const lagosEditor: Actor = makeActor([{ roleKey: "content_editor", scope: lagosChapterScope }]);
+const lagosRegionAdmin: Actor = makeActor([
+  { roleKey: "region_admin", scope: { arm: "global", regionSlug: "lagos" } },
+]);
+const lagosRegionScope = { arm: "global", regionSlug: "lagos" } as const;
+const ibadanRegionScope = { arm: "global", regionSlug: "ibadan" } as const;
 
 describe("scopeContains", () => {
   it("system scope contains every scope", () => {
@@ -142,6 +147,39 @@ describe("permission matrix — Content Editor (students/lagos)", () => {
 
   it("is scoped to its own chapter", () => {
     expect(can(lagosEditor, "events.write", ibadanChapterScope)).toBe(false);
+  });
+});
+
+describe("permission matrix — Region Admin (global/lagos)", () => {
+  it("manages its own region's content and can view users in scope", () => {
+    expect(can(lagosRegionAdmin, "regions.write", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "leaders.write", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "events.write", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "news.write", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "announcements.write", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "pages.read", lagosRegionScope)).toBe(true);
+    expect(can(lagosRegionAdmin, "users.read", lagosRegionScope)).toBe(true);
+  });
+
+  it("is denied access to another region and to the chapter hierarchy (IDOR)", () => {
+    expect(can(lagosRegionAdmin, "events.write", ibadanRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "regions.write", ibadanRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "events.write", lagosChapterScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "chapters.write", lagosChapterScope)).toBe(false);
+  });
+
+  it("cannot manage users, roles, settings or audit logs", () => {
+    expect(can(lagosRegionAdmin, "users.write", lagosRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "users.assign_roles", lagosRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "settings.write", lagosRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "audit_logs.view", lagosRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "regions.delete", lagosRegionScope)).toBe(false);
+    expect(can(lagosRegionAdmin, "pages.write", lagosRegionScope)).toBe(false);
+  });
+
+  it("cannot act when no scope is supplied", () => {
+    expect(can(lagosRegionAdmin, "events.write")).toBe(false);
+    expect(can(lagosRegionAdmin, "users.read")).toBe(false);
   });
 });
 

@@ -1,7 +1,25 @@
 import { query } from "../db/client";
 import { getCurrentActor } from "../auth/actions";
+import { hashPassword } from "../auth/password";
+import { PASSWORD_MIN_LENGTH } from "../auth/constants";
+import { recordAudit } from "../audit/record";
 import { AuthorizationError, isSystemScope, scopeContains, type Actor } from "../rbac/engine";
-import type { ArmKey, Scope } from "../rbac/roles";
+import {
+  ARM_KEYS,
+  ROLE_DEFINITIONS,
+  isRoleKey,
+  type ArmKey,
+  type RoleKey,
+  type Scope,
+} from "../rbac/roles";
+import {
+  assertCanAssignRole,
+  assertTargetInScope,
+  assertValidScopeForRole,
+  assignableRoleKeys,
+  canAssignRole,
+} from "../rbac/assignment";
+import { getOrgOptions } from "../content/org";
 import type { PermissionKey } from "../rbac/permissions";
 import type { CurrentActorResult } from "../auth/actions";
 
@@ -105,8 +123,12 @@ function scopeContainsInner(actor: Actor, target: Scope): boolean {
   return actor.roles.some((pair) => scopeContains(pair.scope, target));
 }
 
+function hasSystemGrant(actor: Actor): boolean {
+  return actor.roles.some((pair) => isSystemScope(pair.scope));
+}
+
 async function scopedUserRows(actor: Actor): Promise<UserRoleRow[]> {
-  if (isSystemScope(actor.roles[0]?.scope ?? {})) {
+  if (hasSystemGrant(actor)) {
     const rows = await query<{ user_id: string }>('select id as "user_id" from admin_users');
     return rows.map((row) => ({
       user_id: row.user_id,
@@ -147,7 +169,7 @@ async function todayAuditRows(actor: Actor, limit: number): Promise<AuditRow[]> 
     [limit * 8],
   );
   return raw.filter((row) => {
-    if (isSystemScope(actor.roles[0]?.scope ?? {})) return true;
+    if (hasSystemGrant(actor)) return true;
     return scopeContainsInner(
       actor,
       toScope(
@@ -227,7 +249,7 @@ export async function listAdminUsers(): Promise<AdminUserItem[]> {
      order by u.created_at desc`,
   );
 
-  const visibleUserIds = isSystemScope(session.actor.roles[0]?.scope ?? {})
+  const visibleUserIds = hasSystemGrant(session.actor)
     ? null
     : new Set((await scopedUserRows(session.actor)).map((row) => row.user_id));
 
@@ -266,4 +288,479 @@ export async function listAuditEntries(limit = 50): Promise<AuditEntryItem[]> {
   assertPermission(session, "audit_logs.view");
   const rows = await todayAuditRows(session.actor, limit);
   return rows.slice(0, limit).map(mapAuditEntry);
+}
+
+// ---------------------------------------------------------------------------
+// User & role mutations — every path is permission-checked, scope-checked and
+// written to the audit log (§29: authorization lives on the backend, not the UI).
+// ---------------------------------------------------------------------------
+
+export interface MutationResult {
+  ok: boolean;
+  error?: string;
+}
+
+/** Untrusted wire shape — normalized/validated before use. */
+export interface ScopeInput {
+  arm?: string;
+  regionSlug?: string;
+  chapterSlug?: string;
+}
+
+export interface CreateUserInput {
+  name: string;
+  email: string;
+  password: string;
+  roleKey: string;
+  scope: ScopeInput;
+}
+
+export interface RoleScopeInput {
+  userId: string;
+  roleKey: string;
+  scope: ScopeInput;
+}
+
+export interface UserManagementOptions {
+  assignableRoles: { key: RoleKey; name: string; description: string }[];
+  assignableArms: ArmKey[];
+  chapters: { slug: string; name: string; arm: string }[];
+  regions: { slug: string; name: string }[];
+}
+
+const MUTATION_MESSAGES: Record<string, string> = {
+  auth_required: "Your session has expired. Please sign in again.",
+  permission_not_granted: "You do not have permission to manage administrators.",
+  scope_outside_role: "That account is outside your scope.",
+  role_assignment_denied: "You are not allowed to grant that role.",
+  invalid_scope: "Choose a valid scope for the selected role.",
+  invalid_input: "Check the details and try again.",
+  weak_password: `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
+  unknown_role: "That role is not configured. Run the admin migration first.",
+  user_not_found: "That administrator account was not found.",
+  last_super_admin: "At least one active Super Admin account is required.",
+  self_deactivate: "You cannot deactivate your own account.",
+};
+
+function messageFor(reason: string): string {
+  return MUTATION_MESSAGES[reason] ?? "You are not allowed to perform that action.";
+}
+
+function isUniqueViolation(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: unknown }).code === "23505"
+  );
+}
+
+async function failMutation(
+  session: CurrentActorResult,
+  action: string,
+  scope: Scope | null,
+  targetId: string | null,
+  error: unknown,
+): Promise<MutationResult> {
+  if (error instanceof AuthorizationError) {
+    await recordAudit({
+      actorUserId: session.user.id,
+      action,
+      targetType: "admin_user",
+      targetId,
+      scope,
+      outcome: "denied",
+      reason: error.reason,
+    });
+    return { ok: false, error: messageFor(error.reason) };
+  }
+  console.error(`[admin:users] ${action} failed`, error);
+  await recordAudit({
+    actorUserId: session.user.id,
+    action,
+    targetType: "admin_user",
+    targetId,
+    scope,
+    outcome: "error",
+    reason: "unexpected_error",
+  });
+  return { ok: false, error: "Something went wrong. Please try again." };
+}
+
+function normalizeScope(input: unknown): Scope {
+  const scope: Scope = {};
+  if (input && typeof input === "object") {
+    const raw = input as Record<string, unknown>;
+    if (typeof raw["arm"] === "string" && raw["arm"]) scope.arm = raw["arm"] as ArmKey;
+    if (typeof raw["regionSlug"] === "string" && raw["regionSlug"].trim()) {
+      scope.regionSlug = raw["regionSlug"].trim();
+    }
+    if (typeof raw["chapterSlug"] === "string" && raw["chapterSlug"].trim()) {
+      scope.chapterSlug = raw["chapterSlug"].trim();
+    }
+  }
+  return scope;
+}
+
+function parseRoleKey(value: unknown, actorUserId: string): RoleKey {
+  if (typeof value === "string" && isRoleKey(value)) return value;
+  throw new AuthorizationError("unknown_role", {
+    actorUserId,
+    permission: "users.assign_roles",
+  });
+}
+
+function requireUserId(value: unknown, actorUserId: string): string {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  throw new AuthorizationError("invalid_input", {
+    actorUserId,
+    permission: "users.write",
+  });
+}
+
+/** Reject grants that point at chapters/regions which no longer exist. */
+async function assertScopeUnitsExist(scope: Scope): Promise<void> {
+  if (!scope.chapterSlug && !scope.regionSlug) return;
+  const org = await getOrgOptions();
+  if (scope.chapterSlug && !org.chapters.some((chapter) => chapter.slug === scope.chapterSlug)) {
+    throw new AuthorizationError("invalid_scope", {
+      permission: "users.assign_roles",
+      scope,
+      reason: "chapter_not_found",
+    });
+  }
+  if (scope.regionSlug && !org.regions.some((region) => region.slug === scope.regionSlug)) {
+    throw new AuthorizationError("invalid_scope", {
+      permission: "users.assign_roles",
+      scope,
+      reason: "region_not_found",
+    });
+  }
+}
+
+async function requireRoleRow(roleKey: RoleKey, actorUserId: string): Promise<string> {
+  const rows = await query<{ id: string }>("select id from admin_roles where key = $1", [roleKey]);
+  const id = rows[0]?.id;
+  if (!id) {
+    throw new AuthorizationError("unknown_role", {
+      actorUserId,
+      permission: "users.assign_roles",
+    });
+  }
+  return id;
+}
+
+interface TargetInfo {
+  grants: Scope[];
+}
+
+async function loadTargetGrants(userId: string, actorUserId: string): Promise<TargetInfo> {
+  const users = await query<{ id: string }>("select id from admin_users where id = $1", [userId]);
+  if (!users[0]) {
+    throw new AuthorizationError("user_not_found", {
+      actorUserId,
+      permission: "users.write",
+    });
+  }
+  const rows = await query<UserRoleRow>(
+    `select ur.user_id, ur.arm, ur.region_slug, ur.chapter_slug
+     from admin_user_roles ur
+     where ur.user_id = $1`,
+    [userId],
+  );
+  return {
+    grants: rows.map((row) =>
+      toScope(row.arm ?? undefined, row.region_slug ?? undefined, row.chapter_slug ?? undefined),
+    ),
+  };
+}
+
+async function holdsRole(userId: string, roleKey: RoleKey): Promise<boolean> {
+  const rows = await query<{ c: number }>(
+    `select count(*)::int as c
+     from admin_user_roles ur
+     join admin_roles r on r.id = ur.role_id
+     where ur.user_id = $1 and r.key = $2`,
+    [userId, roleKey],
+  );
+  return (rows[0]?.c ?? 0) > 0;
+}
+
+/** Guard against locking everyone out of the last active Super Admin. */
+async function assertNotLastSuperAdmin(targetUserId: string, actorUserId: string): Promise<void> {
+  const rows = await query<{ c: number }>(
+    `select count(distinct u.id)::int as c
+     from admin_users u
+     join admin_user_roles ur on ur.user_id = u.id
+     join admin_roles r on r.id = ur.role_id
+     where r.key = 'super_admin' and u.is_active and u.id <> $1`,
+    [targetUserId],
+  );
+  if ((rows[0]?.c ?? 0) === 0) {
+    throw new AuthorizationError("last_super_admin", {
+      actorUserId,
+      permission: "users.write",
+    });
+  }
+}
+
+export async function createAdminUser(input: CreateUserInput): Promise<MutationResult> {
+  const session = await requireActor();
+  const scope = normalizeScope(input?.scope);
+  let targetId: string | null = null;
+  try {
+    assertPermission(session, "users.write");
+    assertPermission(session, "users.assign_roles");
+    const roleKey = parseRoleKey(input?.roleKey, session.user.id);
+    assertValidScopeForRole(session.actor, roleKey, scope);
+    assertCanAssignRole(session.actor, roleKey, scope);
+    await assertScopeUnitsExist(scope);
+
+    const name = typeof input?.name === "string" ? input.name.trim() : "";
+    const email = typeof input?.email === "string" ? input.email.trim().toLowerCase() : "";
+    const password = typeof input?.password === "string" ? input.password : "";
+    if (!name || name.length > 255) {
+      throw new AuthorizationError("invalid_input", {
+        actorUserId: session.user.id,
+        permission: "users.write",
+      });
+    }
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new AuthorizationError("invalid_input", {
+        actorUserId: session.user.id,
+        permission: "users.write",
+      });
+    }
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      throw new AuthorizationError("weak_password", {
+        actorUserId: session.user.id,
+        permission: "users.write",
+      });
+    }
+
+    const passwordHash = await hashPassword(password);
+    const roleId = await requireRoleRow(roleKey, session.user.id);
+    const rows = await query<{ user_id: string }>(
+      `with new_user as (
+         insert into admin_users (email, name, password_hash, is_active)
+         values ($1, $2, $3, true)
+         returning id
+       )
+       insert into admin_user_roles (user_id, role_id, arm, region_slug, chapter_slug)
+       select u.id, $4, $5, $6, $7
+       from new_user u
+       returning user_id as "user_id"`,
+      [
+        email,
+        name,
+        passwordHash,
+        roleId,
+        scope.arm ?? null,
+        scope.regionSlug ?? null,
+        scope.chapterSlug ?? null,
+      ],
+    );
+    targetId = rows[0]?.user_id ?? null;
+    if (!targetId) {
+      throw new AuthorizationError("unknown_role", {
+        actorUserId: session.user.id,
+        permission: "users.assign_roles",
+      });
+    }
+
+    await recordAudit({
+      actorUserId: session.user.id,
+      action: "user.create",
+      targetType: "admin_user",
+      targetId,
+      scope,
+      outcome: "success",
+    });
+    return { ok: true };
+  } catch (error) {
+    if (isUniqueViolation(error)) {
+      await recordAudit({
+        actorUserId: session.user.id,
+        action: "user.create",
+        targetType: "admin_user",
+        scope,
+        outcome: "denied",
+        reason: "duplicate_email",
+      });
+      return { ok: false, error: "An administrator with that email already exists." };
+    }
+    return failMutation(session, "user.create", scope, targetId, error);
+  }
+}
+
+export async function assignRole(input: RoleScopeInput): Promise<MutationResult> {
+  const session = await requireActor();
+  const scope = normalizeScope(input?.scope);
+  const userId = typeof input?.userId === "string" ? input.userId.trim() : "";
+  try {
+    assertPermission(session, "users.assign_roles");
+    const actorUserId = session.user.id;
+    const roleKey = parseRoleKey(input?.roleKey, actorUserId);
+    if (!userId) {
+      throw new AuthorizationError("invalid_input", {
+        actorUserId,
+        permission: "users.assign_roles",
+      });
+    }
+    assertValidScopeForRole(session.actor, roleKey, scope);
+    assertCanAssignRole(session.actor, roleKey, scope);
+    await assertScopeUnitsExist(scope);
+    const target = await loadTargetGrants(userId, actorUserId);
+    assertTargetInScope(session.actor, target.grants);
+    const roleId = await requireRoleRow(roleKey, actorUserId);
+
+    const inserted = await query<{ user_id: string }>(
+      `insert into admin_user_roles (user_id, role_id, arm, region_slug, chapter_slug)
+       values ($1, $2, $3, $4, $5)
+       on conflict (user_id, role_id, arm, region_slug, chapter_slug) do nothing
+       returning user_id as "user_id"`,
+      [userId, roleId, scope.arm ?? null, scope.regionSlug ?? null, scope.chapterSlug ?? null],
+    );
+    if (!inserted.length) {
+      return { ok: false, error: "That role is already assigned." };
+    }
+
+    await recordAudit({
+      actorUserId,
+      action: "user.role_grant",
+      targetType: "admin_user",
+      targetId: userId,
+      scope,
+      outcome: "success",
+    });
+    return { ok: true };
+  } catch (error) {
+    return failMutation(session, "user.role_grant", scope, userId || null, error);
+  }
+}
+
+export async function revokeRole(input: RoleScopeInput): Promise<MutationResult> {
+  const session = await requireActor();
+  const scope = normalizeScope(input?.scope);
+  const userId = typeof input?.userId === "string" ? input.userId.trim() : "";
+  try {
+    assertPermission(session, "users.assign_roles");
+    const actorUserId = session.user.id;
+    const roleKey = parseRoleKey(input?.roleKey, actorUserId);
+    if (!userId) {
+      throw new AuthorizationError("invalid_input", {
+        actorUserId,
+        permission: "users.assign_roles",
+      });
+    }
+    const target = await loadTargetGrants(userId, actorUserId);
+    assertTargetInScope(session.actor, target.grants);
+    if (roleKey === "super_admin" && (await holdsRole(userId, roleKey))) {
+      await assertNotLastSuperAdmin(userId, actorUserId);
+    }
+    const roleId = await requireRoleRow(roleKey, actorUserId);
+
+    const deleted = await query<{ user_id: string }>(
+      `delete from admin_user_roles
+       where user_id = $1
+         and role_id = $2
+         and arm is not distinct from $3
+         and region_slug is not distinct from $4
+         and chapter_slug is not distinct from $5
+       returning user_id as "user_id"`,
+      [userId, roleId, scope.arm ?? null, scope.regionSlug ?? null, scope.chapterSlug ?? null],
+    );
+    if (!deleted.length) {
+      return { ok: false, error: "That role assignment was not found." };
+    }
+
+    await recordAudit({
+      actorUserId,
+      action: "user.role_revoke",
+      targetType: "admin_user",
+      targetId: userId,
+      scope,
+      outcome: "success",
+    });
+    return { ok: true };
+  } catch (error) {
+    return failMutation(session, "user.role_revoke", scope, userId || null, error);
+  }
+}
+
+export async function setUserActive(input: {
+  userId: string;
+  isActive: boolean;
+}): Promise<MutationResult> {
+  const session = await requireActor();
+  const userId = typeof input?.userId === "string" ? input.userId.trim() : "";
+  const isActive = input?.isActive === true;
+  const action = isActive ? "user.update" : "user.deactivate";
+  try {
+    assertPermission(session, "users.delete");
+    const actorUserId = session.user.id;
+    if (!userId) {
+      throw new AuthorizationError("invalid_input", {
+        actorUserId,
+        permission: "users.delete",
+      });
+    }
+    if (userId === session.user.id && !isActive) {
+      throw new AuthorizationError("self_deactivate", {
+        actorUserId,
+        permission: "users.delete",
+      });
+    }
+    const target = await loadTargetGrants(userId, actorUserId);
+    assertTargetInScope(session.actor, target.grants);
+    if (!isActive && (await holdsRole(userId, "super_admin"))) {
+      await assertNotLastSuperAdmin(userId, actorUserId);
+    }
+
+    await query("update admin_users set is_active = $2 where id = $1", [userId, isActive]);
+    await recordAudit({
+      actorUserId,
+      action,
+      targetType: "admin_user",
+      targetId: userId,
+      scope: target.grants[0] ?? null,
+      outcome: "success",
+      reason: isActive ? "activated" : "deactivated",
+    });
+    return { ok: true };
+  } catch (error) {
+    return failMutation(session, action, null, userId || null, error);
+  }
+}
+
+/**
+ * Everything the "new administrator" form and role pickers need, pre-filtered
+ * to what this actor may actually grant.
+ */
+export async function getUserManagementOptions(): Promise<UserManagementOptions> {
+  const session = await requireActor();
+  assertPermission(session, "users.assign_roles");
+  const actor = session.actor;
+  const org = await getOrgOptions();
+  return {
+    assignableRoles: assignableRoleKeys(actor).map((key) => ({
+      key,
+      name: ROLE_DEFINITIONS[key].name,
+      description: ROLE_DEFINITIONS[key].description,
+    })),
+    assignableArms: ARM_KEYS.filter(
+      (arm) =>
+        canAssignRole(actor, "arm_admin", { arm }) ||
+        canAssignRole(actor, "content_editor", { arm }),
+    ),
+    chapters: org.chapters.filter((chapter) =>
+      canAssignRole(actor, "chapter_admin", {
+        arm: chapter.arm as ArmKey,
+        chapterSlug: chapter.slug,
+      }),
+    ),
+    regions: org.regions.filter((region) =>
+      canAssignRole(actor, "region_admin", { arm: "global", regionSlug: region.slug }),
+    ),
+  };
 }
