@@ -13,14 +13,19 @@ import {
   Newspaper,
   ArrowUpRight,
 } from "lucide-react";
-import { fetchRegions } from "@/sanity/data";
+import { eventDateInfo, eventPlace, upcomingEvents } from "@/components/site/Events";
+import { typeLabel } from "@/components/site/org/cards";
+import { fetchEvents, fetchRegions } from "@/sanity/data";
 
 const title = "Global Network | CMDA Nigeria";
 const description =
   "CMDA Nigeria connects Christian healthcare professionals in over 20 countries — a global network of faith, service and mission.";
 
 export const Route = createFileRoute("/global-network")({
-  loader: async () => ({ regions: await fetchRegions() }),
+  loader: async () => ({
+    regions: await fetchRegions(),
+    events: await fetchEvents(),
+  }),
   component: GlobalNetworkPage,
   head: () => ({
     meta: [
@@ -41,18 +46,36 @@ const stats = [
   { value: "20+", label: "Years of diaspora connection" },
 ];
 
-const events = [
-  { date: "TBA 2026", title: "The Americas In-Person Retreat", place: "United States", type: "Retreat" },
+// Editorial fallback shown only while the CMS has no Global Network events.
+const editorialEvents = [
+  {
+    date: "TBA 2026",
+    title: "The Americas In-Person Retreat",
+    place: "United States",
+    type: "Retreat",
+  },
   { date: "TBA", title: "UK CMDA Fellowship Gathering", place: "London, UK", type: "Fellowship" },
   { date: "Monthly", title: "Global Prayer & Devotional Call", place: "Online", type: "Prayer" },
   { date: "Annually", title: "CMDA Global Alumni Webinar", place: "Online", type: "Webinar" },
 ];
 
 const newsletters = [
-  { title: "Global Network Digest", desc: "Quarterly newsletter connecting CMDA alumni worldwide with updates on missions, member achievements and upcoming events." },
-  { title: "CMDA Annual Report", desc: "Comprehensive overview of the Association's activities including global network contributions and impact." },
-  { title: "The Prescription", desc: "Monthly devotional resource connecting Scripture to healthcare practice — available to all CMDA members globally." },
-  { title: "Wholeness Magazine", desc: "Flagship publication with articles, news and testimonies from CMDA Nigeria's fellowship — digital access for global members." },
+  {
+    title: "Global Network Digest",
+    desc: "Quarterly newsletter connecting CMDA alumni worldwide with updates on missions, member achievements and upcoming events.",
+  },
+  {
+    title: "CMDA Annual Report",
+    desc: "Comprehensive overview of the Association's activities including global network contributions and impact.",
+  },
+  {
+    title: "The Prescription",
+    desc: "Monthly devotional resource connecting Scripture to healthcare practice — available to all CMDA members globally.",
+  },
+  {
+    title: "Wholeness Magazine",
+    desc: "Flagship publication with articles, news and testimonies from CMDA Nigeria's fellowship — digital access for global members.",
+  },
 ];
 
 const ways = [
@@ -89,7 +112,27 @@ const ways = [
 ];
 
 function GlobalNetworkPage() {
-  const { regions } = Route.useLoaderData();
+  const { regions, events } = Route.useLoaderData();
+  const cmsEvents = upcomingEvents(
+    events.filter((event) => event.arm === "global"),
+    4,
+  );
+  const displayEvents: { key: string; type: string; title: string; date: string; place: string }[] =
+    cmsEvents.length > 0
+      ? cmsEvents.map((event) => ({
+          key: event._id,
+          type: typeLabel(event.type),
+          title: event.title,
+          date: eventDateInfo(event).label,
+          place: eventPlace(event),
+        }))
+      : editorialEvents.map((event) => ({
+          key: event.title,
+          type: event.type,
+          title: event.title,
+          date: event.date,
+          place: event.place,
+        }));
   return (
     <>
       <PageHero
@@ -107,13 +150,11 @@ function GlobalNetworkPage() {
               <p className="eyebrow text-cmda-green">Our reach</p>
               <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
             </div>
-            <h2 className="display-2 mt-6 text-balance">
-              A fellowship that transcends borders
-            </h2>
+            <h2 className="display-2 mt-6 text-balance">A fellowship that transcends borders</h2>
             <p className="lede mt-6 text-muted-foreground">
               CMDA Nigeria's impact extends far beyond the nation's borders. Our alumni serve in
-              hospitals, universities and mission fields across the world — carrying the values
-              of faith, excellence and compassion wherever they go.
+              hospitals, universities and mission fields across the world — carrying the values of
+              faith, excellence and compassion wherever they go.
             </p>
           </Reveal>
         </div>
@@ -171,9 +212,7 @@ function GlobalNetworkPage() {
                     <span>{r.chapterCount ?? 0} chapters</span>
                     <span>{r.eventCount ?? 0} events</span>
                   </div>
-                  <span className="mt-4 text-sm font-semibold text-cmda-green">
-                    Explore region
-                  </span>
+                  <span className="mt-4 text-sm font-semibold text-cmda-green">Explore region</span>
                 </Link>
               </Reveal>
             );
@@ -181,7 +220,9 @@ function GlobalNetworkPage() {
           <Reveal>
             <div className="flex h-full flex-col items-center justify-center border border-dashed border-cmda-green/40 bg-cmda-green/5 p-6 text-center">
               <MapPin className="mb-3 size-8 text-cmda-green" aria-hidden="true" />
-              <h3 className="font-display text-lg font-bold text-foreground">Your region not listed?</h3>
+              <h3 className="font-display text-lg font-bold text-foreground">
+                Your region not listed?
+              </h3>
               <p className="mt-2 text-sm text-muted-foreground">
                 Contact us — we may be starting a network in your region soon.
               </p>
@@ -192,10 +233,7 @@ function GlobalNetworkPage() {
 
       {/* Ways to engage */}
       <Section className="paper">
-        <SectionHead
-          eyebrow="Get involved"
-          title="How to engage from anywhere"
-        />
+        <SectionHead eyebrow="Get involved" title="How to engage from anywhere" />
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {ways.map((w) => (
             <Reveal key={w.title}>
@@ -213,14 +251,11 @@ function GlobalNetworkPage() {
 
       {/* Upcoming Events */}
       <Section className="bg-muted">
-        <SectionHead
-          eyebrow="Upcoming events"
-          title="Events for global members"
-        />
+        <SectionHead eyebrow="Upcoming events" title="Events for global members" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {events.map((e) => (
-            <Reveal key={e.title}>
-              <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
+          {displayEvents.map((e) => (
+            <Reveal key={e.key}>
+              <div className="h-full border border-border bg-background p-6 transition-shadow hover:shadow-card">
                 <span className="eyebrow text-cmda-green">{e.type}</span>
                 <h3 className="mt-3 font-display text-base font-bold tracking-tight text-foreground">
                   {e.title}

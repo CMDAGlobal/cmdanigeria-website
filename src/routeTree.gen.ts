@@ -37,6 +37,8 @@ import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
 import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministries/saline-training'
 import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
+import { Route as NewsIndexRouteImport } from './routes/news/index'
+import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
 import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as AdminLayoutAnnouncementsRouteImport } from './routes/admin/_layout/announcements'
@@ -192,6 +194,16 @@ const MinistriesWholenessMissionsRoute =
     path: '/wholeness-missions',
     getParentRoute: () => MinistriesRoute,
   } as any)
+const NewsIndexRoute = NewsIndexRouteImport.update({
+  id: '/news/',
+  path: '/news/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsSlugRoute = NewsSlugRouteImport.update({
+  id: '/news/$slug',
+  path: '/news/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ZonesSlugRoute = ZonesSlugRouteImport.update({
   id: '/zones/$slug',
   path: '/zones/$slug',
@@ -281,9 +293,11 @@ export interface FileRoutesByFullPath {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
   '/admin/chapters': typeof AdminLayoutChaptersRoute
@@ -322,9 +336,11 @@ export interface FileRoutesByTo {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
+  '/news': typeof NewsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
   '/admin/chapters': typeof AdminLayoutChaptersRoute
@@ -365,9 +381,11 @@ export interface FileRoutesById {
   '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
+  '/news/$slug': typeof NewsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/news/': typeof NewsIndexRoute
   '/admin/_layout/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/_layout/audit': typeof AdminLayoutAuditRoute
   '/admin/_layout/chapters': typeof AdminLayoutChaptersRoute
@@ -409,9 +427,11 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/news/$slug'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/news/'
     | '/admin/announcements'
     | '/admin/audit'
     | '/admin/chapters'
@@ -450,9 +470,11 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/news/$slug'
     | '/zones/$slug'
     | '/about'
     | '/chapters'
+    | '/news'
     | '/admin/announcements'
     | '/admin/audit'
     | '/admin/chapters'
@@ -492,9 +514,11 @@ export interface FileRouteTypes {
     | '/ministries/saline-training'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
+    | '/news/$slug'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/news/'
     | '/admin/_layout/announcements'
     | '/admin/_layout/audit'
     | '/admin/_layout/chapters'
@@ -528,9 +552,11 @@ export interface RootRouteChildren {
   AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
+  NewsSlugRoute: typeof NewsSlugRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   ChaptersIndexRoute: typeof ChaptersIndexRoute
+  NewsIndexRoute: typeof NewsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -731,6 +757,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinistriesWholenessMissionsRouteImport
       parentRoute: typeof MinistriesRoute
     }
+    '/news/': {
+      id: '/news/'
+      path: '/news'
+      fullPath: '/news/'
+      preLoaderRoute: typeof NewsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news/$slug': {
+      id: '/news/$slug'
+      path: '/news/$slug'
+      fullPath: '/news/$slug'
+      preLoaderRoute: typeof NewsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/zones/$slug': {
       id: '/zones/$slug'
       path: '/zones/$slug'
@@ -904,9 +944,11 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLayoutRoute: AdminLayoutRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
+  NewsSlugRoute: NewsSlugRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   ChaptersIndexRoute: ChaptersIndexRoute,
+  NewsIndexRoute: NewsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

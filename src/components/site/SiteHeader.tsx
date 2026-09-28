@@ -1,5 +1,15 @@
 import { Link } from "@tanstack/react-router";
-import { Menu, X, ChevronDown, ArrowRight, Users, BookOpen, Globe2, History, Award } from "lucide-react";
+import {
+  Menu,
+  X,
+  ChevronDown,
+  ArrowRight,
+  Users,
+  BookOpen,
+  Globe2,
+  History,
+  Award,
+} from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
 import { Button, buttonVariants } from "./primitives";
@@ -16,17 +26,47 @@ const nav = [
         {
           heading: "About Us",
           items: [
-            { label: "Our Story", to: "/about", icon: BookOpen, desc: "Who we are and what drives us" },
-            { label: "Our History", to: "/about/history", icon: History, desc: "Five decades of faith and service" },
-            { label: "Leadership", to: "/about/leadership", icon: Award, desc: "Trustees, board, management and student NEC" },
+            {
+              label: "Our Story",
+              to: "/about",
+              icon: BookOpen,
+              desc: "Who we are and what drives us",
+            },
+            {
+              label: "Our History",
+              to: "/about/history",
+              icon: History,
+              desc: "Five decades of faith and service",
+            },
+            {
+              label: "Leadership",
+              to: "/about/leadership",
+              icon: Award,
+              desc: "Trustees, board, management and student NEC",
+            },
           ],
         },
         {
           heading: "Our Arms",
           items: [
-            { label: "Students' Arm", to: "/students-arm", icon: Users, desc: "9,700+ student members" },
-            { label: "Doctors' Arm", to: "/doctors-arm", icon: Users, desc: "1,200+ doctors & dentists" },
-            { label: "Global Network", to: "/global-network", icon: Globe2, desc: "75+ members across 20 countries" },
+            {
+              label: "Students' Arm",
+              to: "/students-arm",
+              icon: Users,
+              desc: "9,700+ student members",
+            },
+            {
+              label: "Doctors' Arm",
+              to: "/doctors-arm",
+              icon: Users,
+              desc: "1,200+ doctors & dentists",
+            },
+            {
+              label: "Global Network",
+              to: "/global-network",
+              icon: Globe2,
+              desc: "75+ members across 20 countries",
+            },
           ],
         },
       ],
@@ -42,6 +82,7 @@ const nav = [
   { label: "Ministries", to: "/ministries" },
   { label: "Impact", to: "/impact" },
   { label: "Publications", to: "/publications" },
+  { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
   { label: "Contact", to: "/contact" },
 ] as const;
@@ -102,14 +143,20 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 <Link
                   to={item.to}
                   activeOptions={{ exact: false }}
-                  activeProps={{ className: "opacity-100 underline decoration-cmda-green decoration-2 underline-offset-8" }}
+                  activeProps={{
+                    className:
+                      "opacity-100 underline decoration-cmda-green decoration-2 underline-offset-8",
+                  }}
                   className={cn(
                     "flex items-center gap-1 text-xs font-semibold transition-opacity hover:opacity-70",
                     solid ? "text-foreground" : "text-primary-foreground",
                   )}
                 >
                   {item.label}
-                  <ChevronDown className={cn("size-3 transition-transform", megaOpen && "rotate-180")} aria-hidden="true" />
+                  <ChevronDown
+                    className={cn("size-3 transition-transform", megaOpen && "rotate-180")}
+                    aria-hidden="true"
+                  />
                 </Link>
 
                 {megaOpen && (
@@ -133,8 +180,12 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                                   <child.icon className="size-4" aria-hidden="true" />
                                 </span>
                                 <div className="min-w-0">
-                                  <span className="block text-sm font-semibold text-foreground">{child.label}</span>
-                                  <span className="mt-0.5 block text-xs text-muted-foreground">{child.desc}</span>
+                                  <span className="block text-sm font-semibold text-foreground">
+                                    {child.label}
+                                  </span>
+                                  <span className="mt-0.5 block text-xs text-muted-foreground">
+                                    {child.desc}
+                                  </span>
                                 </div>
                               </Link>
                             ))}
@@ -169,7 +220,10 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 key={item.to}
                 to={item.to}
                 activeOptions={{ exact: item.to === "/" }}
-                activeProps={{ className: "opacity-100 underline decoration-cmda-green decoration-2 underline-offset-8" }}
+                activeProps={{
+                  className:
+                    "opacity-100 underline decoration-cmda-green decoration-2 underline-offset-8",
+                }}
                 className={cn(
                   "text-xs font-semibold transition-opacity hover:opacity-70",
                   solid ? "text-foreground" : "text-primary-foreground",
@@ -184,7 +238,10 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
         <div className="hidden items-center gap-3 xl:flex">
           <Link
             to="/membership"
-            className={cn(buttonVariants({ variant: solid ? "outline" : "onDark" }), "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white")}
+            className={cn(
+              buttonVariants({ variant: solid ? "outline" : "onDark" }),
+              "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white",
+            )}
           >
             Become a Member
           </Link>
@@ -229,7 +286,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                         >
                           {child.label}
                         </Link>
-                      ))
+                      )),
                     )}
                   </div>
                 </div>
@@ -249,7 +306,10 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
             <Link
               to="/membership"
               onClick={() => setOpen(false)}
-              className={cn(buttonVariants({ variant: "outline" }), "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white")}
+              className={cn(
+                buttonVariants({ variant: "outline" }),
+                "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white",
+              )}
             >
               Become a Member
             </Link>

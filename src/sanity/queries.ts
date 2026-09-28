@@ -108,6 +108,27 @@ export const armAnnouncementsQuery = `
 }
 `;
 
+const postFields = `_id, title, "slug": slug.current, kind, arm, category, tags,
+  publishedAt, featured, excerpt, link, "hasBody": defined(body),
+  "cover": coverImage ${imageProjection}, "author": author->{ name }`;
+
+export const postListQuery = `
+*[_type == "post" && ${VISIBLE}] | order(featured desc, publishedAt desc) {
+  ${postFields}
+}
+`;
+
+export const postDetailQuery = `
+*[_type == "post" && ${VISIBLE} && slug.current == $slug][0] {
+  ${postFields},
+  "body": coalesce(body[]{ ${portableTextProjection} }, [])
+}
+`;
+
+export const eventListQuery = `
+*[_type == "event" && ${VISIBLE}] | order(startDate asc) ${eventProjection}
+`;
+
 export const chapterQuery = `
 *[_type == "chapter" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id, name, slug, institution, location, country, arm, establishedAt, order,

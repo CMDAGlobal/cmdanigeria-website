@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Events } from "@/components/site/Events";
+import { fetchEvents } from "@/sanity/data";
 
 const title = "Events & Conferences | CMDA Nigeria";
 const description =
   "National conferences, regional retreats, medical outreaches and student camps — find the next CMDA Nigeria gathering near you.";
 
 export const Route = createFileRoute("/events")({
+  loader: async () => ({ events: await fetchEvents() }),
   component: EventsPage,
   head: () => ({
     meta: [
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/events")({
 });
 
 function EventsPage() {
+  const { events } = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -28,7 +31,7 @@ function EventsPage() {
         title="Gather, be equipped, and go out again"
         intro="Conferences, retreats, outreaches and student camps run through the year across our chapters nationwide."
       />
-      <Events />
+      <Events events={events} />
     </>
   );
 }

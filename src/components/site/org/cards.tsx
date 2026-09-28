@@ -11,6 +11,7 @@ import type {
   EventRecord,
   LeaderRecord,
   NewsletterEntry,
+  PostRecord,
   SanityImage,
 } from "@/sanity/types";
 
@@ -30,7 +31,7 @@ export function typeLabel(type?: string | null): string {
     health: "Community health",
     other: "Other",
   };
-  return type ? labels[type] ?? type : "Event";
+  return type ? (labels[type] ?? type) : "Event";
 }
 
 export function formatDate(value?: string | null): string | null {
@@ -95,11 +96,15 @@ export function LeaderCard({ leader }: { leader: LeaderRecord }) {
           className="mx-auto aspect-[4/5] w-full max-w-40 object-cover"
         />
         <div className="mt-5 text-center">
-          <h3 className="font-display text-base font-bold tracking-tight text-foreground">{leader.name}</h3>
+          <h3 className="font-display text-base font-bold tracking-tight text-foreground">
+            {leader.name}
+          </h3>
           <p className="mt-1 text-sm font-semibold text-cmda-green">{role}</p>
           {detail ? <p className="mt-1 text-xs text-muted-foreground">{detail}</p> : null}
           {leader.bio ? (
-            <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">{leader.bio}</p>
+            <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
+              {leader.bio}
+            </p>
           ) : null}
         </div>
       </div>
@@ -133,7 +138,9 @@ export function EventCard({ event }: { event: EventRecord }) {
             {upcoming ? "Upcoming" : "Past"}
           </span>
         </div>
-        <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">{event.title}</h3>
+        <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
+          {event.title}
+        </h3>
         {event.description?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={event.description} />
@@ -183,7 +190,9 @@ export function ActivityCard({ activity }: { activity: ActivityRecord }) {
     <Reveal className="h-full">
       <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
         <span className="eyebrow text-cmda-green">{typeLabel(activity.type)}</span>
-        <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">{activity.title}</h3>
+        <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
+          {activity.title}
+        </h3>
         {activity.description?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={activity.description} />
@@ -211,7 +220,9 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementR
             </span>
           ) : null}
           {announcement.pinned ? (
-            <span className="text-[0.65rem] font-bold uppercase tracking-wide text-cmda-green">Pinned</span>
+            <span className="text-[0.65rem] font-bold uppercase tracking-wide text-cmda-green">
+              Pinned
+            </span>
           ) : null}
         </div>
         <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
@@ -238,6 +249,80 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementR
   );
 }
 
+export function kindLabel(kind?: string | null): string {
+  const labels: Record<string, string> = {
+    article: "Article",
+    press_release: "Press release",
+    statement: "Public statement",
+    coverage: "Media coverage",
+    video: "Video",
+  };
+  return kind ? (labels[kind] ?? kind) : "News";
+}
+
+export function NewsCard({ post }: { post: PostRecord }) {
+  const date = formatDate(post.publishedAt);
+  const coverUrl = post.cover?.asset?.url;
+  // Items with no body of their own are pointers to external coverage.
+  const external = Boolean(post.link && !post.hasBody);
+  const card = (
+    <div className="flex h-full flex-col border border-border bg-background transition-shadow hover:shadow-card">
+      {coverUrl ? (
+        <img
+          src={coverUrl}
+          alt=""
+          loading="lazy"
+          className="aspect-video w-full border-b border-border object-cover"
+        />
+      ) : null}
+      <div className="flex flex-1 flex-col p-6">
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="eyebrow text-cmda-green">{kindLabel(post.kind)}</span>
+          {post.category ? (
+            <span className="rounded-full bg-gold/15 px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold">
+              {post.category}
+            </span>
+          ) : null}
+          {date ? <span className="text-xs text-muted-foreground">{date}</span> : null}
+        </div>
+        <h3 className="mt-3 font-display text-lg font-bold leading-snug tracking-tight text-foreground">
+          {post.title}
+        </h3>
+        {post.excerpt ? (
+          <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+            {post.excerpt}
+          </p>
+        ) : (
+          <div className="flex-1" />
+        )}
+        <span className="mt-4 inline-flex items-center gap-1 font-display text-sm font-semibold text-cmda-green">
+          Read more
+          {external ? <ArrowUpRight className="size-4" aria-hidden="true" /> : null}
+        </span>
+      </div>
+    </div>
+  );
+  return (
+    <Reveal className="h-full">
+      {external ? (
+        <a
+          href={post.link as string}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block h-full"
+          aria-label={`${post.title} (opens in a new tab)`}
+        >
+          {card}
+        </a>
+      ) : (
+        <Link to="/news/$slug" params={{ slug: post.slug ?? post._id }} className="block h-full">
+          {card}
+        </Link>
+      )}
+    </Reveal>
+  );
+}
+
 export function ChapterCard({
   chapter,
   to,
@@ -247,7 +332,9 @@ export function ChapterCard({
   to?: "/chapters/$slug";
   params?: { slug: string };
 }) {
-  const subtitle = [chapter.institution, chapter.location, chapter.country].filter(Boolean).join(" · ");
+  const subtitle = [chapter.institution, chapter.location, chapter.country]
+    .filter(Boolean)
+    .join(" · ");
   const card = (
     <div className="flex h-full flex-col border border-border bg-background p-6 transition-all hover:border-cmda-green hover:shadow-card">
       <div className="flex items-start justify-between gap-4">
@@ -258,7 +345,9 @@ export function ChapterCard({
         />
         <ArrowUpRight className="size-5 shrink-0 text-cmda-green" aria-hidden="true" />
       </div>
-      <h3 className="mt-4 font-display text-base font-bold tracking-tight text-foreground">{chapter.name}</h3>
+      <h3 className="mt-4 font-display text-base font-bold tracking-tight text-foreground">
+        {chapter.name}
+      </h3>
       {subtitle ? <p className="mt-1 text-sm text-muted-foreground">{subtitle}</p> : null}
       {chapter.establishedAt ? (
         <p className="mt-2 text-xs text-muted-foreground">Est. {chapter.establishedAt}</p>
@@ -283,9 +372,13 @@ export function NewsletterCard({ item }: { item: NewsletterEntry }) {
     <Reveal className="h-full">
       <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
         <Newspaper className="mb-3 size-6 text-cmda-green" aria-hidden="true" />
-        <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{item.title}</h3>
+        <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+          {item.title}
+        </h3>
         {item.description ? (
-          <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
+          <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
+            {item.description}
+          </p>
         ) : null}
         {item.url ? (
           <a

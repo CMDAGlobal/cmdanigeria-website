@@ -1,38 +1,49 @@
 import { CalendarDays, MapPin } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { format, parseISO } from "date-fns";
 import { buttonVariants, Reveal, Section, SectionHead } from "./primitives";
+import { typeLabel } from "@/components/site/org/cards";
+import type { EventRecord } from "@/sanity/types";
 import { cn } from "@/lib/utils";
 
-const events = [
-  {
-    date: "20–23 Aug",
-    year: "2026",
-    title: "Students' Annual National Conference",
-    place: "Benin City, Edo State",
-    type: "Students",
-  },
-  {
-    date: "TBA",
-    year: "2026",
-    title: "Doctors' National Conference",
-    place: "Nigeria",
-    type: "Conference",
-  },
-  {
-    date: "TBA",
-    year: "2026",
-    title: "The Americas In-Person Retreat",
-    place: "United States",
-    type: "Global Network",
-  },
-  {
-    date: "Monthly",
-    year: "2026",
-    title: "Wholeness Webinar Series",
-    place: "Online",
-    type: "Webinar",
-  },
-];
+export function eventPlace(event: EventRecord): string {
+  return [event.venue, event.location].filter(Boolean).join(", ") || "TBA";
+}
+
+export function eventDateInfo(event: EventRecord): { label: string; year: string } {
+  if (!event.startDate) return { label: "TBA", year: "" };
+  let start: Date;
+  try {
+    start = parseISO(event.startDate);
+  } catch {
+    return { label: "TBA", year: "" };
+  }
+  if (Number.isNaN(start.getTime())) return { label: "TBA", year: "" };
+  const year = format(start, "yyyy");
+  if (!event.endDate) return { label: format(start, "d MMM"), year };
+  let end: Date;
+  try {
+    end = parseISO(event.endDate);
+  } catch {
+    return { label: format(start, "d MMM"), year };
+  }
+  if (Number.isNaN(end.getTime())) return { label: format(start, "d MMM"), year };
+  if (end.getMonth() === start.getMonth() && end.getFullYear() === start.getFullYear()) {
+    return { label: `${format(start, "d")}–${format(end, "d MMM")}`, year };
+  }
+  return { label: `${format(start, "d MMM")} – ${format(end, "d MMM")}`, year };
+}
+
+/** Events without a date (or dated in the future) come first; capped slice. */
+export function upcomingEvents(events: EventRecord[] | null | undefined, limit = 4): EventRecord[] {
+  const list = events ?? [];
+  const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+  const upcoming = list.filter((event) => {
+    if (!event.startDate) return true;
+    const parsed = Date.parse(event.startDate);
+    return Number.isNaN(parsed) || parsed >= cutoff;
+  });
+  return (upcoming.length > 0 ? upcoming : list).slice(0, limit);
+}
 
 const nationalConferences = [
   {
@@ -53,48 +64,70 @@ const nationalConferences = [
   },
 ];
 
-
-export function Events() {
+export function Events({ events }: { events?: EventRecord[] | null }) {
+  const shown = upcomingEvents(events);
   return (
     <>
       <Section id="events" className="bg-muted">
-        <SectionHead
-          eyebrow="Upcoming events"
-          title="Gather, train, and be sent"
-          action={
-            <Link to="/events" className={cn(buttonVariants({ variant: "outline" }))}>
-              Full events calendar
-            </Link>
-          }
-        />
+        <SectionHead eyebrow="Upcoming events" title="Gather, train, and be sent" />
 
         <div className="mt-16 grid gap-6 lg:grid-cols-2">
-          {events.map((e, i) => (
-            <Reveal key={e.title} delay={(i % 2) * 90}>
-              <article className="card-editorial flex h-full flex-col gap-6 p-8 sm:flex-row sm:items-center">
-                <div className="w-24 shrink-0 border-r border-border pr-4 text-center sm:text-left">
-                  <p className="font-display text-base font-extrabold text-primary">{e.date}</p>
-                  <p className="eyebrow mt-2 text-muted-foreground">{e.year}</p>
-                </div>
-                <div className="flex-1">
-                  <span className="eyebrow text-secondary">{e.type}</span>
-                  <h3 className="mt-2 font-display text-lg leading-snug font-bold">{e.title}</h3>
-                  <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="size-4" aria-hidden="true" />
-                    {e.place}
-                  </p>
-                </div>
-                <a
-                  href="#events"
-                  className={cn(buttonVariants({ variant: "primary", size: "sm" }), "bg-cmda-green hover:bg-cmda-green-deep")}
-                  aria-label={`Register for ${e.title}`}
-                >
-                  <CalendarDays aria-hidden="true" />
-                  Register
-                </a>
-              </article>
+          {shown.length > 0 ? (
+            shown.map((event, i) => {
+              const date = eventDateInfo(event);
+              return (
+                <Reveal key={event._id} delay={(i % 2) * 90}>
+                  <article className="card-editorial flex h-full flex-col gap-6 p-8 sm:flex-row sm:items-center">
+                    <div className="w-24 shrink-0 border-r border-border pr-4 text-center sm:text-left">
+                      <p className="font-display text-base font-extrabold text-primary">
+                        {date.label}
+                      </p>
+                      {date.year ? (
+                        <p className="eyebrow mt-2 text-muted-foreground">{date.year}</p>
+                      ) : null}
+                    </div>
+                    <div className="flex-1">
+                      <span className="eyebrow text-secondary">{typeLabel(event.type)}</span>
+                      <h3 className="mt-2 font-display text-lg leading-snug font-bold">
+                        {event.title}
+                      </h3>
+                      <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                        <MapPin className="size-4" aria-hidden="true" />
+                        {eventPlace(event)}
+                      </p>
+                    </div>
+                    {event.registrationUrl ? (
+                      <a
+                        href={event.registrationUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={cn(
+                          buttonVariants({ variant: "primary", size: "sm" }),
+                          "bg-cmda-green hover:bg-cmda-green-deep",
+                        )}
+                        aria-label={`Register for ${event.title}`}
+                      >
+                        <CalendarDays aria-hidden="true" />
+                        Register
+                      </a>
+                    ) : null}
+                  </article>
+                </Reveal>
+              );
+            })
+          ) : (
+            <Reveal className="lg:col-span-2">
+              <div className="card-editorial p-8 text-center">
+                <CalendarDays className="mx-auto mb-4 size-8 text-cmda-green" aria-hidden="true" />
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  No events announced yet
+                </h3>
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Conferences, retreats and outreaches will be listed here as they are announced.
+                </p>
+              </div>
             </Reveal>
-          ))}
+          )}
         </div>
       </Section>
 
@@ -151,7 +184,6 @@ export function Membership() {
   return (
     <>
       <Section id="membership">
-
         <SectionHead
           eyebrow="Membership"
           title="Join over 11,000 colleagues in the fellowship"
@@ -191,7 +223,6 @@ export function Giving() {
   return (
     <>
       <Section id="give" className="gradient-brand text-primary-foreground">
-
         <div className="grid items-center gap-14 lg:grid-cols-2 lg:gap-20">
           <Reveal>
             <div className="flex items-center gap-4">
@@ -222,10 +253,7 @@ export function Giving() {
                 { label: "Northern Medical Missions", raised: 48 },
                 { label: "Student Scholarships", raised: 61 },
               ].map((c) => (
-                <div
-                  key={c.label}
-                  className="card-editorial-dark p-6"
-                >
+                <div key={c.label} className="card-editorial-dark p-6">
                   <div className="flex items-center justify-between gap-4">
                     <p className="font-display text-sm font-bold">{c.label}</p>
                     <p className="font-display text-sm font-bold text-gold">{c.raised}%</p>

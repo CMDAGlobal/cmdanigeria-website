@@ -13,8 +13,11 @@ import {
   armAnnouncementsQuery,
   armEventsQuery,
   chapterQuery,
+  eventListQuery,
   leadershipQuery,
   necQuery,
+  postDetailQuery,
+  postListQuery,
   regionListQuery,
   regionQuery,
   zoneQuery,
@@ -28,6 +31,8 @@ import type {
   EventRecord,
   LeaderRecord,
   LeadershipTeams,
+  PostDetail,
+  PostRecord,
   RegionDetail,
   RegionListEntry,
   ZoneDetail,
@@ -127,6 +132,47 @@ export const fetchLeadership = createServerFn({ method: "GET", strict: false }).
     } catch (error) {
       console.error("[sanity] fetchLeadership failed", error);
       return fallbackLeadership();
+    }
+  },
+);
+
+export const fetchPosts = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<PostRecord[]> => {
+    const client = getClient();
+    if (!client) return [];
+    try {
+      const posts = await client.fetch<PostRecord[] | null>(postListQuery);
+      return posts ?? [];
+    } catch (error) {
+      console.error("[sanity] fetchPosts failed", error);
+      return [];
+    }
+  },
+);
+
+export const fetchPost = createServerFn({ method: "GET", strict: false })
+  .validator((slug: string) => slug)
+  .handler(async ({ data }): Promise<PostDetail | null> => {
+    const client = getClient();
+    if (!client) return null;
+    try {
+      return (await client.fetch<PostDetail | null>(postDetailQuery, { slug: data })) ?? null;
+    } catch (error) {
+      console.error("[sanity] fetchPost failed", error);
+      return null;
+    }
+  });
+
+export const fetchEvents = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<EventRecord[]> => {
+    const client = getClient();
+    if (!client) return [];
+    try {
+      const events = await client.fetch<EventRecord[] | null>(eventListQuery);
+      return events ?? [];
+    } catch (error) {
+      console.error("[sanity] fetchEvents failed", error);
+      return [];
     }
   },
 );

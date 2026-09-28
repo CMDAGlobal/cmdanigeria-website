@@ -134,6 +134,27 @@ export interface AnnouncementRecord {
   body?: PortableTextBlock[] | null;
 }
 
+export interface PostRecord {
+  _id: string;
+  title: string;
+  slug?: string | null;
+  kind?: string | null;
+  arm?: Arm | null;
+  category?: string | null;
+  tags?: string[] | null;
+  publishedAt?: string | null;
+  featured?: boolean | null;
+  excerpt?: string | null;
+  link?: string | null;
+  hasBody?: boolean | null;
+  cover?: SanityImage | null;
+  author?: { name?: string | null } | null;
+}
+
+export interface PostDetail extends PostRecord {
+  body?: PortableTextBlock[] | null;
+}
+
 export interface RegionListEntry {
   _id: string;
   name: string;
