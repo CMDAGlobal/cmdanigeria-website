@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField, galleryImage } from "./objects";
+import { publicationFields } from "./publication";
 
 const SECTIONS = [
   { title: "General", value: "general" },
@@ -36,18 +37,13 @@ export const page = defineType({
       validation: (r) => r.required(),
     }),
     defineField(armField),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({
       name: "section",
       title: "Section",
       type: "string",
       options: { list: SECTIONS, layout: "dropdown" },
       initialValue: "general",
-    }),
-    defineField({
-      name: "draft",
-      title: "Draft (hide from public)",
-      type: "boolean",
-      initialValue: false,
     }),
     defineField({
       name: "regions",

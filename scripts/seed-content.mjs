@@ -20,10 +20,10 @@ if (!projectId || !token) {
 const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
 
 async function docsExist(type, slugs) {
-  const results = await client.fetch(
-    `*[_type == $type && slug.current in $slugs] { _id, slug }`,
-    { type, slugs },
-  );
+  const results = await client.fetch(`*[_type == $type && slug.current in $slugs] { _id, slug }`, {
+    type,
+    slugs,
+  });
   return new Set(results.map((doc) => doc.slug.current));
 }
 
@@ -91,7 +91,10 @@ async function seedArmZones(arm, zones) {
 
 async function seedArmEvents(arm, events) {
   let created = 0;
-  const existingEvents = await docsExist("event", events.map((event) => event.slug?.current).filter(Boolean));
+  const existingEvents = await docsExist(
+    "event",
+    events.map((event) => event.slug?.current).filter(Boolean),
+  );
   for (const [index, event] of events.entries()) {
     const slug = event.slug?.current ?? `${arm}-event-${index}`;
     if (existingEvents.has(slug)) {
@@ -104,6 +107,7 @@ async function seedArmEvents(arm, events) {
       slug: { _type: "slug", current: slug },
       type: event.type ?? "other",
       arm,
+      publication: "published",
       startDate: event.startDate ?? `${new Date().getFullYear() + 1}-12-31T09:00:00.000Z`,
       venue: event.venue ?? undefined,
       location: event.location ?? undefined,
@@ -166,15 +170,15 @@ for (const [index, slug] of regionSlugs.entries()) {
   for (const [i, item] of events.entries()) {
     if (!item) continue;
     const slug = item.slug.current;
-    const dupes = await client.fetch(
-      `*[_type == "event" && slug.current == $slug] { _id }`,
-      { slug },
-    );
+    const dupes = await client.fetch(`*[_type == "event" && slug.current == $slug] { _id }`, {
+      slug,
+    });
     if (dupes.length > 0) continue;
     await client.create({
       ...item,
       _type: "event",
       arm: "global",
+      publication: "published",
       regions: [{ _type: "reference", _ref: doc._id }],
     });
   }

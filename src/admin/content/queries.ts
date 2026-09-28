@@ -1,7 +1,7 @@
 import type { ContentModuleKey } from "./types";
 
 export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
-  chapters: `*[_type == "chapter"] | order(order asc, name asc) {
+  chapters: `*[_type == "chapter" && !(_id in path("drafts.**"))] | order(order asc, name asc) {
     "id": _id,
     "title": name,
     "slug": slug.current,
@@ -11,11 +11,13 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "region": region->slug.current,
     "zone": zone->slug.current
   }`,
-  events: `*[_type == "event"] | order(startDate desc) {
+  events: `*[_type == "event" && !(_id in path("drafts.**"))] | order(startDate desc) {
     "id": _id,
     title,
     "slug": slug.current,
     arm,
+    publication,
+    publishAt,
     type,
     startDate,
     mode,
@@ -25,11 +27,13 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
-  announcements: `*[_type == "announcement"] | order(pinned desc, publishedAt desc) {
+  announcements: `*[_type == "announcement" && !(_id in path("drafts.**"))] | order(pinned desc, publishedAt desc) {
     "id": _id,
     title,
     "slug": slug.current,
     arm,
+    publication,
+    publishAt,
     category,
     publishedAt,
     pinned,
@@ -37,11 +41,13 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
-  news: `*[_type == "post"] | order(publishedAt desc) {
+  news: `*[_type == "post" && !(_id in path("drafts.**"))] | order(publishedAt desc) {
     "id": _id,
     title,
     "slug": slug.current,
     arm,
+    publication,
+    publishAt,
     kind,
     category,
     tags,
@@ -52,11 +58,13 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
-  outreaches: `*[_type == "outreach"] | order(coalesce(startsAt, _createdAt) desc) {
+  outreaches: `*[_type == "outreach" && !(_id in path("drafts.**"))] | order(coalesce(startsAt, _createdAt) desc) {
     "id": _id,
     title,
     "slug": slug.current,
     arm,
+    publication,
+    publishAt,
     status,
     startsAt,
     location,
@@ -65,11 +73,13 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
-  pages: `*[_type == "page"] | order(title asc) {
+  pages: `*[_type == "page" && !(_id in path("drafts.**"))] | order(title asc) {
     "id": _id,
     title,
     "slug": slug.current,
     arm,
+    publication,
+    publishAt,
     section,
     draft,
     "regions": regions[]->slug.current,

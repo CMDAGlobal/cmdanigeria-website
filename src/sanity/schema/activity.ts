@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField, galleryImage } from "./objects";
+import { publicationFields } from "./publication";
 
 export const activity = defineType({
   name: "activity",
@@ -38,6 +39,7 @@ export const activity = defineType({
       },
     }),
     defineField(armField),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({ name: "date", title: "Date / period", type: "date" }),
     defineField({
       name: "regions",

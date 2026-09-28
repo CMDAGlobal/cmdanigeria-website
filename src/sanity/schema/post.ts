@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField, galleryImage } from "./objects";
+import { publicationFields } from "./publication";
 
 const KINDS = [
   { title: "Article", value: "article" },
@@ -36,6 +37,7 @@ export const post = defineType({
       validation: (r) => r.required(),
     }),
     defineField(armField),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({ name: "category", title: "Category", type: "string" }),
     defineField({
       name: "tags",
@@ -49,12 +51,6 @@ export const post = defineType({
       title: "Published date & time",
       type: "datetime",
       validation: (r) => r.required(),
-    }),
-    defineField({
-      name: "draft",
-      title: "Draft (hide from public)",
-      type: "boolean",
-      initialValue: false,
     }),
     defineField({
       name: "featured",

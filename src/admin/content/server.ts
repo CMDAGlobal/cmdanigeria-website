@@ -1,21 +1,31 @@
 import { createServerFn } from "@tanstack/react-start";
 import type {
+  ContentDocInput,
   ContentModuleKey,
   ContentModulePayload,
+  ContentMutationResult,
+  CreateContentInput,
   MediaPayload,
+  SetPublicationInput,
   SettingsPayload,
+  UpdateContentInput,
 } from "./types";
 
 export type {
+  ContentDocInput,
   ContentItem,
   ContentModuleKey,
   ContentModulePayload,
+  ContentMutationResult,
   ContentStat,
   ContentStatus,
+  CreateContentInput,
   MediaAsset,
   MediaPayload,
+  SetPublicationInput,
   SettingsPayload,
   StatusTone,
+  UpdateContentInput,
 } from "./types";
 
 export const getContentModuleAction = createServerFn({ method: "GET", strict: false })
@@ -38,3 +48,31 @@ export const getAdminSettingsAction = createServerFn({ method: "GET", strict: fa
     return getAdminSettings();
   },
 );
+
+export const createContentAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: CreateContentInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { createContent } = await import("./mutations");
+    return createContent(data);
+  });
+
+export const updateContentAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: UpdateContentInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { updateContent } = await import("./mutations");
+    return updateContent(data);
+  });
+
+export const deleteContentAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: ContentDocInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { deleteContent } = await import("./mutations");
+    return deleteContent(data);
+  });
+
+export const setPublicationAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: SetPublicationInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { setPublicationStatus } = await import("./mutations");
+    return setPublicationStatus(data);
+  });

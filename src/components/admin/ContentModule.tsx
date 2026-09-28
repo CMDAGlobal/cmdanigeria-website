@@ -1,13 +1,39 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ExternalLink, Search } from "lucide-react";
+import { CalendarClock, ExternalLink, MoreHorizontal, Search, Trash2 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
@@ -26,8 +52,12 @@ import {
 } from "@/components/ui/table";
 import { armLabel } from "@/admin/content/mappers";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
+import {
+  CONTENT_PUBLICATION_STATUSES,
+  type ContentPublicationStatus,
+} from "@/admin/content/validate";
 import type { PermissionKey } from "@/admin/rbac/permissions";
-import { useContentModule } from "./admin-content";
+import { useContentModule, useDeleteContent, useSetPublication } from "./admin-content";
 import { hasPermission, useAdminSession } from "./admin-session";
 import { NoAccess } from "./NoAccess";
 
@@ -45,6 +75,21 @@ export interface ContentModuleProps {
 }
 
 const MAX_ROWS = 200;
+
+const PUBLICATION_LABELS: Record<ContentPublicationStatus, string> = {
+  draft: "Draft",
+  published: "Published",
+  scheduled: "Scheduled",
+  archived: "Archived",
+};
+
+function publicationFromStatus(item: ContentItem): ContentPublicationStatus | null {
+  const label = item.status?.label.toLowerCase();
+  if (label === "draft" || label === "published" || label === "scheduled" || label === "archived") {
+    return label;
+  }
+  return null;
+}
 
 function formatDate(value: string | null): string {
   if (!value) return "—";
@@ -83,6 +128,73 @@ export function ContentModule({
   const [search, setSearch] = useState("");
   const [arm, setArm] = useState("all");
   const [status, setStatus] = useState("all");
+  const [statusItem, setStatusItem] = useState<ContentItem | null>(null);
+  const [deleteItem, setDeleteItem] = useState<ContentItem | null>(null);
+  const [nextStatus, setNextStatus] = useState<ContentPublicationStatus>("published");
+  const [publishAtLocal, setPublishAtLocal] = useState("");
+
+  const writePermission = permission.replace(/\.read$/, ".write") as PermissionKey;
+  const deletePermission = permission.replace(/\.read$/, ".delete") as PermissionKey;
+  const canWrite = hasPermission(session.data, writePermission);
+  const canDelete = hasPermission(session.data, deletePermission);
+  const supportsPublication = module !== "chapters";
+
+  const setPublication = useSetPublication(module);
+  const removeItem = useDeleteContent(module);
+  const publicationBusy = setPublication.isPending;
+  const deleteBusy = removeItem.isPending;
+
+  function openStatusDialog(item: ContentItem) {
+    setNextStatus(publicationFromStatus(item) ?? "published");
+    setPublishAtLocal("");
+    setStatusItem(item);
+  }
+
+  async function applyPublication() {
+    if (!statusItem) return;
+    let publishAt: string | null = null;
+    if (nextStatus === "scheduled") {
+      const parsed = publishAtLocal ? new Date(publishAtLocal) : null;
+      if (!parsed || Number.isNaN(parsed.getTime())) {
+        toast.error("Choose a valid date and time for the scheduled release.");
+        return;
+      }
+      publishAt = parsed.toISOString();
+    }
+    try {
+      const result = await setPublication.mutateAsync({
+        module,
+        id: statusItem.id,
+        publication: nextStatus,
+        publishAt,
+      });
+      if (result.ok) {
+        toast.success(
+          `“${statusItem.title}” is now ${PUBLICATION_LABELS[nextStatus].toLowerCase()}.`,
+        );
+        setStatusItem(null);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
+
+  async function confirmDelete() {
+    if (!deleteItem) return;
+    try {
+      const result = await removeItem.mutateAsync({ module, id: deleteItem.id });
+      if (result.ok) {
+        toast.success(`“${deleteItem.title}” deleted.`);
+        setDeleteItem(null);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
 
   const allItems = useMemo(() => query.data?.items ?? [], [query.data]);
 
@@ -154,7 +266,7 @@ export function ContentModule({
           <CardTitle>{listHeading}</CardTitle>
           <CardDescription>
             {configured
-              ? "Read-only view scoped to your role. Edit content in the Studio."
+              ? "Scoped to your role. Use the row menu for publication and deletion, or open Studio for full editing."
               : "The content store is not configured for this environment."}
           </CardDescription>
         </CardHeader>
@@ -266,15 +378,48 @@ export function ContentModule({
                         </TableCell>
                       ) : null}
                       <TableCell>
-                        <a
-                          href={studioUrl(studioType, item.id)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-muted-foreground transition-colors hover:text-primary"
-                          aria-label={`Edit ${item.title} in Studio`}
-                        >
-                          <ExternalLink className="h-4 w-4" />
-                        </a>
+                        <div className="flex items-center justify-end gap-1">
+                          <a
+                            href={studioUrl(studioType, item.id)}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="text-muted-foreground transition-colors hover:text-primary"
+                            aria-label={`Edit ${item.title} in Studio`}
+                          >
+                            <ExternalLink className="h-4 w-4" />
+                          </a>
+                          {canWrite || canDelete ? (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7"
+                                  aria-label={`Actions for ${item.title}`}
+                                >
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                {canWrite && supportsPublication ? (
+                                  <DropdownMenuItem onSelect={() => openStatusDialog(item)}>
+                                    <CalendarClock className="mr-2 h-4 w-4" />
+                                    Change status…
+                                  </DropdownMenuItem>
+                                ) : null}
+                                {canDelete ? (
+                                  <DropdownMenuItem
+                                    className="text-destructive focus:text-destructive"
+                                    onSelect={() => setDeleteItem(item)}
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete…
+                                  </DropdownMenuItem>
+                                ) : null}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          ) : null}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -289,6 +434,93 @@ export function ContentModule({
           )}
         </CardContent>
       </Card>
+
+      <Dialog
+        open={statusItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setStatusItem(null);
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change publication status</DialogTitle>
+            <DialogDescription>{statusItem?.title}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="publication-status">Status</Label>
+              <Select
+                value={nextStatus}
+                onValueChange={(value) => setNextStatus(value as ContentPublicationStatus)}
+              >
+                <SelectTrigger id="publication-status" aria-label="Publication status">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {CONTENT_PUBLICATION_STATUSES.map((value) => (
+                    <SelectItem key={value} value={value}>
+                      {PUBLICATION_LABELS[value]}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {nextStatus === "scheduled" ? (
+              <div className="space-y-2">
+                <Label htmlFor="publish-at">Publish at</Label>
+                <Input
+                  id="publish-at"
+                  type="datetime-local"
+                  value={publishAtLocal}
+                  onChange={(event) => setPublishAtLocal(event.target.value)}
+                />
+                <p className="text-xs text-muted-foreground">
+                  The item appears on the public site at this time.
+                </p>
+              </div>
+            ) : null}
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setStatusItem(null)}
+              disabled={publicationBusy}
+            >
+              Cancel
+            </Button>
+            <Button onClick={applyPublication} disabled={publicationBusy}>
+              {publicationBusy ? "Saving…" : "Apply"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog
+        open={deleteItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setDeleteItem(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{deleteItem?.title}” will be permanently removed from the content store. This cannot
+              be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteBusy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDelete}
+              disabled={deleteBusy}
+              className="bg-destructive text-white hover:bg-destructive/90"
+            >
+              {deleteBusy ? "Deleting…" : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

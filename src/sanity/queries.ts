@@ -4,6 +4,12 @@ export const portableTextProjection = `
   _type == "reference" => @-> { _id, name, slug, title }
 `;
 
+/** Exclude Sanity's system drafts (unpublished Studio copies). */
+const NOT_DRAFT = `!(_id in path("drafts.**"))`;
+
+/** Publication lifecycle: hidden while Draft/Archived; Scheduled appears once due. */
+const VISIBLE = `!(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now()))`;
+
 export const imageProjection = `{
   ..., 
   asset-> { url, _id }
@@ -26,7 +32,7 @@ export const chapterListProjection = `{
 }`;
 
 export const regionListQuery = `
-*[_type == "region"] | order(order asc, _createdAt asc) {
+*[_type == "region" && ${NOT_DRAFT}] | order(order asc, _createdAt asc) {
   _id,
   name,
   slug,
@@ -35,13 +41,13 @@ export const regionListQuery = `
   intro,
   countries,
   stats,
-  "chapterCount": count(*[_type == "chapter" && references(^._id)]),
-  "eventCount": count(*[_type == "event" && references(^._id)])
+  "chapterCount": count(*[_type == "chapter" && ${NOT_DRAFT} && references(^._id)]),
+  "eventCount": count(*[_type == "event" && ${VISIBLE} && references(^._id)])
 }
 `;
 
 export const regionQuery = `
-*[_type == "region" && slug.current == $slug][0] {
+*[_type == "region" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id,
   name,
   slug,
@@ -55,14 +61,14 @@ export const regionQuery = `
   newsletters,
   "heroImage": heroImage ${imageProjection},
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
-  "leaders": *[_type == "person" && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
-  "chapters": *[_type == "chapter" && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
-  "events": *[_type == "event" && references(^._id)] | order(startDate desc) ${eventProjection},
-  "activities": *[_type == "activity" && references(^._id)] | order(date desc, _createdAt desc) {
+  "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
+  "chapters": *[_type == "chapter" && ${NOT_DRAFT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
+  "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection},
+  "activities": *[_type == "activity" && ${VISIBLE} && references(^._id)] | order(date desc, _createdAt desc) {
     _id, title, slug, type, arm, date, outcome,
     "description": coalesce(description[]{ ${portableTextProjection} }, [])
   },
-  "announcements": *[_type == "announcement" && references(^._id)] | order(publishedAt desc) {
+  "announcements": *[_type == "announcement" && ${VISIBLE} && references(^._id)] | order(pinned desc, publishedAt desc) {
     _id, title, slug, category, publishedAt, pinned, link,
     "body": coalesce(body[]{ ${portableTextProjection} }, [])
   },
@@ -71,57 +77,57 @@ export const regionQuery = `
 `;
 
 export const necQuery = `
-*[_type == "person" && arm == $arm && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
+*[_type == "person" && ${NOT_DRAFT} && arm == $arm && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
 `;
 
 export const leadershipQuery = `
 {
-  "boardOfTrustees": *[_type == "person" && leadershipTeam == "board-of-trustees"] | order(order asc, _createdAt asc) ${personProjection},
-  "governingBoard": *[_type == "person" && leadershipTeam == "governing-board"] | order(order asc, _createdAt asc) ${personProjection},
-  "managementTeam": *[_type == "person" && leadershipTeam == "management-team"] | order(order asc, _createdAt asc) ${personProjection},
-  "studentNec": *[_type == "person" && arm == "students" && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
+  "boardOfTrustees": *[_type == "person" && ${NOT_DRAFT} && leadershipTeam == "board-of-trustees"] | order(order asc, _createdAt asc) ${personProjection},
+  "governingBoard": *[_type == "person" && ${NOT_DRAFT} && leadershipTeam == "governing-board"] | order(order asc, _createdAt asc) ${personProjection},
+  "managementTeam": *[_type == "person" && ${NOT_DRAFT} && leadershipTeam == "management-team"] | order(order asc, _createdAt asc) ${personProjection},
+  "studentNec": *[_type == "person" && ${NOT_DRAFT} && arm == "students" && isNational == true] | order(order asc, _createdAt asc) ${personProjection}
 }
 `;
 
 export const zonesQuery = `
-*[_type == "zone" && arm == $arm] | order(order asc, name asc) {
+*[_type == "zone" && ${NOT_DRAFT} && arm == $arm] | order(order asc, name asc) {
   _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
-  "chapterCount": count(*[_type == "chapter" && arm == $arm && references(^._id)]),
-  "sampleChapters": *[_type == "chapter" && arm == $arm && references(^._id)] | order(order asc, name asc)[0...16] ${chapterListProjection}
+  "chapterCount": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == $arm && references(^._id)]),
+  "sampleChapters": *[_type == "chapter" && ${NOT_DRAFT} && arm == $arm && references(^._id)] | order(order asc, name asc)[0...16] ${chapterListProjection}
 }
 `;
 
 export const armEventsQuery = `
-*[_type == "event" && arm == $arm] | order(startDate desc) ${eventProjection}
+*[_type == "event" && ${VISIBLE} && arm == $arm] | order(startDate desc) ${eventProjection}
 `;
 
 export const armAnnouncementsQuery = `
-*[_type == "announcement" && arm == $arm] | order(pinned desc, publishedAt desc) {
+*[_type == "announcement" && ${VISIBLE} && arm == $arm] | order(pinned desc, publishedAt desc) {
   _id, title, slug, category, publishedAt, pinned, link,
   "body": coalesce(body[]{ ${portableTextProjection} }, [])
 }
 `;
 
 export const chapterQuery = `
-*[_type == "chapter" && slug.current == $slug][0] {
+*[_type == "chapter" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id, name, slug, institution, location, country, arm, establishedAt, order,
   "zone": zone->{ _id, name, slug },
   "region": region->{ _id, name, slug },
   "logo": logo ${imageProjection},
   "description": coalesce(description[]{ ${portableTextProjection} }, []),
   "membership": membership,
-  "exco": *[_type == "person" && memberOfChapter._ref == ^._id] | order(order asc, _createdAt asc) ${personProjection},
+  "exco": *[_type == "person" && ${NOT_DRAFT} && memberOfChapter._ref == ^._id] | order(order asc, _createdAt asc) ${personProjection},
   "gallery": coalesce(gallery[]{ ${imageProjection} }, []),
-  "events": *[_type == "event" && references(^._id)] | order(startDate desc) ${eventProjection}
+  "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection}
 }
 `;
 
 export const zoneQuery = `
-*[_type == "zone" && slug.current == $slug][0] {
+*[_type == "zone" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
-  "chapters": *[_type == "chapter" && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
-  "leaders": *[_type == "person" && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
+  "chapters": *[_type == "chapter" && ${NOT_DRAFT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
+  "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
   "gallery": coalesce(gallery[]{ ${imageProjection} }, [])
 }
 `;

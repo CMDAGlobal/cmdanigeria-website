@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField, galleryImage } from "./objects";
+import { publicationFields } from "./publication";
 
 const STATUSES = [
   { title: "Planned", value: "planned" },
@@ -32,6 +33,7 @@ export const outreach = defineType({
       validation: (r) => r.required(),
     }),
     defineField(armField),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({
       name: "status",
       title: "Status",

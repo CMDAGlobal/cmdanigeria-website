@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField } from "./objects";
+import { publicationFields } from "./publication";
 
 export const announcement = defineType({
   name: "announcement",
@@ -16,6 +17,7 @@ export const announcement = defineType({
       validation: (r) => r.required(),
     }),
     defineField(armField),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({ name: "category", title: "Category", type: "string" }),
     defineField({
       name: "publishedAt",
