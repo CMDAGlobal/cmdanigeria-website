@@ -8,6 +8,7 @@ import type { ZoneDetail } from "@/sanity/types";
 import { ChapterCard, GalleryGrid, LeaderCard } from "./cards";
 
 function zoneArm(zone: ZoneDetail): "students" | "doctors" {
+  if (zone.arm === "students" || zone.arm === "doctors") return zone.arm;
   return zone.chapters?.some((chapter) => chapter.arm === "students") ? "students" : "doctors";
 }
 
@@ -50,7 +51,10 @@ function About({ zone }: { zone: ZoneDetail }) {
           {zone.countries?.length ? (
             <div className="mt-8 flex flex-wrap gap-2">
               {zone.countries.map((country) => (
-                <span key={country} className="border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground">
+                <span
+                  key={country}
+                  className="border border-border bg-background px-2 py-0.5 text-xs text-muted-foreground"
+                >
                   {country}
                 </span>
               ))}
@@ -73,7 +77,9 @@ function Stats({ zone }: { zone: ZoneDetail }) {
               <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green lg:text-4xl">
                 {stat.value}
               </p>
-              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">{stat.label}</p>
+              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">
+                {stat.label}
+              </p>
             </div>
           </Reveal>
         ))}
@@ -103,7 +109,12 @@ function Chapters({ zone }: { zone: ZoneDetail }) {
       <SectionHead eyebrow="Chapters" title="Chapters in this zone" />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {zone.chapters.map((chapter) => (
-          <ChapterCard key={chapter._id} chapter={chapter} to="/chapters/$slug" params={{ slug: chapter.slug?.current ?? chapter._id }} />
+          <ChapterCard
+            key={chapter._id}
+            chapter={chapter}
+            to="/chapters/$slug"
+            params={{ slug: chapter.slug?.current ?? chapter._id }}
+          />
         ))}
       </div>
     </Section>
@@ -131,8 +142,12 @@ export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
           <p className="lede mt-6 text-muted-foreground">
             The zone you are looking for does not exist or has not been published yet.
           </p>
-          <Link to="/doctors-arm" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}>
-            <ArrowLeft className="size-4" aria-hidden="true" />Back to Doctors' Arm
+          <Link
+            to="/doctors-arm"
+            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Back to Doctors' Arm
           </Link>
         </div>
       </Section>
@@ -156,7 +171,8 @@ export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Get involved in the {zone.name}</h2>
           <p className="lede mt-6 text-primary-foreground/75">
-            Connect with a chapter near you, volunteer for outreach, or reach out to the zonal leadership.
+            Connect with a chapter near you, volunteer for outreach, or reach out to the zonal
+            leadership.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/membership" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>

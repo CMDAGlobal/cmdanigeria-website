@@ -11,19 +11,6 @@ export function strArray(value: unknown): string[] {
   );
 }
 
-export function zoneRefs(value: unknown): ContentScopeMeta["zones"] {
-  return asArray(value as unknown).flatMap((entry) => {
-    if (!entry || typeof entry !== "object") return [];
-    const record = entry as { slug?: unknown; region?: unknown };
-    return [
-      {
-        slug: typeof record.slug === "string" ? record.slug : null,
-        region: typeof record.region === "string" ? record.region : null,
-      },
-    ];
-  });
-}
-
 export function buildScopeMeta(input: {
   arm?: unknown;
   regions?: unknown;
@@ -33,7 +20,7 @@ export function buildScopeMeta(input: {
   return {
     arm: typeof input.arm === "string" && input.arm.length > 0 ? input.arm : null,
     regions: strArray(input.regions),
-    zones: zoneRefs(input.zones),
+    zones: strArray(input.zones),
     chapters: strArray(input.chapters),
   };
 }
@@ -55,35 +42,30 @@ export function isSystemGrant(grant: ScopeGrant): boolean {
 }
 
 function grantSees(meta: ContentScopeMeta, grant: ScopeGrant): boolean {
-  if (grant.arm && meta.arm && meta.arm !== "global" && meta.arm !== grant.arm) return false;
+  // Arm gate: a scoped grant only sees its own arm. Regions (Global Network)
+  // and zones (Students/Doctors) are disjoint hierarchies, so neither ever
+  // crosses into the other arm's grants.
+  if (grant.arm && meta.arm && meta.arm !== grant.arm) return false;
 
-  const regionSet = new Set(meta.regions);
-  for (const zone of meta.zones) {
-    if (zone.region) regionSet.add(zone.region);
-  }
-  const chapterSpecific = meta.chapters.length > 0;
-  const zoneSpecific = meta.zones.length > 0;
+  // "Untargeted" means the document belongs to the arm as a whole rather than
+  // to some specific unit inside it.
+  const untargeted =
+    meta.chapters.length === 0 && meta.zones.length === 0 && meta.regions.length === 0;
 
   if (grant.chapterSlug) {
-    if (chapterSpecific && !meta.chapters.includes(grant.chapterSlug)) return false;
-    if (zoneSpecific && !meta.chapters.includes(grant.chapterSlug)) {
-      const zoneInRegion = meta.zones.some(
-        (zone) => !zone.region || zone.region === grant.regionSlug,
-      );
-      if (!zoneInRegion) return false;
-    }
-    if (!zoneSpecific && !chapterSpecific && regionSet.size > 0) {
-      if (grant.regionSlug && !regionSet.has(grant.regionSlug)) return false;
-    }
-    return true;
+    if (meta.chapters.includes(grant.chapterSlug)) return true;
+    // Arm-wide content is visible to every chapter in that arm. Content scoped
+    // to another unit fails closed: a chapter admin must not reach another
+    // chapter, a zone, or a region by any path.
+    return untargeted;
   }
 
   if (grant.regionSlug) {
-    if (chapterSpecific) return false;
-    if (regionSet.size > 0 && !regionSet.has(grant.regionSlug)) return false;
-    return true;
+    if (meta.regions.includes(grant.regionSlug)) return true;
+    return untargeted;
   }
 
+  // Arm-only grant: the arm gate above already did the work.
   return true;
 }
 

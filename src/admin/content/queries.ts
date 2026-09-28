@@ -1,10 +1,5 @@
 import type { ContentModuleKey } from "./types";
 
-const ZONE_PROJECTION = `{
-  "slug": slug.current,
-  "region": region->slug.current
-}`;
-
 export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
   chapters: `*[_type == "chapter"] | order(order asc, name asc) {
     "id": _id,
@@ -14,7 +9,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "subtitle": institution,
     "date": establishedAt,
     "region": region->slug.current,
-    "zone": zone->${ZONE_PROJECTION}
+    "zone": zone->slug.current
   }`,
   events: `*[_type == "event"] | order(startDate desc) {
     "id": _id,
@@ -27,7 +22,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     venue,
     location,
     "regions": regions[]->slug.current,
-    "zones": zones[]->${ZONE_PROJECTION},
+    "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
   announcements: `*[_type == "announcement"] | order(pinned desc, publishedAt desc) {
@@ -39,7 +34,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     publishedAt,
     pinned,
     "regions": regions[]->slug.current,
-    "zones": zones[]->${ZONE_PROJECTION},
+    "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
   news: `*[_type == "post"] | order(publishedAt desc) {
@@ -54,7 +49,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     draft,
     featured,
     "regions": regions[]->slug.current,
-    "zones": zones[]->${ZONE_PROJECTION},
+    "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
   outreaches: `*[_type == "outreach"] | order(coalesce(startsAt, _createdAt) desc) {
@@ -67,7 +62,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     location,
     partner,
     "regions": regions[]->slug.current,
-    "zones": zones[]->${ZONE_PROJECTION},
+    "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
   pages: `*[_type == "page"] | order(title asc) {
@@ -78,7 +73,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     section,
     draft,
     "regions": regions[]->slug.current,
-    "zones": zones[]->${ZONE_PROJECTION},
+    "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
 };
@@ -89,35 +84,35 @@ const GALLERY_PROJECTION = `gallery[]{caption, alt, "asset": image.asset->${ASSE
 export const MEDIA_QUERY = `{
   "chapters": *[_type == "chapter"]{
     "owner": name, "ownerId": _id, arm,
-    "region": region->slug.current, "zone": zone->${ZONE_PROJECTION},
+    "region": region->slug.current, "zone": zone->slug.current,
     "cover": logo.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   },
   "events": *[_type == "event"]{
     "owner": title, "ownerId": _id, arm,
-    "regions": regions[]->slug.current, "zones": zones[]->${ZONE_PROJECTION}, "chapters": chapters[]->slug.current,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     ${GALLERY_PROJECTION}
   },
   "announcements": *[_type == "announcement"]{
     "owner": title, "ownerId": _id, arm,
-    "regions": regions[]->slug.current, "zones": zones[]->${ZONE_PROJECTION}, "chapters": chapters[]->slug.current,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     ${GALLERY_PROJECTION}
   },
   "news": *[_type == "post"]{
     "owner": title, "ownerId": _id, arm,
-    "regions": regions[]->slug.current, "zones": zones[]->${ZONE_PROJECTION}, "chapters": chapters[]->slug.current,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     "cover": coverImage.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   },
   "outreaches": *[_type == "outreach"]{
     "owner": title, "ownerId": _id, arm,
-    "regions": regions[]->slug.current, "zones": zones[]->${ZONE_PROJECTION}, "chapters": chapters[]->slug.current,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     "cover": coverImage.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   },
   "pages": *[_type == "page"]{
     "owner": title, "ownerId": _id, arm,
-    "regions": regions[]->slug.current, "zones": zones[]->${ZONE_PROJECTION}, "chapters": chapters[]->slug.current,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     "cover": coverImage.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   }

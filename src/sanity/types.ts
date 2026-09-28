@@ -65,6 +65,7 @@ export interface ZoneRecord {
   _id: string;
   name: string;
   slug: { current?: string | null } | null;
+  arm?: Arm | null;
   eyebrow?: string | null;
   tagline?: string | null;
   intro?: string | null;

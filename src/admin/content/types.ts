@@ -8,15 +8,10 @@ export interface ContentStatus {
   tone: StatusTone;
 }
 
-export interface ContentZoneRef {
-  slug: string | null;
-  region: string | null;
-}
-
 export interface ContentScopeMeta {
   arm: string | null;
   regions: string[];
-  zones: ContentZoneRef[];
+  zones: string[];
   chapters: string[];
 }
 

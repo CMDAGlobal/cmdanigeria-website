@@ -17,7 +17,12 @@ export const announcement = defineType({
     }),
     defineField(armField),
     defineField({ name: "category", title: "Category", type: "string" }),
-    defineField({ name: "publishedAt", title: "Published date", type: "datetime", validation: (r) => r.required() }),
+    defineField({
+      name: "publishedAt",
+      title: "Published date",
+      type: "datetime",
+      validation: (r) => r.required(),
+    }),
     defineField({ name: "pinned", title: "Pin to top", type: "boolean", initialValue: false }),
     defineField({
       name: "regions",
@@ -31,7 +36,10 @@ export const announcement = defineType({
       title: "Related zone(s)",
       type: "array",
       of: [defineArrayMember({ type: "reference", to: [{ type: "zone" }] })],
-      hidden: ({ parent }) => (parent as { arm?: string } | undefined)?.arm !== "doctors",
+      hidden: ({ parent }) => {
+        const arm = (parent as { arm?: string } | undefined)?.arm;
+        return arm !== "students" && arm !== "doctors";
+      },
     }),
     defineField({
       name: "chapters",

@@ -84,8 +84,8 @@ export const leadershipQuery = `
 `;
 
 export const zonesQuery = `
-*[_type == "zone"] | order(order asc, name asc) {
-  _id, name, slug, eyebrow, tagline, intro, countries, stats, order,
+*[_type == "zone" && arm == $arm] | order(order asc, name asc) {
+  _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
   "chapterCount": count(*[_type == "chapter" && arm == $arm && references(^._id)]),
   "sampleChapters": *[_type == "chapter" && arm == $arm && references(^._id)] | order(order asc, name asc)[0...16] ${chapterListProjection}
 }
@@ -118,7 +118,7 @@ export const chapterQuery = `
 
 export const zoneQuery = `
 *[_type == "zone" && slug.current == $slug][0] {
-  _id, name, slug, eyebrow, tagline, intro, countries, stats, order,
+  _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
   "chapters": *[_type == "chapter" && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
   "leaders": *[_type == "person" && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},

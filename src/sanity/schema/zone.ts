@@ -10,7 +10,26 @@ export const zone = defineType({
     { name: "media", title: "Media" },
   ],
   fields: [
-    defineField({ name: "name", title: "Zone name", type: "string", validation: (r) => r.required() }),
+    defineField({
+      name: "arm",
+      title: "Arm",
+      description: "Zones belong to either the Students' Arm or the Doctors' Arm.",
+      type: "string",
+      options: {
+        list: [
+          { title: "Students' Arm", value: "students" },
+          { title: "Doctors' Arm", value: "doctors" },
+        ],
+        layout: "radio",
+      },
+      validation: (r) => r.required(),
+    }),
+    defineField({
+      name: "name",
+      title: "Zone name",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "slug",
       title: "Slug",
@@ -51,7 +70,15 @@ export const zone = defineType({
     }),
     defineField({ name: "order", title: "Display order", type: "number", initialValue: 0 }),
   ],
-  preview: { select: { title: "name", subtitle: "tagline" } },
+  preview: {
+    select: { title: "name", subtitle: "tagline", arm: "arm" },
+    prepare({ title, subtitle, arm }) {
+      return {
+        title,
+        subtitle: subtitle ? `${arm === "doctors" ? "Doctors" : "Students"} · ${subtitle}` : arm,
+      };
+    },
+  },
 });
 
 export default zone;
