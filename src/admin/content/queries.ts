@@ -11,6 +11,15 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "region": region->slug.current,
     "zone": zone->slug.current
   }`,
+  regions: `*[_type == "region" && !(_id in path("drafts.**"))] | order(order asc, name asc) {
+    "id": _id,
+    "title": name,
+    "slug": slug.current,
+    arm,
+    countries,
+    "subtitle": tagline,
+    intro
+  }`,
   events: `*[_type == "event" && !(_id in path("drafts.**"))] | order(startDate desc) {
     "id": _id,
     title,
@@ -98,6 +107,12 @@ export const MEDIA_QUERY = `{
     "cover": logo.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   },
+  "regions": *[_type == "region"]{
+    "owner": name, "ownerId": _id, arm,
+    "regions": [slug.current],
+    "cover": heroImage.asset->${ASSET_PROJECTION},
+    ${GALLERY_PROJECTION}
+  },
   "events": *[_type == "event"]{
     "owner": title, "ownerId": _id, arm,
     "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
@@ -143,6 +158,7 @@ export const DOCUMENT_COUNT_QUERY = `{
 
 export const STUDIO_TYPE_BY_MODULE: Record<ContentModuleKey, string> = {
   chapters: "chapter",
+  regions: "region",
   events: "event",
   news: "post",
   announcements: "announcement",

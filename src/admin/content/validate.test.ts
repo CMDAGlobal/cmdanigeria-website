@@ -15,6 +15,7 @@ import {
 
 const events = MODULE_MUTATIONS.events;
 const pages = MODULE_MUTATIONS.pages;
+const regions = MODULE_MUTATIONS.regions;
 
 describe("parseModuleConfig", () => {
   it("resolves known modules and rejects everything else", () => {
@@ -106,6 +107,28 @@ describe("validateFields", () => {
     expect(() => validateFields(events, { unknownKey: 1 }, { partial: true })).toThrow(
       ContentInputError,
     );
+  });
+
+  it("regions are self-scoping: no arm, unit refs or publication fields", () => {
+    expect(regions.type).toBe("region");
+    expect(regions.selfUnit).toBe(true);
+    expect(regions.publication).toBe(false);
+    expect(regions.writePermission).toBe("regions.write");
+    expect(regions.deletePermission).toBe("regions.delete");
+    for (const key of ["arm", "regions", "zones", "chapters", "publication", "stats", "gallery"]) {
+      expect(regions.allowed).not.toContain(key);
+    }
+    const ok = validateFields(
+      regions,
+      { name: "West Africa", countries: ["Nigeria", "Ghana"], order: 2 },
+      { partial: false },
+    );
+    expect(ok["countries"]).toEqual(["Nigeria", "Ghana"]);
+    for (const key of ["arm", "regions", "zones", "chapters"]) {
+      expect(() =>
+        validateFields(regions, { name: "West Africa", [key]: [] }, { partial: false }),
+      ).toThrow(ContentInputError);
+    }
   });
 });
 

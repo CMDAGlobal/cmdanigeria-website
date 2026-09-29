@@ -27,9 +27,11 @@ import {
   mapNews,
   mapOutreaches,
   mapPages,
+  mapRegions,
   newsStats,
   outreachStats,
   pageStats,
+  regionStats,
   type RawContentRow,
 } from "./mappers";
 import type {
@@ -58,6 +60,7 @@ const MODULE_CONFIG: Record<
   }
 > = {
   chapters: { permission: "chapters.read", map: mapChapters, stats: chapterStats },
+  regions: { permission: "regions.read", map: mapRegions, stats: regionStats },
   events: { permission: "events.read", map: mapEvents, stats: eventStats },
   news: { permission: "news.read", map: mapNews, stats: newsStats },
   announcements: {
@@ -71,6 +74,7 @@ const MODULE_CONFIG: Record<
 
 const MEDIA_BUCKETS: { key: string; label: string }[] = [
   { key: "chapters", label: "Chapter" },
+  { key: "regions", label: "Region" },
   { key: "events", label: "Event" },
   { key: "announcements", label: "Announcement" },
   { key: "news", label: "News item" },
@@ -382,10 +386,15 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
       zones: doc["zones"],
       chapters: doc["chapters"],
     });
-    if (config.type === "chapter") {
-      // A chapter document is itself the unit it is scoped to.
+    if (config.selfUnit) {
+      // A chapter or region document is itself the unit it is scoped to.
       const slug = typeof fields["slug"] === "string" && fields["slug"] ? fields["slug"] : null;
-      scope.chapters = slug ? [slug] : [];
+      if (config.type === "region") {
+        scope.arm = "global";
+        scope.regions = slug ? [slug] : [];
+      } else {
+        scope.chapters = slug ? [slug] : [];
+      }
     }
 
     const grants: ScopeGrant[] = grantsFromRoles(session.roles);

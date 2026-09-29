@@ -23,6 +23,12 @@ export interface ModuleMutationConfig {
   allowed: string[];
   /** Whether the document type participates in publication lifecycle. */
   publication: boolean;
+  /**
+   * The document *is* the organisation unit it is scoped to (a chapter, a
+   * region). Its scope is derived from its own slug instead of stored refs, and
+   * `arm` is never written for types whose schema has no arm field.
+   */
+  selfUnit?: boolean;
 }
 
 const SCOPE_FIELDS = ["regions", "zones", "chapters"] as const;
@@ -51,6 +57,30 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     ],
     // Chapters are organisation units — their visibility is their publication.
     publication: false,
+    selfUnit: true,
+  },
+  regions: {
+    type: "region",
+    writePermission: "regions.write",
+    deletePermission: "regions.delete",
+    auditPrefix: "region",
+    titleField: "name",
+    required: ["name"],
+    allowed: [
+      "name",
+      "slug",
+      "eyebrow",
+      "tagline",
+      "intro",
+      "countries",
+      "overview",
+      "mission",
+      "focus",
+      "order",
+    ],
+    // Regions are organisation units — the public region page is always live.
+    publication: false,
+    selfUnit: true,
   },
   events: {
     type: "event",

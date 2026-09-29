@@ -1,5 +1,5 @@
 export type ContentModuleKey =
-  "chapters" | "events" | "news" | "announcements" | "outreaches" | "pages";
+  "chapters" | "regions" | "events" | "news" | "announcements" | "outreaches" | "pages";
 
 export type StatusTone = "default" | "secondary" | "outline" | "destructive";
 

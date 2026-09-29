@@ -93,6 +93,9 @@ export function ContentEditorDialog({
   const fields = useMemo(() => formFieldsFor(module), [module]);
   const config = MODULE_MUTATIONS[module];
   const supportsPublication = config.publication;
+  // Self-unit types (chapters, regions) scope themselves, so only chapters —
+  // which pick an arm — get a scope editor.
+  const showsScope = !config.selfUnit || config.allowed.includes("arm");
 
   const docQuery = useContentDoc(module, item?.id ?? null, open && !isCreate);
   const optionsQuery = useContentScopeOptions(open);
@@ -340,17 +343,19 @@ export function ContentEditorDialog({
       }
     }
 
-    const scopeChanged =
-      scope.arm !== initial.scope.arm ||
-      !sameSet(scope.regions, initial.scope.regions) ||
-      !sameSet(scope.zones, initial.scope.zones) ||
-      !sameSet(scope.chapters, initial.scope.chapters);
-    if (scopeChanged) {
-      out["arm"] = scope.arm;
-      if (module !== "chapters") {
-        out["regions"] = scope.regions;
-        out["zones"] = scope.zones;
-        out["chapters"] = scope.chapters;
+    if (showsScope) {
+      const scopeChanged =
+        scope.arm !== initial.scope.arm ||
+        !sameSet(scope.regions, initial.scope.regions) ||
+        !sameSet(scope.zones, initial.scope.zones) ||
+        !sameSet(scope.chapters, initial.scope.chapters);
+      if (scopeChanged) {
+        out["arm"] = scope.arm;
+        if (module !== "chapters") {
+          out["regions"] = scope.regions;
+          out["zones"] = scope.zones;
+          out["chapters"] = scope.chapters;
+        }
       }
     }
     return { fields: out };
@@ -370,12 +375,15 @@ export function ContentEditorDialog({
         const result = await createMutation.mutateAsync({
           module,
           fields: buildCreateFields(),
-          scope: {
-            arm: scope.arm,
-            regions: module === "chapters" ? [] : scope.regions,
-            zones: module === "chapters" ? [] : scope.zones,
-            chapters: module === "chapters" ? [] : scope.chapters,
-          },
+          // A region is its own unit, so it carries no pickable scope.
+          scope: showsScope
+            ? {
+                arm: scope.arm,
+                regions: module === "chapters" ? [] : scope.regions,
+                zones: module === "chapters" ? [] : scope.zones,
+                chapters: module === "chapters" ? [] : scope.chapters,
+              }
+            : { arm: "global", regions: [], zones: [], chapters: [] },
           ...(supportsPublication ? { publication } : {}),
         });
         if (result.ok) {
@@ -568,57 +576,59 @@ export function ContentEditorDialog({
 
             <div className="grid gap-4 sm:grid-cols-2">{fields.map(renderField)}</div>
 
-            <div className="space-y-4 rounded-lg border p-4">
-              <div>
-                <p className="text-sm font-medium">Scope</p>
-                <p className="text-xs text-muted-foreground">
-                  {module === "chapters"
-                    ? "Which arm this chapter belongs to."
-                    : "Who sees this item. Keep Global Network for network-wide content."}
-                </p>
-              </div>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="editor-arm">Arm</Label>
-                  <Select value={scope.arm} onValueChange={changeArm}>
-                    <SelectTrigger id="editor-arm" aria-label="Arm">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {(scopeOptions?.ok ? scopeOptions.arms : [scope.arm]).map((arm) => (
-                        <SelectItem key={arm} value={arm}>
-                          {armLabel(arm)}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+            {showsScope ? (
+              <div className="space-y-4 rounded-lg border p-4">
+                <div>
+                  <p className="text-sm font-medium">Scope</p>
+                  <p className="text-xs text-muted-foreground">
+                    {module === "chapters"
+                      ? "Which arm this chapter belongs to."
+                      : "Who sees this item. Keep Global Network for network-wide content."}
+                  </p>
                 </div>
-                {module !== "chapters" && assignableRegions.length > 0 ? (
-                  <UnitMultiSelect
-                    label="Regions"
-                    options={assignableRegions}
-                    selected={scope.regions}
-                    onChange={(next) => changeUnits("regions", next)}
-                  />
-                ) : null}
-                {module !== "chapters" && assignableZones.length > 0 ? (
-                  <UnitMultiSelect
-                    label="Zones"
-                    options={assignableZones}
-                    selected={scope.zones}
-                    onChange={(next) => changeUnits("zones", next)}
-                  />
-                ) : null}
-                {module !== "chapters" && assignableChapters.length > 0 ? (
-                  <UnitMultiSelect
-                    label="Chapters"
-                    options={assignableChapters}
-                    selected={scope.chapters}
-                    onChange={(next) => changeUnits("chapters", next)}
-                  />
-                ) : null}
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-2">
+                    <Label htmlFor="editor-arm">Arm</Label>
+                    <Select value={scope.arm} onValueChange={changeArm}>
+                      <SelectTrigger id="editor-arm" aria-label="Arm">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {(scopeOptions?.ok ? scopeOptions.arms : [scope.arm]).map((arm) => (
+                          <SelectItem key={arm} value={arm}>
+                            {armLabel(arm)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  {module !== "chapters" && assignableRegions.length > 0 ? (
+                    <UnitMultiSelect
+                      label="Regions"
+                      options={assignableRegions}
+                      selected={scope.regions}
+                      onChange={(next) => changeUnits("regions", next)}
+                    />
+                  ) : null}
+                  {module !== "chapters" && assignableZones.length > 0 ? (
+                    <UnitMultiSelect
+                      label="Zones"
+                      options={assignableZones}
+                      selected={scope.zones}
+                      onChange={(next) => changeUnits("zones", next)}
+                    />
+                  ) : null}
+                  {module !== "chapters" && assignableChapters.length > 0 ? (
+                    <UnitMultiSelect
+                      label="Chapters"
+                      options={assignableChapters}
+                      selected={scope.chapters}
+                      onChange={(next) => changeUnits("chapters", next)}
+                    />
+                  ) : null}
+                </div>
               </div>
-            </div>
+            ) : null}
 
             {isCreate && supportsPublication ? (
               <div className="space-y-2 rounded-lg border p-4">

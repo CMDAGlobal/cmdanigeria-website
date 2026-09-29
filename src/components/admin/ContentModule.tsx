@@ -59,6 +59,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { armLabel, kindLabel } from "@/admin/content/mappers";
+import { MODULE_MUTATIONS } from "@/admin/content/validate";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
 import {
   CONTENT_PUBLICATION_STATUSES,
@@ -159,7 +160,7 @@ export function ContentModule({
   const deletePermission = permission.replace(/\.read$/, ".delete") as PermissionKey;
   const canWrite = hasPermission(session.data, writePermission);
   const canDelete = hasPermission(session.data, deletePermission);
-  const supportsPublication = module !== "chapters";
+  const supportsPublication = MODULE_MUTATIONS[module].publication;
 
   const setPublication = useSetPublication(module);
   const removeItem = useDeleteContent(module);

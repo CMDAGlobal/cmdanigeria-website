@@ -7,6 +7,8 @@ export interface RawContentRow {
   slug?: unknown;
   arm?: unknown;
   institution?: unknown;
+  countries?: unknown;
+  intro?: unknown;
   location?: unknown;
   date?: unknown;
   region?: unknown;
@@ -105,6 +107,27 @@ export function mapChapters(rows: RawContentRow[]): ContentItem[] {
         regions: row.region,
         zones: row.zone,
       }),
+    };
+  });
+}
+
+export function mapRegions(rows: RawContentRow[]): ContentItem[] {
+  return rows.map((row) => {
+    const slug = text(row.slug);
+    const countries = Array.isArray(row.countries)
+      ? row.countries.filter((entry): entry is string => typeof entry === "string")
+      : [];
+    return {
+      id: String(row.id ?? ""),
+      title: text(row.title) ?? "Untitled region",
+      slug,
+      arm: "global",
+      subtitle: countries.length > 0 ? countries.join(", ") : text(row.intro),
+      date: null,
+      status: null,
+      draft: false,
+      // A region document is its own unit, exactly like a chapter document.
+      scope: buildScopeMeta({ arm: "global", regions: slug }),
     };
   });
 }
@@ -264,6 +287,13 @@ export function chapterStats(items: ContentItem[]): ContentStat[] {
     { label: "Students' arm", value: armCount(items, "students") },
     { label: "Doctors' arm", value: armCount(items, "doctors") },
     { label: "Global network", value: armCount(items, "global") },
+  ];
+}
+
+export function regionStats(items: ContentItem[]): ContentStat[] {
+  return [
+    { label: "Total regions", value: items.length },
+    { label: "With country coverage", value: countBy(items, (item) => Boolean(item.subtitle)) },
   ];
 }
 

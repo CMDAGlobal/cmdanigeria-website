@@ -187,9 +187,14 @@ async function loadDoc(
     zones: doc.zones,
     chapters: doc.chapters,
   });
-  if (config.type === "chapter") {
-    // A chapter document is itself the unit it is scoped to.
-    meta.chapters = slug ? [slug] : [];
+  if (config.selfUnit) {
+    // A chapter or region document is itself the unit it is scoped to.
+    if (config.type === "region") {
+      meta.arm = "global";
+      meta.regions = slug ? [slug] : [];
+    } else {
+      meta.chapters = slug ? [slug] : [];
+    }
   }
   return { id: doc._id, slug, meta };
 }
@@ -270,19 +275,26 @@ export async function createContent(input: CreateContentInput): Promise<ContentM
     if (!slug) throw new ContentInputError("invalid_input");
 
     let meta = effectiveCreateScope(scopeInput, fields);
-    const selfSlug = config.type === "chapter" ? slug : undefined;
-    if (config.type === "chapter") meta = { ...meta, chapters: [slug] };
+    const selfUnit = config.selfUnit === true;
+    const selfSlug = selfUnit ? slug : undefined;
+    if (config.type === "chapter") {
+      // A chapter is its own unit; client-supplied unit tags are dropped.
+      meta = { ...meta, regions: [], zones: [], chapters: [slug] };
+    } else if (config.type === "region") {
+      // Regions carry no arm field and no unit refs — they are Global Network.
+      meta = { ...meta, arm: "global", regions: [slug], zones: [], chapters: [] };
+    }
 
     const client = requireClient();
     const org = await loadCoverOrg();
-    assertUnitsConsistent(meta, org, selfSlug);
+    if (!selfUnit) assertUnitsConsistent(meta, org);
 
-    // Chapters never store unit refs (the document is its own unit), and the
-    // new chapter cannot be resolved before it exists.
+    // Self-unit documents never store unit refs (the document is its own unit),
+    // and a new one cannot be resolved before it exists.
     let chapterRefs = new Map<string, string>();
     let zoneRefs = new Map<string, string>();
     let regionRefs = new Map<string, string>();
-    if (config.type !== "chapter") {
+    if (!selfUnit) {
       chapterRefs = await resolveUnitRefs(client, "chapter", meta.chapters);
       zoneRefs = await resolveUnitRefs(client, "zone", meta.zones);
       regionRefs = await resolveUnitRefs(client, "region", meta.regions);
@@ -306,8 +318,8 @@ export async function createContent(input: CreateContentInput): Promise<ContentM
     delete payload["zones"];
     delete payload["chapters"];
     payload["slug"] = { _type: "slug", current: slug };
-    payload["arm"] = meta.arm;
-    if (config.type !== "chapter") {
+    if (config.allowed.includes("arm")) payload["arm"] = meta.arm;
+    if (!selfUnit) {
       payload["regions"] = meta.regions.map((value) => toRef(regionRefs.get(value) as string));
       payload["zones"] = meta.zones.map((value) => toRef(zoneRefs.get(value) as string));
       payload["chapters"] = meta.chapters.map((value) => toRef(chapterRefs.get(value) as string));
@@ -355,18 +367,28 @@ export async function updateContent(input: UpdateContentInput): Promise<ContentM
     const touchesScope = scopeKeys.some((key) => key in fields);
 
     let meta = current.meta;
+    const selfUnit = config.selfUnit === true;
     const selfSlug =
-      config.type === "chapter"
+      config.type === "chapter" || config.type === "region"
         ? typeof fields["slug"] === "string" && fields["slug"]
           ? fields["slug"]
           : (current.slug ?? undefined)
         : undefined;
     if (config.type === "chapter") {
-      meta = { ...meta, chapters: selfSlug ? [selfSlug] : [] };
+      meta = { ...meta, regions: [], zones: [], chapters: selfSlug ? [selfSlug] : [] };
       if ("arm" in fields) {
         const armValue = fields["arm"];
         meta = { ...meta, arm: typeof armValue === "string" ? armValue : null };
       }
+    } else if (config.type === "region") {
+      // A region stays Global Network and scoped to itself, whatever is sent.
+      meta = {
+        ...meta,
+        arm: "global",
+        regions: selfSlug ? [selfSlug] : [],
+        zones: [],
+        chapters: [],
+      };
     } else if (touchesScope) {
       meta = {
         arm: "arm" in fields ? ((fields["arm"] as string | null) ?? null) : current.meta.arm,
@@ -377,12 +399,12 @@ export async function updateContent(input: UpdateContentInput): Promise<ContentM
     }
 
     const org = await loadCoverOrg();
-    if (config.type !== "chapter" && touchesScope) assertUnitsConsistent(meta, org);
+    if (!selfUnit && touchesScope) assertUnitsConsistent(meta, org);
 
     let chapterRefs = new Map<string, string>();
     let zoneRefs = new Map<string, string>();
     let regionRefs = new Map<string, string>();
-    if (config.type !== "chapter" && touchesScope) {
+    if (!selfUnit && touchesScope) {
       if ("chapters" in fields)
         chapterRefs = await resolveUnitRefs(client, "chapter", meta.chapters);
       if ("zones" in fields) zoneRefs = await resolveUnitRefs(client, "zone", meta.zones);
@@ -469,7 +491,7 @@ export async function deleteContent(input: ContentDocInput): Promise<ContentMuta
     session = authorized;
 
     const org = await loadCoverOrg();
-    const selfSlug = config.type === "chapter" ? (current.slug ?? undefined) : undefined;
+    const selfSlug = config.selfUnit ? (current.slug ?? undefined) : undefined;
     if (!actorCoversDoc(authorized.actor, current.meta, org, selfSlug)) {
       throw new ContentMutationError("coverage_denied");
     }
@@ -516,7 +538,8 @@ export async function setPublicationStatus(
     session = authorized;
 
     const org = await loadCoverOrg();
-    if (!actorCoversDoc(authorized.actor, current.meta, org)) {
+    const selfSlug = config.selfUnit ? (current.slug ?? undefined) : undefined;
+    if (!actorCoversDoc(authorized.actor, current.meta, org, selfSlug)) {
       throw new ContentMutationError("coverage_denied");
     }
 
