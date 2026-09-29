@@ -119,6 +119,33 @@ async function seedArmEvents(arm, events) {
   return created;
 }
 
+async function seedPublications(publications) {
+  const existing = await docsExist(
+    "prescription",
+    publications.map((publication) => publication.slug),
+  );
+  let created = 0;
+  for (const publication of publications) {
+    if (existing.has(publication.slug)) {
+      console.log(`skip publication ${publication.slug}: already exists`);
+      continue;
+    }
+    await client.create({
+      _type: "prescription",
+      title: publication.title,
+      slug: { _type: "slug", current: publication.slug },
+      kind: publication.kind,
+      arm: publication.arm,
+      issueDate: publication.issueDate,
+      summary: publication.summary,
+      publication: "published",
+    });
+    created += 1;
+    console.log(`created publication: ${publication.title} (${publication.slug})`);
+  }
+  return created;
+}
+
 /* ----------------------------- Global regions ----------------------------- */
 
 const regionSlugs = ["americas-caribbean", "uk-europe", "middle-east", "australasia", "africa"];
@@ -202,10 +229,69 @@ const doctorZones = await seedArmZones("doctors", doctors.zones ?? []);
 
 const doctorEvents = await seedArmEvents("doctors", doctors.events ?? []);
 
+/* ---------------------------- Publications ---------------------------- */
+
+const publicationsCreated = await seedPublications([
+  {
+    title: "The Prescription",
+    slug: "the-prescription",
+    kind: "prescription",
+    arm: "global",
+    issueDate: "2026-09-01",
+    summary:
+      "The monthly newsletter of CMDA Nigeria — devotions, news from the field, reports and resources connecting Scripture to the daily realities of healthcare practice.",
+  },
+  {
+    title: "Chapter Newsletters",
+    slug: "chapter-newsletters",
+    kind: "newsletter",
+    arm: "global",
+    issueDate: "2026-06-01",
+    summary:
+      "Regular newsletters produced by local CMDA chapters across universities and hospitals, sharing fellowship updates, testimonies, event reports and prayer points.",
+  },
+  {
+    title: "Wholeness Magazine",
+    slug: "wholeness-magazine",
+    kind: "journal",
+    arm: "students",
+    issueDate: "2025-12-01",
+    summary:
+      "A flagship publication of the Students' arm of CMDA Nigeria, containing news, reports, enriching articles and future plans targeted at Christian medical and dental students in their training.",
+  },
+  {
+    title: "Touch Magazine",
+    slug: "touch-magazine",
+    kind: "journal",
+    arm: "doctors",
+    issueDate: "2025-12-01",
+    summary:
+      "An annual publication of the Doctors' arm of CMDA Nigeria, containing news and reports from across various chapters, future plans, and enriching articles addressing challenges encountered by Christian medics in practice.",
+  },
+  {
+    title: "Missions Exploits",
+    slug: "missions-exploits",
+    kind: "journal",
+    arm: "students",
+    issueDate: "2025-11-01",
+    summary:
+      "An annual publication documenting and celebrating the missions activities and experiences of student members. It captures the impact of outreaches, highlights testimonies and shares stories of service, faith, and transformation.",
+  },
+  {
+    title: "Wholeness Journal",
+    slug: "wholeness-journal",
+    kind: "journal",
+    arm: "students",
+    issueDate: "2025-06-01",
+    summary:
+      "An annual academic and devotional journal for medical and dental students, featuring peer-reviewed articles, reflections, and reports from chapters across Nigeria.",
+  },
+]);
+
 console.log(
   `\nDone. ${regionsCreated} region(s), ${studentZones.zones} student zone(s) (${studentZones.chapters} chapters), ` +
     `${studentEvents} student event(s), ${doctorZones.zones} doctor zone(s) (${doctorZones.chapters} chapters), ` +
-    `${doctorEvents} doctor event(s) seeded. ` +
+    `${doctorEvents} doctor event(s), ${publicationsCreated} publication(s) seeded. ` +
     `Open the studio (SANITY project) to add NEC members, chapter executives, announcements and media.`,
 );
 process.exit(0);

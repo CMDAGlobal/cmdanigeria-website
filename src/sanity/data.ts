@@ -19,6 +19,8 @@ import {
   necQuery,
   postDetailQuery,
   postListQuery,
+  prescriptionDetailQuery,
+  prescriptionListQuery,
   regionListQuery,
   regionQuery,
   zoneQuery,
@@ -35,6 +37,8 @@ import type {
   LeadershipTeams,
   PostDetail,
   PostRecord,
+  PrescriptionDetail,
+  PrescriptionRecord,
   RegionDetail,
   RegionListEntry,
   ZoneDetail,
@@ -161,6 +165,33 @@ export const fetchPost = createServerFn({ method: "GET", strict: false })
       return (await client.fetch<PostDetail | null>(postDetailQuery, { slug: data })) ?? null;
     } catch (error) {
       console.error("[sanity] fetchPost failed", error);
+      return null;
+    }
+  });
+
+export const fetchPrescriptions = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<PrescriptionRecord[]> => {
+    const client = getClient();
+    if (!client) return [];
+    try {
+      const issues = await client.fetch<PrescriptionRecord[] | null>(prescriptionListQuery);
+      return issues ?? [];
+    } catch (error) {
+      console.error("[sanity] fetchPrescriptions failed", error);
+      return [];
+    }
+  },
+);
+
+export const fetchPrescription = createServerFn({ method: "GET", strict: false })
+  .validator((slug: string) => slug)
+  .handler(async ({ data: slug }): Promise<PrescriptionDetail | null> => {
+    const client = getClient();
+    if (!client || !slug) return null;
+    try {
+      return await client.fetch<PrescriptionDetail | null>(prescriptionDetailQuery, { slug });
+    } catch (error) {
+      console.error("[sanity] fetchPrescription failed", error);
       return null;
     }
   });

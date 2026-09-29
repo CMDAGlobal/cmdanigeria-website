@@ -16,6 +16,7 @@ import {
 const events = MODULE_MUTATIONS.events;
 const pages = MODULE_MUTATIONS.pages;
 const regions = MODULE_MUTATIONS.regions;
+const publications = MODULE_MUTATIONS.publications;
 
 describe("parseModuleConfig", () => {
   it("resolves known modules and rejects everything else", () => {
@@ -129,6 +130,109 @@ describe("validateFields", () => {
         validateFields(regions, { name: "West Africa", [key]: [] }, { partial: false }),
       ).toThrow(ContentInputError);
     }
+  });
+
+  it("publications require a title, issue date and type, and allow scope + lifecycle", () => {
+    expect(publications.type).toBe("prescription");
+    expect(publications.publication).toBe(true);
+    expect(publications.writePermission).toBe("publications.write");
+    expect(publications.deletePermission).toBe("publications.delete");
+    expect(publications.required).toEqual(["title", "issueDate", "kind"]);
+    expect(() => validateFields(publications, { title: "March 2026" }, { partial: false })).toThrow(
+      ContentInputError,
+    );
+    const ok = validateFields(
+      publications,
+      {
+        title: "Prescription - March 2026",
+        issueDate: "2026-03-01",
+        kind: "prescription",
+        arm: "global",
+        regions: ["west-africa"],
+        url: "https://example.org/issue.pdf",
+        summary: "Monthly digest",
+      },
+      { partial: false },
+    );
+    expect(ok["issueDate"]).toBe("2026-03-01");
+    expect(ok["kind"]).toBe("prescription");
+    expect(ok["regions"]).toEqual(["west-africa"]);
+    expect(ok["url"]).toBe("https://example.org/issue.pdf");
+    // `gallery`, `publication` and `body` stay Studio-only. The body in
+    // particular must be unreachable here, or the dashboard's plain-paragraph
+    // editor would flatten an issue's headings, links and inline images.
+    for (const key of ["gallery", "publication", "body"]) {
+      expect(() =>
+        validateFields(
+          publications,
+          { title: "x", issueDate: "2026-03-01", kind: "prescription", [key]: "nope" },
+          { partial: false },
+        ),
+      ).toThrow(ContentInputError);
+    }
+    expect(publications.allowed).not.toContain("body");
+    // Issue metadata the dashboard does own.
+    const meta = validateFields(
+      publications,
+      { title: "x", issueDate: "2026-03-01", kind: "prescription", issueNumber: 65, author: "CMDA Nigeria" },
+      { partial: false },
+    );
+    expect(meta["issueNumber"]).toBe(65);
+    expect(meta["author"]).toBe("CMDA Nigeria");
+  });
+
+  it("rejects issue numbers that are not positive whole numbers", () => {
+    const base = { title: "x", issueDate: "2026-03-01", kind: "prescription" };
+    for (const bad of [0, -3, 65.5, "sixty-five", 99_999]) {
+      expect(() =>
+        validateFields(publications, { ...base, issueNumber: bad }, { partial: false }),
+      ).toThrow(ContentInputError);
+    }
+  });
+
+  it("publications accept cover, alt text and issue files as asset references", () => {
+    const imageId = "image-8ef1c9d4a7b2c5e6f0a1b2c3d4e5f6g7h8i9j0k1l2m-1200x800-jpg";
+    const fileId = "file-1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b7c8d9e0f1a2b-pdf";
+    const out = validateFields(
+      publications,
+      {
+        title: "Touch Magazine",
+        issueDate: "2025-12-01",
+        kind: "journal",
+        coverImage: imageId,
+        coverAlt: "Cover of Touch Magazine",
+        file: fileId,
+      },
+      { partial: false },
+    );
+    expect(out["coverImage"]).toEqual({
+      _type: "image",
+      alt: "Cover of Touch Magazine",
+      asset: { _type: "reference", _ref: imageId },
+    });
+    expect(out["file"]).toEqual({
+      _type: "file",
+      asset: { _type: "reference", _ref: fileId },
+    });
+    // Alt text stays a top-level field as well, so Studio can filter on it.
+    expect(out["coverAlt"]).toBe("Cover of Touch Magazine");
+  });
+
+  it("clears assets with an empty string and rejects malformed asset ids", () => {
+    const base = { title: "x", issueDate: "2026-03-01", kind: "prescription" };
+    const cleared = validateFields(publications, { ...base, coverImage: "" }, { partial: false });
+    expect(cleared["coverImage"]).toBeNull();
+    // An image id in the file slot and vice versa must not slip through.
+    expect(() =>
+      validateFields(
+        publications,
+        { ...base, file: "image-8ef1c9d4a7b2c5e6f0a1b2c3d4e5f6g7h8i9j0k1l2m-1200x800-jpg" },
+        { partial: false },
+      ),
+    ).toThrow(ContentInputError);
+    expect(() =>
+      validateFields(publications, { ...base, coverImage: "nope" }, { partial: false }),
+    ).toThrow(ContentInputError);
   });
 });
 

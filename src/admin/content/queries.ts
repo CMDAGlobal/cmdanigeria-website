@@ -67,6 +67,23 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
+  publications: `*[_type == "prescription" && !(_id in path("drafts.**"))] | order(issueDate desc, title asc) {
+    "id": _id,
+    title,
+    "slug": slug.current,
+    arm,
+    publication,
+    publishAt,
+    kind,
+    issueNumber,
+    issueDate,
+    author,
+    summary,
+    url,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current
+  }`,
   outreaches: `*[_type == "outreach" && !(_id in path("drafts.**"))] | order(coalesce(startsAt, _createdAt) desc) {
     "id": _id,
     title,
@@ -129,6 +146,12 @@ export const MEDIA_QUERY = `{
     "cover": coverImage.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
   },
+  "publications": *[_type == "prescription"]{
+    "owner": title, "ownerId": _id, arm,
+    "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
+    "cover": coverImage.asset->${ASSET_PROJECTION},
+    ${GALLERY_PROJECTION}
+  },
   "outreaches": *[_type == "outreach"]{
     "owner": title, "ownerId": _id, arm,
     "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
@@ -152,6 +175,7 @@ export const DOCUMENT_COUNT_QUERY = `{
   "announcement": count(*[_type == "announcement"]),
   "activity": count(*[_type == "activity"]),
   "post": count(*[_type == "post"]),
+  "prescription": count(*[_type == "prescription"]),
   "outreach": count(*[_type == "outreach"]),
   "page": count(*[_type == "page"])
 }`;
@@ -161,6 +185,7 @@ export const STUDIO_TYPE_BY_MODULE: Record<ContentModuleKey, string> = {
   regions: "region",
   events: "event",
   news: "post",
+  publications: "prescription",
   announcements: "announcement",
   outreaches: "outreach",
   pages: "page",

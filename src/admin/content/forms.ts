@@ -12,7 +12,10 @@ export type FormFieldKind =
   | "select"
   | "boolean"
   | "number"
-  | "tags";
+  | "tags"
+  | "image"
+  | "file"
+  | "note";
 
 export interface FormFieldOption {
   value: string;
@@ -29,11 +32,18 @@ export interface FormField {
   rows?: number;
   placeholder?: string;
   help?: string;
+  /** Read-only hint — rendered as text, never submitted. */
+  note?: string;
 }
 
 const SLUG_HELP = "Lowercase letters, numbers and dashes. Generated from the title when blank.";
 const RICH_HELP =
   "Plain paragraphs — one per line. Bold, links and headings stay editable in Studio.";
+const FILE_HELP = "Optional. For downloadable issues such as the Wholeness Journal abstracts. Most issues are read on the site instead.";
+const ISSUE_NUMBER_HELP = "Shown as “#65” in the archive.";
+const URL_HELP = "Optional. Only if the issue lives somewhere else.";
+const BODY_NOTE =
+  "The full issue is written in Sanity Studio so headings, links, quotes and inline photos keep their formatting. Edit the body there; edit the issue details here.";
 
 const EVENT_TYPES: FormFieldOption[] = [
   { value: "conference", title: "Conference" },
@@ -59,6 +69,13 @@ const NEWS_KINDS: FormFieldOption[] = [
   { value: "statement", title: "Public statement" },
   { value: "coverage", title: "Media coverage" },
   { value: "video", title: "Video" },
+];
+
+const PUBLICATION_KINDS: FormFieldOption[] = [
+  { value: "prescription", title: "Prescription (newsletter)" },
+  { value: "newsletter", title: "Newsletter" },
+  { value: "journal", title: "Journal / report" },
+  { value: "book", title: "Book" },
 ];
 
 const OUTREACH_STATUSES: FormFieldOption[] = [
@@ -156,6 +173,20 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "excerpt", label: "Excerpt", kind: "textarea", rows: 3 },
     { name: "link", label: "External link", kind: "url", placeholder: "https://" },
     { name: "body", label: "Body", kind: "rich", rows: 7, help: RICH_HELP },
+  ],
+  publications: [
+    { name: "title", label: "Issue title", kind: "text", placeholder: "Prescription — March 2026" },
+    { name: "slug", label: "Slug", kind: "text", help: SLUG_HELP },
+    { name: "kind", label: "Publication type", kind: "select", options: PUBLICATION_KINDS },
+    { name: "issueNumber", label: "Issue number", kind: "number", help: ISSUE_NUMBER_HELP },
+    { name: "issueDate", label: "Issue date", kind: "date" },
+    { name: "author", label: "Author", kind: "text", placeholder: "CMDA Nigeria" },
+    { name: "summary", label: "Summary", kind: "textarea", rows: 3 },
+    { name: "bodyNote", label: "Issue body", kind: "note", note: BODY_NOTE },
+    { name: "coverImage", label: "Cover image", kind: "image" },
+    { name: "coverAlt", label: "Cover alt text", kind: "text" },
+    { name: "url", label: "Reading link", kind: "url", placeholder: "https://", help: URL_HELP },
+    { name: "file", label: "Issue file", kind: "file", help: FILE_HELP },
   ],
   outreaches: [
     { name: "title", label: "Campaign title", kind: "text" },

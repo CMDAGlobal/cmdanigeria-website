@@ -9,10 +9,13 @@ import {
   getContentModuleAction,
   getContentScopeOptionsAction,
   getMediaLibraryAction,
+  listSanityAssetsAction,
   setPublicationAction,
   updateContentAction,
+  uploadSanityAssetAction,
 } from "@/admin/content/server";
 import type {
+  AssetListPayload,
   ContentDocInput,
   ContentDocPayload,
   ContentModuleKey,
@@ -21,6 +24,8 @@ import type {
   CreateContentInput,
   SetPublicationInput,
   UpdateContentInput,
+  UploadAssetInput,
+  UploadAssetResult,
 } from "@/admin/content/types";
 
 export function useContentModule(module: ContentModuleKey) {
@@ -99,6 +104,27 @@ export function useMediaLibrary() {
     queryFn: () => getMediaLibraryAction(),
     staleTime: 30_000,
     retry: false,
+  });
+}
+
+export function useSanityAssets(kind: "image" | "file", enabled: boolean) {
+  return useQuery<AssetListPayload>({
+    queryKey: ["admin-assets", kind] as const,
+    queryFn: () => listSanityAssetsAction({ data: kind }),
+    enabled,
+    staleTime: 60_000,
+    retry: false,
+  });
+}
+
+export function useUploadSanityAsset(module: ContentModuleKey) {
+  const queryClient = useQueryClient();
+  return useMutation<UploadAssetResult, Error, UploadAssetInput>({
+    mutationFn: (input) => uploadSanityAssetAction({ data: input }),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-assets"] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-media"] });
+    },
   });
 }
 

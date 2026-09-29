@@ -44,7 +44,19 @@ describe("form config integrity", () => {
     for (const module of MODULES) {
       const allowed = MODULE_MUTATIONS[module].allowed;
       for (const field of MODULE_FORM_FIELDS[module]) {
+        // `note` controls are read-only hints, never submitted.
+        if (field.kind === "note") continue;
         expect(allowed, `${module}.${field.name}`).toContain(field.name);
+      }
+    }
+  });
+
+  it("notes are display-only and never required", () => {
+    for (const module of MODULES) {
+      for (const field of MODULE_FORM_FIELDS[module]) {
+        if (field.kind !== "note") continue;
+        expect(field.required, `${module}.${field.name}`).toBeUndefined();
+        expect(field.note, `${module}.${field.name}`).toBeTruthy();
       }
     }
   });

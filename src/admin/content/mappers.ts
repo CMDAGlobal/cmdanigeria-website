@@ -9,6 +9,11 @@ export interface RawContentRow {
   institution?: unknown;
   countries?: unknown;
   intro?: unknown;
+  issueDate?: unknown;
+  issueNumber?: unknown;
+  author?: unknown;
+  summary?: unknown;
+  url?: unknown;
   location?: unknown;
   date?: unknown;
   region?: unknown;
@@ -211,6 +216,44 @@ export function mapNews(rows: RawContentRow[]): ContentItem[] {
   });
 }
 
+const PUBLICATION_KIND_LABELS: Record<string, string> = {
+  prescription: "Prescription",
+  newsletter: "Newsletter",
+  journal: "Journal",
+  book: "Book",
+};
+
+export function publicationKindLabel(kind: string): string {
+  return PUBLICATION_KIND_LABELS[kind] ?? kind;
+}
+
+export function mapPublications(rows: RawContentRow[]): ContentItem[] {
+  return rows.map((row) => {
+    const kind = text(row.kind) ?? "prescription";
+    const issueNumber = typeof row.issueNumber === "number" ? row.issueNumber : null;
+    const author = text(row.author);
+    const details = [issueNumber ? `#${issueNumber}` : null, author].filter(Boolean);
+    return {
+      id: String(row.id ?? ""),
+      title: (text(row.title) ?? "Untitled issue") + (issueNumber ? ` #${issueNumber}` : ""),
+      slug: text(row.slug),
+      arm: text(row.arm),
+      subtitle: publicationKindLabel(kind),
+      date: isoDate(row.issueDate),
+      status: publicationStatus(row),
+      detail: details.length > 0 ? details.join(" · ") : text(row.url) ? "Has reading link" : null,
+      kind,
+      draft: publicationKey(row) === "draft",
+      scope: buildScopeMeta({
+        arm: row.arm,
+        regions: row.regions,
+        zones: row.zones,
+        chapters: row.chapters,
+      }),
+    };
+  });
+}
+
 const OUTREACH_STATUS: Record<string, { label: string; tone: StatusTone }> = {
   planned: { label: "Planned", tone: "outline" },
   active: { label: "Active", tone: "default" },
@@ -329,6 +372,18 @@ export function newsStats(items: ContentItem[]): ContentStat[] {
     { label: "Published", value: countBy(items, (item) => item.status?.label === "Published") },
     { label: "Drafts", value: countBy(items, (item) => item.status?.label === "Draft") },
     { label: "Featured", value: countBy(items, (item) => item.detail === "Featured") },
+  ];
+}
+
+export function publicationStats(items: ContentItem[]): ContentStat[] {
+  return [
+    { label: "Total issues", value: items.length },
+    { label: "Published", value: countBy(items, (item) => item.status?.label === "Published") },
+    { label: "Drafts", value: countBy(items, (item) => item.status?.label === "Draft") },
+    {
+      label: "With reading link",
+      value: countBy(items, (item) => item.detail === "Has reading link"),
+    },
   ];
 }
 

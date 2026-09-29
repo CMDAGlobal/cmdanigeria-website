@@ -48,6 +48,7 @@ import {
   useUpdateContent,
 } from "./admin-content";
 import { UnitMultiSelect } from "./UnitMultiSelect";
+import { MediaField } from "./MediaField";
 
 export interface ContentEditorDialogProps {
   module: ContentModuleKey;
@@ -61,6 +62,8 @@ export interface ContentEditorDialogProps {
 type Values = Record<string, string>;
 type Flags = Record<string, boolean>;
 type UnitKey = "regions" | "zones" | "chapters";
+/** Preview metadata for attached assets — the form itself stores bare ids. */
+type Previews = Record<string, { url: string | null; name: string | null }>;
 
 interface ScopeState {
   arm: string;
@@ -105,6 +108,7 @@ export function ContentEditorDialog({
 
   const [values, setValues] = useState<Values>({});
   const [flags, setFlags] = useState<Flags>({});
+  const [previews, setPreviews] = useState<Previews>({});
   const [scope, setScope] = useState<ScopeState>({
     arm: "global",
     regions: [],
@@ -128,11 +132,16 @@ export function ContentEditorDialog({
         nextFlags[field.name] = FORM_DEFAULTS[field.name] === true;
       } else {
         const fallback = FORM_DEFAULTS[field.name];
-        nextValues[field.name] = typeof fallback === "string" ? fallback : "";
+        const candidate = typeof fallback === "string" ? fallback : "";
+        const options = field.options?.map((option) => option.value) ?? [];
+        // A default that is not a valid option for this module falls back to the first one.
+        nextValues[field.name] =
+          options.length > 0 && !options.includes(candidate) ? (options[0] ?? "") : candidate;
       }
     }
     setValues(nextValues);
     setFlags(nextFlags);
+    setPreviews({});
     setScope({ arm: "global", regions: [], zones: [], chapters: [] });
     setPublication("draft");
     setInitial(null);
@@ -168,8 +177,13 @@ export function ContentEditorDialog({
       zones: [...data.scope.zones],
       chapters: [...data.scope.chapters],
     };
+    const nextPreviews: Previews = {};
+    for (const [key, asset] of Object.entries(data.assets ?? {})) {
+      nextPreviews[key] = { url: asset.url, name: asset.name };
+    }
     setValues(nextValues);
     setFlags(nextFlags);
+    setPreviews(nextPreviews);
     setScope(nextScope);
     setInitial({ values: nextValues, flags: nextFlags, scope: nextScope });
     setFormError(null);
@@ -273,6 +287,7 @@ export function ContentEditorDialog({
   function buildCreateFields(): Record<string, unknown> {
     const out: Record<string, unknown> = {};
     for (const field of fields) {
+      if (field.kind === "note") continue;
       const raw = (values[field.name] ?? "").trim();
       switch (field.kind) {
         case "boolean":
@@ -307,6 +322,7 @@ export function ContentEditorDialog({
     if (!initial) return { fields: {}, error: "The document is still loading." };
     const out: Record<string, unknown> = {};
     for (const field of fields) {
+      if (field.kind === "note") continue;
       if (field.kind === "boolean") {
         const before = initial.flags[field.name] === true;
         const now = flags[field.name] === true;
@@ -442,6 +458,17 @@ export function ContentEditorDialog({
     const help = field.help ? <p className="text-xs text-muted-foreground">{field.help}</p> : null;
     const set = (value: string) => setValues((prev) => ({ ...prev, [field.name]: value }));
 
+    if (field.kind === "note") {
+      return (
+        <div key={field.name} className="space-y-2 sm:col-span-2">
+          <Label>{field.label}</Label>
+          <p className="border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+            {field.note}
+          </p>
+        </div>
+      );
+    }
+
     if (field.kind === "boolean") {
       return (
         <div key={field.name} className="flex items-center gap-2 sm:col-span-2">
@@ -483,6 +510,25 @@ export function ContentEditorDialog({
           </Select>
           {help}
         </div>
+      );
+    }
+
+    if (field.kind === "image" || field.kind === "file") {
+      return (
+        <MediaField
+          key={field.name}
+          id={id}
+          label={field.label}
+          kind={field.kind}
+          module={module}
+          value={values[field.name] ?? ""}
+          previewUrl={previews[field.name]?.url ?? null}
+          help={field.help}
+          onChange={(assetId, url) => {
+            setValues((prev) => ({ ...prev, [field.name]: assetId }));
+            setPreviews((prev) => ({ ...prev, [field.name]: { url, name: null } }));
+          }}
+        />
       );
     }
 

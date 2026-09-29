@@ -1,5 +1,12 @@
 export type ContentModuleKey =
-  "chapters" | "regions" | "events" | "news" | "announcements" | "outreaches" | "pages";
+  | "chapters"
+  | "regions"
+  | "events"
+  | "news"
+  | "publications"
+  | "announcements"
+  | "outreaches"
+  | "pages";
 
 export type StatusTone = "default" | "secondary" | "outline" | "destructive";
 
@@ -131,6 +138,46 @@ export interface ContentDocPayload {
   title: string | null;
   fields: Record<string, unknown>;
   scope: ContentScopeMeta;
+  /** Asset field → preview metadata, so the editor can show what is attached. */
+  assets?: Record<string, ContentDocAsset>;
+}
+
+export interface ContentDocAsset {
+  id: string;
+  url: string | null;
+  name: string | null;
+}
+
+export interface AssetListEntry {
+  id: string;
+  url: string;
+  name: string;
+  mimeType: string | null;
+  size: number | null;
+}
+
+export interface AssetListPayload {
+  configured: boolean;
+  kind: "image" | "file";
+  assets: AssetListEntry[];
+}
+
+export interface UploadAssetInput {
+  module: string;
+  kind: "image" | "file";
+  filename: string;
+  contentType: string;
+  /** Raw file bytes, base64-encoded by the browser. */
+  base64: string;
+}
+
+export interface UploadAssetResult {
+  ok: boolean;
+  error?: string;
+  id?: string;
+  url?: string | null;
+  kind?: "image" | "file";
+  name?: string;
 }
 
 export interface ScopeUnitOptionPayload {

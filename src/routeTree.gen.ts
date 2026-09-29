@@ -19,7 +19,6 @@ import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as MinistriesRouteImport } from './routes/ministries'
-import { Route as PublicationsRouteImport } from './routes/publications'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
@@ -39,6 +38,8 @@ import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
+import { Route as PublicationsIndexRouteImport } from './routes/publications/index'
+import { Route as PublicationsSlugRouteImport } from './routes/publications/$slug'
 import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
 import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as AdminLayoutAnnouncementsRouteImport } from './routes/admin/_layout/announcements'
@@ -50,6 +51,7 @@ import { Route as AdminLayoutEventsRouteImport } from './routes/admin/_layout/ev
 import { Route as AdminLayoutGlobalNetworkRouteImport } from './routes/admin/_layout/global-network'
 import { Route as AdminLayoutMediaRouteImport } from './routes/admin/_layout/media'
 import { Route as AdminLayoutNewsRouteImport } from './routes/admin/_layout/news'
+import { Route as AdminLayoutNewsletterRouteImport } from './routes/admin/_layout/newsletter'
 import { Route as AdminLayoutOutreachesRouteImport } from './routes/admin/_layout/outreaches'
 import { Route as AdminLayoutPagesRouteImport } from './routes/admin/_layout/pages'
 import { Route as AdminLayoutSettingsRouteImport } from './routes/admin/_layout/settings'
@@ -104,11 +106,6 @@ const MembershipRoute = MembershipRouteImport.update({
 const MinistriesRoute = MinistriesRouteImport.update({
   id: '/ministries',
   path: '/ministries',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PublicationsRoute = PublicationsRouteImport.update({
-  id: '/publications',
-  path: '/publications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentsArmRoute = StudentsArmRouteImport.update({
@@ -208,6 +205,16 @@ const NewsSlugRoute = NewsSlugRouteImport.update({
   path: '/news/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicationsIndexRoute = PublicationsIndexRouteImport.update({
+  id: '/publications/',
+  path: '/publications/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PublicationsSlugRoute = PublicationsSlugRouteImport.update({
+  id: '/publications/$slug',
+  path: '/publications/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ZonesSlugRoute = ZonesSlugRouteImport.update({
   id: '/zones/$slug',
   path: '/zones/$slug',
@@ -265,6 +272,11 @@ const AdminLayoutNewsRoute = AdminLayoutNewsRouteImport.update({
   path: '/news',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutNewsletterRoute = AdminLayoutNewsletterRouteImport.update({
+  id: '/newsletter',
+  path: '/newsletter',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutOutreachesRoute = AdminLayoutOutreachesRouteImport.update({
   id: '/outreaches',
   path: '/outreaches',
@@ -302,7 +314,6 @@ export interface FileRoutesByFullPath {
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRouteWithChildren
-  '/publications': typeof PublicationsRoute
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -319,10 +330,12 @@ export interface FileRoutesByFullPath {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
   '/news/': typeof NewsIndexRoute
+  '/publications/': typeof PublicationsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
   '/admin/blog': typeof AdminLayoutBlogRoute
@@ -332,6 +345,7 @@ export interface FileRoutesByFullPath {
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
+  '/admin/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/pages': typeof AdminLayoutPagesRoute
   '/admin/settings': typeof AdminLayoutSettingsRoute
@@ -350,7 +364,6 @@ export interface FileRoutesByTo {
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRouteWithChildren
-  '/publications': typeof PublicationsRoute
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -366,10 +379,12 @@ export interface FileRoutesByTo {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
   '/news': typeof NewsIndexRoute
+  '/publications': typeof PublicationsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
   '/admin/blog': typeof AdminLayoutBlogRoute
@@ -379,6 +394,7 @@ export interface FileRoutesByTo {
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
+  '/admin/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/pages': typeof AdminLayoutPagesRoute
   '/admin/settings': typeof AdminLayoutSettingsRoute
@@ -398,7 +414,6 @@ export interface FileRoutesById {
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/ministries': typeof MinistriesRouteWithChildren
-  '/publications': typeof PublicationsRoute
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -415,10 +430,12 @@ export interface FileRoutesById {
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
+  '/publications/$slug': typeof PublicationsSlugRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
   '/news/': typeof NewsIndexRoute
+  '/publications/': typeof PublicationsIndexRoute
   '/admin/_layout/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/_layout/audit': typeof AdminLayoutAuditRoute
   '/admin/_layout/blog': typeof AdminLayoutBlogRoute
@@ -428,6 +445,7 @@ export interface FileRoutesById {
   '/admin/_layout/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/_layout/media': typeof AdminLayoutMediaRoute
   '/admin/_layout/news': typeof AdminLayoutNewsRoute
+  '/admin/_layout/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/_layout/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/_layout/pages': typeof AdminLayoutPagesRoute
   '/admin/_layout/settings': typeof AdminLayoutSettingsRoute
@@ -448,7 +466,6 @@ export interface FileRouteTypes {
     | '/media-resources'
     | '/membership'
     | '/ministries'
-    | '/publications'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -465,10 +482,12 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
+    | '/publications/$slug'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
     | '/news/'
+    | '/publications/'
     | '/admin/announcements'
     | '/admin/audit'
     | '/admin/blog'
@@ -478,6 +497,7 @@ export interface FileRouteTypes {
     | '/admin/global-network'
     | '/admin/media'
     | '/admin/news'
+    | '/admin/newsletter'
     | '/admin/outreaches'
     | '/admin/pages'
     | '/admin/settings'
@@ -496,7 +516,6 @@ export interface FileRouteTypes {
     | '/media-resources'
     | '/membership'
     | '/ministries'
-    | '/publications'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -512,10 +531,12 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
+    | '/publications/$slug'
     | '/zones/$slug'
     | '/about'
     | '/chapters'
     | '/news'
+    | '/publications'
     | '/admin/announcements'
     | '/admin/audit'
     | '/admin/blog'
@@ -525,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/global-network'
     | '/admin/media'
     | '/admin/news'
+    | '/admin/newsletter'
     | '/admin/outreaches'
     | '/admin/pages'
     | '/admin/settings'
@@ -543,7 +565,6 @@ export interface FileRouteTypes {
     | '/media-resources'
     | '/membership'
     | '/ministries'
-    | '/publications'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -560,10 +581,12 @@ export interface FileRouteTypes {
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
+    | '/publications/$slug'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
     | '/news/'
+    | '/publications/'
     | '/admin/_layout/announcements'
     | '/admin/_layout/audit'
     | '/admin/_layout/blog'
@@ -573,6 +596,7 @@ export interface FileRouteTypes {
     | '/admin/_layout/global-network'
     | '/admin/_layout/media'
     | '/admin/_layout/news'
+    | '/admin/_layout/newsletter'
     | '/admin/_layout/outreaches'
     | '/admin/_layout/pages'
     | '/admin/_layout/settings'
@@ -592,7 +616,6 @@ export interface RootRouteChildren {
   MediaResourcesRoute: typeof MediaResourcesRoute
   MembershipRoute: typeof MembershipRoute
   MinistriesRoute: typeof MinistriesRouteWithChildren
-  PublicationsRoute: typeof PublicationsRoute
   StudentsArmRoute: typeof StudentsArmRoute
   StudioRoute: typeof StudioRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
@@ -602,10 +625,12 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
   NewsSlugRoute: typeof NewsSlugRoute
+  PublicationsSlugRoute: typeof PublicationsSlugRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   ChaptersIndexRoute: typeof ChaptersIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
+  PublicationsIndexRoute: typeof PublicationsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -678,13 +703,6 @@ declare module '@tanstack/react-router' {
       path: '/ministries'
       fullPath: '/ministries'
       preLoaderRoute: typeof MinistriesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/publications': {
-      id: '/publications'
-      path: '/publications'
-      fullPath: '/publications'
-      preLoaderRoute: typeof PublicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/students-arm': {
@@ -820,6 +838,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NewsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publications/': {
+      id: '/publications/'
+      path: '/publications'
+      fullPath: '/publications/'
+      preLoaderRoute: typeof PublicationsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/publications/$slug': {
+      id: '/publications/$slug'
+      path: '/publications/$slug'
+      fullPath: '/publications/$slug'
+      preLoaderRoute: typeof PublicationsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/zones/$slug': {
       id: '/zones/$slug'
       path: '/zones/$slug'
@@ -895,6 +927,13 @@ declare module '@tanstack/react-router' {
       path: '/news'
       fullPath: '/admin/news'
       preLoaderRoute: typeof AdminLayoutNewsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/newsletter': {
+      id: '/admin/_layout/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AdminLayoutNewsletterRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
     '/admin/_layout/outreaches': {
@@ -979,6 +1018,7 @@ interface AdminLayoutRouteChildren {
   AdminLayoutGlobalNetworkRoute: typeof AdminLayoutGlobalNetworkRoute
   AdminLayoutMediaRoute: typeof AdminLayoutMediaRoute
   AdminLayoutNewsRoute: typeof AdminLayoutNewsRoute
+  AdminLayoutNewsletterRoute: typeof AdminLayoutNewsletterRoute
   AdminLayoutOutreachesRoute: typeof AdminLayoutOutreachesRoute
   AdminLayoutPagesRoute: typeof AdminLayoutPagesRoute
   AdminLayoutSettingsRoute: typeof AdminLayoutSettingsRoute
@@ -997,6 +1037,7 @@ const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
   AdminLayoutGlobalNetworkRoute: AdminLayoutGlobalNetworkRoute,
   AdminLayoutMediaRoute: AdminLayoutMediaRoute,
   AdminLayoutNewsRoute: AdminLayoutNewsRoute,
+  AdminLayoutNewsletterRoute: AdminLayoutNewsletterRoute,
   AdminLayoutOutreachesRoute: AdminLayoutOutreachesRoute,
   AdminLayoutPagesRoute: AdminLayoutPagesRoute,
   AdminLayoutSettingsRoute: AdminLayoutSettingsRoute,
@@ -1020,7 +1061,6 @@ const rootRouteChildren: RootRouteChildren = {
   MediaResourcesRoute: MediaResourcesRoute,
   MembershipRoute: MembershipRoute,
   MinistriesRoute: MinistriesRouteWithChildren,
-  PublicationsRoute: PublicationsRoute,
   StudentsArmRoute: StudentsArmRoute,
   StudioRoute: StudioRoute,
   WhatWeDoRoute: WhatWeDoRoute,
@@ -1030,10 +1070,12 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
   NewsSlugRoute: NewsSlugRoute,
+  PublicationsSlugRoute: PublicationsSlugRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   ChaptersIndexRoute: ChaptersIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
+  PublicationsIndexRoute: PublicationsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

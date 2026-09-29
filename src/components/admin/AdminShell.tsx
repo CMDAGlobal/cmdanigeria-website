@@ -23,6 +23,7 @@ import {
   LogOut,
   ShieldCheck,
   FileText,
+  Mail,
   type LucideIcon,
 } from "lucide-react";
 
@@ -113,6 +114,13 @@ const NAV_ITEMS: NavItem[] = [
     label: "Blog",
     icon: BookOpen,
     permission: "news.read",
+    group: "Publishing",
+  },
+  {
+    href: "/admin/newsletter",
+    label: "Newsletter",
+    icon: Mail,
+    permission: "publications.read",
     group: "Publishing",
   },
   {

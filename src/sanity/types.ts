@@ -155,6 +155,26 @@ export interface PostDetail extends PostRecord {
   body?: PortableTextBlock[] | null;
 }
 
+export interface PrescriptionRecord {
+  _id: string;
+  title: string;
+  slug?: string | null;
+  kind?: string | null;
+  arm?: Arm | null;
+  issueNumber?: number | null;
+  issueDate?: string | null;
+  author?: string | null;
+  summary?: string | null;
+  url?: string | null;
+  downloadUrl?: string | null;
+  hasBody?: boolean | null;
+  cover?: SanityImage | null;
+}
+
+export interface PrescriptionDetail extends PrescriptionRecord {
+  body?: PortableTextBlock[] | null;
+}
+
 export interface RegionListEntry {
   _id: string;
   name: string;

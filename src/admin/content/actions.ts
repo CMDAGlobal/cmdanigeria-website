@@ -27,10 +27,12 @@ import {
   mapNews,
   mapOutreaches,
   mapPages,
+  mapPublications,
   mapRegions,
   newsStats,
   outreachStats,
   pageStats,
+  publicationStats,
   regionStats,
   type RawContentRow,
 } from "./mappers";
@@ -63,6 +65,11 @@ const MODULE_CONFIG: Record<
   regions: { permission: "regions.read", map: mapRegions, stats: regionStats },
   events: { permission: "events.read", map: mapEvents, stats: eventStats },
   news: { permission: "news.read", map: mapNews, stats: newsStats },
+  publications: {
+    permission: "publications.read",
+    map: mapPublications,
+    stats: publicationStats,
+  },
   announcements: {
     permission: "announcements.read",
     map: mapAnnouncements,
@@ -78,6 +85,7 @@ const MEDIA_BUCKETS: { key: string; label: string }[] = [
   { key: "events", label: "Event" },
   { key: "announcements", label: "Announcement" },
   { key: "news", label: "News item" },
+  { key: "publications", label: "Publication" },
   { key: "outreaches", label: "Outreach" },
   { key: "pages", label: "Page" },
 ];
@@ -91,6 +99,7 @@ const DOCUMENT_LABELS: Record<string, string> = {
   announcement: "Announcements",
   activity: "Activities",
   post: "News items",
+  prescription: "Publications",
   outreach: "Outreach campaigns",
   page: "Pages",
 };
@@ -330,11 +339,15 @@ function docDetailQuery(config: ModuleMutationConfig): string {
     seen.add(key);
     parts.push(expr);
   };
+  const assetFields = config.assetFields ?? {};
   for (const key of config.allowed) {
     if (key === "slug") {
       add(`"slug": slug.current`, key);
     } else if ((SCOPE_REF_KEYS as readonly string[]).includes(key)) {
       add(`"${key}": ${key}[]->slug.current`, key);
+    } else if (key in assetFields) {
+      // Asset fields are stored as references — the form edits a bare asset id.
+      add(`"${key}": ${key}{ "assetId": asset._ref, "url": asset->url, alt }`, key);
     } else {
       add(key, key);
     }
@@ -375,9 +388,29 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
     }
 
     const fields: Record<string, unknown> = {};
+    const assets: ContentDocPayload["assets"] = {};
+    const assetFields = config.assetFields ?? {};
     for (const key of config.allowed) {
       if (key === "arm" || (SCOPE_REF_KEYS as readonly string[]).includes(key)) continue;
-      if (doc[key] !== undefined) fields[key] = doc[key];
+      const raw = doc[key];
+      if (raw === undefined) continue;
+      if (key in assetFields) {
+        // Collapse `{asset:{_ref}}` into the bare asset id the form edits, and
+        // hand the preview back separately so the dialog can show it.
+        const ref = raw as { assetId?: unknown; url?: unknown; alt?: unknown } | null;
+        const id = typeof ref?.assetId === "string" ? ref.assetId : "";
+        if (!id) continue;
+        fields[key] = id;
+        assets[key] = {
+          id,
+          url: typeof ref?.url === "string" ? ref.url : null,
+          name: typeof ref?.alt === "string" && ref.alt ? ref.alt : null,
+        };
+        const altKey = config.altFields?.[key];
+        if (altKey && typeof ref?.alt === "string") fields[altKey] = ref.alt;
+        continue;
+      }
+      fields[key] = raw;
     }
 
     const scope = buildScopeMeta({
@@ -404,7 +437,7 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
 
     const rawTitle = doc[config.titleField];
     const title = typeof rawTitle === "string" && rawTitle.trim() ? rawTitle.trim() : null;
-    return { ok: true, id: doc["_id"], title, fields, scope };
+    return { ok: true, id: doc["_id"], title, fields, scope, assets };
   } catch (error) {
     if (isAuthorizationError(error)) {
       return { ...empty, error: readErrorMessage(error.reason) };

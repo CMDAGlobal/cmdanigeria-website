@@ -1,12 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { PublicationsList, BooksAndReports } from "@/components/site/Publications";
+import { fetchPrescriptions } from "@/sanity/data";
 
 const title = "Publications | CMDA Nigeria";
 const description =
   "Magazines, journals, books, and annual reports from CMDA Nigeria — equipping Christian healthcare professionals with knowledge and inspiration.";
 
-export const Route = createFileRoute("/publications")({
+export const Route = createFileRoute("/publications/")({
+  loader: async () => ({ issues: await fetchPrescriptions() }),
   component: PublicationsPage,
   head: () => ({
     meta: [
@@ -21,6 +23,7 @@ export const Route = createFileRoute("/publications")({
 });
 
 function PublicationsPage() {
+  const { issues } = Route.useLoaderData();
   return (
     <>
       <PageHero
@@ -28,7 +31,7 @@ function PublicationsPage() {
         title="Words that equip, inspire, and carry the mission forward"
         intro="From annual magazines to training manuals and annual reports — CMDA Nigeria produces resources for every member of the fellowship."
       />
-      <PublicationsList />
+      <PublicationsList issues={issues} />
       <BooksAndReports />
     </>
   );

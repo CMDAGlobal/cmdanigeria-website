@@ -129,6 +129,25 @@ export const eventListQuery = `
 *[_type == "event" && ${VISIBLE}] | order(startDate asc) ${eventProjection}
 `;
 
+const prescriptionFields = `_id, title, "slug": slug.current, kind, arm, issueNumber, issueDate,
+  author, summary, url,
+  "hasBody": defined(body),
+  "cover": coverImage ${imageProjection},
+  "downloadUrl": coalesce(url, file.asset->url)`;
+
+export const prescriptionListQuery = `
+*[_type == "prescription" && ${VISIBLE}] | order(issueDate desc, _createdAt desc) {
+  ${prescriptionFields}
+}
+`;
+
+export const prescriptionDetailQuery = `
+*[_type == "prescription" && ${VISIBLE} && slug.current == $slug][0] {
+  ${prescriptionFields},
+  "body": coalesce(body[]{ ${portableTextProjection} }, [])
+}
+`;
+
 export const chapterQuery = `
 *[_type == "chapter" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id, name, slug, institution, location, country, arm, establishedAt, order,

@@ -29,6 +29,47 @@ export interface ModuleMutationConfig {
    * `arm` is never written for types whose schema has no arm field.
    */
   selfUnit?: boolean;
+  /**
+   * Sanity asset fields the dashboard may set, mapped to the asset kind. The
+   * form submits a bare asset `_id`; it is normalized here into the
+   * `{_type, asset:{_ref}}` shape Sanity stores.
+   */
+  assetFields?: Record<string, AssetKind>;
+  /** Alt-text companion of an image asset field, keyed by that field. */
+  altFields?: Record<string, string>;
+}
+
+export type AssetKind = "image" | "file";
+
+/**
+ * Sanity asset document ids. Images carry their pixel dimensions
+ * (`image-<hash>-<w>x<h>-<ext>`); files do not (`file-<hash>-<ext>`).
+ */
+const IMAGE_ASSET_ID = /^image-[a-zA-Z0-9]+-\d+x\d+-[a-zA-Z0-9]+$/;
+const FILE_ASSET_ID = /^file-[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*$/;
+
+/**
+ * Turns a submitted asset `_id` into the value Sanity stores for that field.
+ * `""`/null clears the field; anything that is not a well-formed asset id of
+ * the expected kind is rejected.
+ */
+export function normalizeAssetField(
+  value: unknown,
+  kind: AssetKind,
+  alt?: unknown,
+): Record<string, unknown> | null {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value !== "string") throw new ContentInputError("invalid_input");
+  const id = value.trim();
+  const pattern = kind === "image" ? IMAGE_ASSET_ID : FILE_ASSET_ID;
+  if (id.length > 200 || !pattern.test(id)) throw new ContentInputError("invalid_input");
+  const asset: Record<string, unknown> = { _type: kind, asset: { _type: "reference", _ref: id } };
+  const altText = typeof alt === "string" ? alt.trim() : "";
+  if (altText) {
+    if (altText.length > MAX_STRING_CHARS) throw new ContentInputError("invalid_input");
+    asset["alt"] = altText;
+  }
+  return asset;
 }
 
 const SCOPE_FIELDS = ["regions", "zones", "chapters"] as const;
@@ -147,6 +188,34 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       "body",
       ...SCOPE_FIELDS,
     ],
+    publication: true,
+  },
+  publications: {
+    type: "prescription",
+    writePermission: "publications.write",
+    deletePermission: "publications.delete",
+    auditPrefix: "publication",
+    titleField: "title",
+    required: ["title", "issueDate", "kind"],
+    // `body` is deliberately absent: the issue is written in Studio, so the
+    // dashboard can never flatten its headings, links or inline images.
+    allowed: [
+      "title",
+      "slug",
+      "arm",
+      "kind",
+      "issueNumber",
+      "issueDate",
+      "author",
+      "summary",
+      "url",
+      "coverImage",
+      "coverAlt",
+      "file",
+      ...SCOPE_FIELDS,
+    ],
+    assetFields: { coverImage: "image", file: "file" },
+    altFields: { coverImage: "coverAlt" },
     publication: true,
   },
   outreaches: {
@@ -290,10 +359,17 @@ export function validateFields(
   const input = fields as Record<string, unknown>;
   const output: Record<string, unknown> = {};
 
+  const altFields = config.altFields ?? {};
+  const isAltField = (key: string): boolean => Object.values(altFields).includes(key);
+
   for (const key of Object.keys(input)) {
     if (!config.allowed.includes(key)) throw new ContentInputError("invalid_input");
     // Scope arrays are slug lists — normalized (non-strings dropped) below.
     if ((SCOPE_FIELDS as readonly string[]).includes(key)) continue;
+    // Asset fields accept a bare asset id, validated by `normalizeAssetField`.
+    if (config.assetFields && key in config.assetFields) continue;
+    // Alt text is written with its image, after the image resolves.
+    if (isAltField(key)) continue;
     assertValueShape(input[key]);
   }
 
@@ -322,7 +398,15 @@ export function validateFields(
   }
 
   for (const key of Object.keys(input)) {
+    if (isAltField(key)) continue;
     const value = input[key];
+    const assetKind = config.assetFields?.[key];
+    if (assetKind) {
+      // Alt text rides along with the image so the form needs no nested object.
+      const altKey = altFields[key];
+      output[key] = normalizeAssetField(value, assetKind, altKey ? input[altKey] : undefined);
+      continue;
+    }
     if ((ARM_FIELDS as readonly string[]).includes(key)) {
       output[key] = normalizeArm(value);
     } else if ((SCOPE_FIELDS as readonly string[]).includes(key)) {
@@ -334,9 +418,24 @@ export function validateFields(
       if (value === null || value === "") continue;
       if (typeof value !== "string") throw new ContentInputError("invalid_input");
       output[key] = assertSlug(value);
+    } else if (key === "issueNumber") {
+      // Issue numbers are whole, positive counts — "65", never "65.5" or "-3".
+      if (value === null || value === "") continue;
+      const parsed = typeof value === "number" ? value : Number(String(value).trim());
+      if (!Number.isInteger(parsed) || parsed < 1 || parsed > 10_000) {
+        throw new ContentInputError("invalid_input");
+      }
+      output[key] = parsed;
     } else {
       output[key] = value;
     }
+  }
+
+  // Alt text is written with its image, and cleared with it.
+  for (const [assetField, altKey] of Object.entries(altFields)) {
+    if (!(assetField in input)) continue;
+    const alt = typeof input[altKey] === "string" ? (input[altKey] as string).trim() : "";
+    output[altKey] = alt || null;
   }
 
   return output;

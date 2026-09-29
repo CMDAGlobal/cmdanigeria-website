@@ -8,6 +8,7 @@ import { page } from "./page";
 import { contactInfo, galleryImage, newsletterItem, socialLinks, statItem } from "./objects";
 import { person } from "./person";
 import { post } from "./post";
+import { prescription } from "./prescription";
 import { region } from "./region";
 import { zone } from "./zone";
 
@@ -20,6 +21,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   announcement,
   activity,
   post,
+  prescription,
   outreach,
   page,
   galleryImage,

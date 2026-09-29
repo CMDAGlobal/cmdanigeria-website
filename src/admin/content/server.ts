@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import type {
+  AssetListPayload,
   ContentDocInput,
   ContentDocPayload,
   ContentModuleKey,
@@ -11,9 +12,14 @@ import type {
   SetPublicationInput,
   SettingsPayload,
   UpdateContentInput,
+  UploadAssetInput,
+  UploadAssetResult,
 } from "./types";
 
 export type {
+  AssetListEntry,
+  AssetListPayload,
+  ContentDocAsset,
   ContentDocInput,
   ContentDocPayload,
   ContentItem,
@@ -31,6 +37,8 @@ export type {
   SettingsPayload,
   StatusTone,
   UpdateContentInput,
+  UploadAssetInput,
+  UploadAssetResult,
 } from "./types";
 
 export const getContentModuleAction = createServerFn({ method: "GET", strict: false })
@@ -95,4 +103,18 @@ export const setPublicationAction = createServerFn({ method: "POST", strict: fal
   .handler(async ({ data }): Promise<ContentMutationResult> => {
     const { setPublicationStatus } = await import("./mutations");
     return setPublicationStatus(data);
+  });
+
+export const listSanityAssetsAction = createServerFn({ method: "GET", strict: false })
+  .validator((kind: "image" | "file") => kind)
+  .handler(async ({ data }): Promise<AssetListPayload> => {
+    const { listSanityAssets } = await import("./assets");
+    return listSanityAssets(data);
+  });
+
+export const uploadSanityAssetAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: UploadAssetInput) => data)
+  .handler(async ({ data }): Promise<UploadAssetResult> => {
+    const { uploadSanityAsset } = await import("./assets");
+    return uploadSanityAsset(data);
   });
