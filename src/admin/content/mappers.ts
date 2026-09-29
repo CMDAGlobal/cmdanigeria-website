@@ -159,20 +159,24 @@ const NEWS_KIND_LABELS: Record<string, string> = {
   video: "Video",
 };
 
+export function kindLabel(kind: string): string {
+  return NEWS_KIND_LABELS[kind] ?? kind;
+}
+
 export function mapNews(rows: RawContentRow[]): ContentItem[] {
   return rows.map((row) => {
     const kind = text(row.kind) ?? "article";
-    const kindLabel = NEWS_KIND_LABELS[kind] ?? kind;
     const category = text(row.category);
     return {
       id: String(row.id ?? ""),
       title: text(row.title) ?? "Untitled item",
       slug: text(row.slug),
       arm: text(row.arm),
-      subtitle: category ? `${kindLabel} · ${category}` : kindLabel,
+      subtitle: category ? `${kindLabel(kind)} · ${category}` : kindLabel(kind),
       date: isoDate(row.publishedAt),
       status: publicationStatus(row),
       detail: row.featured === true ? "Featured" : null,
+      kind,
       draft: publicationKey(row) === "draft",
       scope: buildScopeMeta({
         arm: row.arm,

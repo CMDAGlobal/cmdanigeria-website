@@ -58,7 +58,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { armLabel } from "@/admin/content/mappers";
+import { armLabel, kindLabel } from "@/admin/content/mappers";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
 import {
   CONTENT_PUBLICATION_STATUSES,
@@ -83,6 +83,10 @@ export interface ContentModuleProps {
   listHeading: string;
   /** Singular noun used by the create button, e.g. "event". */
   noun?: string;
+  /** Locks the arm filter, e.g. an arm hub page for `students`. */
+  initialArm?: string;
+  /** Restricts the list to one document kind, e.g. `article` for the blog. */
+  kindFilter?: string;
 }
 
 const MAX_ROWS = 200;
@@ -134,11 +138,13 @@ export function ContentModule({
   emptyMessage,
   listHeading,
   noun = "item",
+  initialArm,
+  kindFilter,
 }: ContentModuleProps) {
   const session = useAdminSession();
   const query = useContentModule(module);
   const [search, setSearch] = useState("");
-  const [arm, setArm] = useState("all");
+  const [arm, setArm] = useState(initialArm ?? "all");
   const [status, setStatus] = useState("all");
   const [statusItem, setStatusItem] = useState<ContentItem | null>(null);
   const [deleteItem, setDeleteItem] = useState<ContentItem | null>(null);
@@ -233,11 +239,12 @@ export function ContentModule({
     return allItems
       .filter((item) => {
         if (arm !== "all" && (item.arm ?? "global") !== arm) return false;
+        if (kindFilter && item.kind !== kindFilter) return false;
         if (status !== "all" && (item.status?.label ?? "") !== status) return false;
         return matches(item, term);
       })
       .slice(0, MAX_ROWS);
-  }, [allItems, search, arm, status]);
+  }, [allItems, search, arm, status, kindFilter]);
 
   if (!hasPermission(session.data, permission)) {
     return <NoAccess icon={Icon} permission={permission} />;
@@ -290,7 +297,9 @@ export function ContentModule({
           <CardTitle>{listHeading}</CardTitle>
           <CardDescription>
             {configured
-              ? "Scoped to your role. Create and edit in the dashboard, use the row menu for publication and deletion, or open Studio for full editing."
+              ? `Scoped to your role.${
+                  initialArm ? ` Showing ${armLabel(initialArm)} only.` : ""
+                }${kindFilter ? ` Showing ${kindLabel(kindFilter)} only.` : ""} Create and edit in the dashboard, use the row menu for publication and deletion, or open Studio for full editing.`
               : "The content store is not configured for this environment."}
           </CardDescription>
         </CardHeader>
@@ -306,7 +315,7 @@ export function ContentModule({
                 aria-label={searchPlaceholder}
               />
             </div>
-            {armOptions.length > 1 ? (
+            {armOptions.length > 1 && !initialArm ? (
               <Select value={arm} onValueChange={setArm}>
                 <SelectTrigger className="sm:w-48" aria-label="Filter by arm">
                   <SelectValue placeholder="All arms" />

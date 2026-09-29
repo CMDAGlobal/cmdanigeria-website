@@ -43,13 +43,16 @@ import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
 import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as AdminLayoutAnnouncementsRouteImport } from './routes/admin/_layout/announcements'
 import { Route as AdminLayoutAuditRouteImport } from './routes/admin/_layout/audit'
+import { Route as AdminLayoutBlogRouteImport } from './routes/admin/_layout/blog'
 import { Route as AdminLayoutChaptersRouteImport } from './routes/admin/_layout/chapters'
+import { Route as AdminLayoutDoctorsRouteImport } from './routes/admin/_layout/doctors'
 import { Route as AdminLayoutEventsRouteImport } from './routes/admin/_layout/events'
 import { Route as AdminLayoutMediaRouteImport } from './routes/admin/_layout/media'
 import { Route as AdminLayoutNewsRouteImport } from './routes/admin/_layout/news'
 import { Route as AdminLayoutOutreachesRouteImport } from './routes/admin/_layout/outreaches'
 import { Route as AdminLayoutPagesRouteImport } from './routes/admin/_layout/pages'
 import { Route as AdminLayoutSettingsRouteImport } from './routes/admin/_layout/settings'
+import { Route as AdminLayoutStudentsRouteImport } from './routes/admin/_layout/students'
 import { Route as AdminLayoutUsersRouteImport } from './routes/admin/_layout/users'
 
 const IndexRoute = IndexRouteImport.update({
@@ -225,9 +228,19 @@ const AdminLayoutAuditRoute = AdminLayoutAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutBlogRoute = AdminLayoutBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutChaptersRoute = AdminLayoutChaptersRouteImport.update({
   id: '/chapters',
   path: '/chapters',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutDoctorsRoute = AdminLayoutDoctorsRouteImport.update({
+  id: '/doctors',
+  path: '/doctors',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
 const AdminLayoutEventsRoute = AdminLayoutEventsRouteImport.update({
@@ -258,6 +271,11 @@ const AdminLayoutPagesRoute = AdminLayoutPagesRouteImport.update({
 const AdminLayoutSettingsRoute = AdminLayoutSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
+const AdminLayoutStudentsRoute = AdminLayoutStudentsRouteImport.update({
+  id: '/students',
+  path: '/students',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
 const AdminLayoutUsersRoute = AdminLayoutUsersRouteImport.update({
@@ -300,13 +318,16 @@ export interface FileRoutesByFullPath {
   '/news/': typeof NewsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
+  '/admin/blog': typeof AdminLayoutBlogRoute
   '/admin/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/events': typeof AdminLayoutEventsRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/pages': typeof AdminLayoutPagesRoute
   '/admin/settings': typeof AdminLayoutSettingsRoute
+  '/admin/students': typeof AdminLayoutStudentsRoute
   '/admin/users': typeof AdminLayoutUsersRoute
   '/admin/': typeof AdminLayoutIndexRoute
 }
@@ -343,13 +364,16 @@ export interface FileRoutesByTo {
   '/news': typeof NewsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/audit': typeof AdminLayoutAuditRoute
+  '/admin/blog': typeof AdminLayoutBlogRoute
   '/admin/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/events': typeof AdminLayoutEventsRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/pages': typeof AdminLayoutPagesRoute
   '/admin/settings': typeof AdminLayoutSettingsRoute
+  '/admin/students': typeof AdminLayoutStudentsRoute
   '/admin/users': typeof AdminLayoutUsersRoute
   '/admin': typeof AdminLayoutIndexRoute
 }
@@ -388,13 +412,16 @@ export interface FileRoutesById {
   '/news/': typeof NewsIndexRoute
   '/admin/_layout/announcements': typeof AdminLayoutAnnouncementsRoute
   '/admin/_layout/audit': typeof AdminLayoutAuditRoute
+  '/admin/_layout/blog': typeof AdminLayoutBlogRoute
   '/admin/_layout/chapters': typeof AdminLayoutChaptersRoute
+  '/admin/_layout/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/_layout/events': typeof AdminLayoutEventsRoute
   '/admin/_layout/media': typeof AdminLayoutMediaRoute
   '/admin/_layout/news': typeof AdminLayoutNewsRoute
   '/admin/_layout/outreaches': typeof AdminLayoutOutreachesRoute
   '/admin/_layout/pages': typeof AdminLayoutPagesRoute
   '/admin/_layout/settings': typeof AdminLayoutSettingsRoute
+  '/admin/_layout/students': typeof AdminLayoutStudentsRoute
   '/admin/_layout/users': typeof AdminLayoutUsersRoute
   '/admin/_layout/': typeof AdminLayoutIndexRoute
 }
@@ -434,13 +461,16 @@ export interface FileRouteTypes {
     | '/news/'
     | '/admin/announcements'
     | '/admin/audit'
+    | '/admin/blog'
     | '/admin/chapters'
+    | '/admin/doctors'
     | '/admin/events'
     | '/admin/media'
     | '/admin/news'
     | '/admin/outreaches'
     | '/admin/pages'
     | '/admin/settings'
+    | '/admin/students'
     | '/admin/users'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -477,13 +507,16 @@ export interface FileRouteTypes {
     | '/news'
     | '/admin/announcements'
     | '/admin/audit'
+    | '/admin/blog'
     | '/admin/chapters'
+    | '/admin/doctors'
     | '/admin/events'
     | '/admin/media'
     | '/admin/news'
     | '/admin/outreaches'
     | '/admin/pages'
     | '/admin/settings'
+    | '/admin/students'
     | '/admin/users'
     | '/admin'
   id:
@@ -521,13 +554,16 @@ export interface FileRouteTypes {
     | '/news/'
     | '/admin/_layout/announcements'
     | '/admin/_layout/audit'
+    | '/admin/_layout/blog'
     | '/admin/_layout/chapters'
+    | '/admin/_layout/doctors'
     | '/admin/_layout/events'
     | '/admin/_layout/media'
     | '/admin/_layout/news'
     | '/admin/_layout/outreaches'
     | '/admin/_layout/pages'
     | '/admin/_layout/settings'
+    | '/admin/_layout/students'
     | '/admin/_layout/users'
     | '/admin/_layout/'
   fileRoutesById: FileRoutesById
@@ -799,11 +835,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutAuditRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/blog': {
+      id: '/admin/_layout/blog'
+      path: '/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AdminLayoutBlogRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/admin/_layout/chapters': {
       id: '/admin/_layout/chapters'
       path: '/chapters'
       fullPath: '/admin/chapters'
       preLoaderRoute: typeof AdminLayoutChaptersRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/doctors': {
+      id: '/admin/_layout/doctors'
+      path: '/doctors'
+      fullPath: '/admin/doctors'
+      preLoaderRoute: typeof AdminLayoutDoctorsRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
     '/admin/_layout/events': {
@@ -846,6 +896,13 @@ declare module '@tanstack/react-router' {
       path: '/settings'
       fullPath: '/admin/settings'
       preLoaderRoute: typeof AdminLayoutSettingsRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
+    '/admin/_layout/students': {
+      id: '/admin/_layout/students'
+      path: '/students'
+      fullPath: '/admin/students'
+      preLoaderRoute: typeof AdminLayoutStudentsRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
     '/admin/_layout/users': {
@@ -895,13 +952,16 @@ const MinistriesRouteWithChildren = MinistriesRoute._addFileChildren(
 interface AdminLayoutRouteChildren {
   AdminLayoutAnnouncementsRoute: typeof AdminLayoutAnnouncementsRoute
   AdminLayoutAuditRoute: typeof AdminLayoutAuditRoute
+  AdminLayoutBlogRoute: typeof AdminLayoutBlogRoute
   AdminLayoutChaptersRoute: typeof AdminLayoutChaptersRoute
+  AdminLayoutDoctorsRoute: typeof AdminLayoutDoctorsRoute
   AdminLayoutEventsRoute: typeof AdminLayoutEventsRoute
   AdminLayoutMediaRoute: typeof AdminLayoutMediaRoute
   AdminLayoutNewsRoute: typeof AdminLayoutNewsRoute
   AdminLayoutOutreachesRoute: typeof AdminLayoutOutreachesRoute
   AdminLayoutPagesRoute: typeof AdminLayoutPagesRoute
   AdminLayoutSettingsRoute: typeof AdminLayoutSettingsRoute
+  AdminLayoutStudentsRoute: typeof AdminLayoutStudentsRoute
   AdminLayoutUsersRoute: typeof AdminLayoutUsersRoute
   AdminLayoutIndexRoute: typeof AdminLayoutIndexRoute
 }
@@ -909,13 +969,16 @@ interface AdminLayoutRouteChildren {
 const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
   AdminLayoutAnnouncementsRoute: AdminLayoutAnnouncementsRoute,
   AdminLayoutAuditRoute: AdminLayoutAuditRoute,
+  AdminLayoutBlogRoute: AdminLayoutBlogRoute,
   AdminLayoutChaptersRoute: AdminLayoutChaptersRoute,
+  AdminLayoutDoctorsRoute: AdminLayoutDoctorsRoute,
   AdminLayoutEventsRoute: AdminLayoutEventsRoute,
   AdminLayoutMediaRoute: AdminLayoutMediaRoute,
   AdminLayoutNewsRoute: AdminLayoutNewsRoute,
   AdminLayoutOutreachesRoute: AdminLayoutOutreachesRoute,
   AdminLayoutPagesRoute: AdminLayoutPagesRoute,
   AdminLayoutSettingsRoute: AdminLayoutSettingsRoute,
+  AdminLayoutStudentsRoute: AdminLayoutStudentsRoute,
   AdminLayoutUsersRoute: AdminLayoutUsersRoute,
   AdminLayoutIndexRoute: AdminLayoutIndexRoute,
 }

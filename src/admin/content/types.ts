@@ -25,6 +25,8 @@ export interface ContentItem {
   status: ContentStatus | null;
   /** Secondary signal (pinned/featured/campaign state) used by stats. */
   detail?: string | null;
+  /** Document kind where the type has one (news). */
+  kind?: string | null;
   draft: boolean;
   scope: ContentScopeMeta;
 }
