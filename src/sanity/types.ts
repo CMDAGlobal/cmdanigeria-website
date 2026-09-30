@@ -175,6 +175,65 @@ export interface PrescriptionDetail extends PrescriptionRecord {
   body?: PortableTextBlock[] | null;
 }
 
+export type PageSectionType =
+  | "heroSection"
+  | "richTextSection"
+  | "imageTextSection"
+  | "statsSection"
+  | "gallerySection"
+  | "videoSection"
+  | "ctaSection";
+
+/** One reorderable, individually hideable block of a page. */
+export interface PageSection {
+  _key: string;
+  _type: PageSectionType;
+  visible?: boolean | null;
+  internalName?: string | null;
+  eyebrow?: string | null;
+  heading?: string | null;
+  body?: PortableTextBlock[] | null;
+  width?: boolean | null;
+  backgroundImage?: SanityImage | null;
+  image?: SanityImage | null;
+  imageSide?: "left" | "right" | null;
+  imageAlt?: string | null;
+  imageCaption?: string | null;
+  autoFill?: boolean | null;
+  items?: StatEntry[] | null;
+  images?: SanityImage[] | null;
+  provider?: "youtube" | "vimeo" | null;
+  videoId?: string | null;
+  poster?: SanityImage | null;
+  caption?: string | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+  tone?: "primary" | "muted" | null;
+}
+
+export interface PageDocument {
+  _id: string;
+  title?: string | null;
+  slug?: string | null;
+  arm?: Arm | null;
+  summary?: string | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  coverImage?: SanityImage | null;
+  body?: PortableTextBlock[] | null;
+  sections?: PageSection[] | null;
+}
+
+export interface ArmCounters {
+  chapters?: number | null;
+  zones?: number | null;
+  regions?: number | null;
+  people?: number | null;
+}
+
+/** Live document counts, used to fill `autoFill` statistics sections. */
+export type PageCounters = Record<"students" | "doctors" | "global", ArmCounters>;
+
 export interface RegionListEntry {
   _id: string;
   name: string;

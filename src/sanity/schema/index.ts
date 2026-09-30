@@ -5,6 +5,7 @@ import { chapter } from "./chapter";
 import { event } from "./event";
 import { outreach } from "./outreach";
 import { page } from "./page";
+import { PAGE_SECTION_TYPES } from "./pageSection";
 import { contactInfo, galleryImage, newsletterItem, socialLinks, statItem } from "./objects";
 import { person } from "./person";
 import { post } from "./post";
@@ -24,6 +25,7 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   prescription,
   outreach,
   page,
+  ...PAGE_SECTION_TYPES,
   galleryImage,
   statItem,
   contactInfo,

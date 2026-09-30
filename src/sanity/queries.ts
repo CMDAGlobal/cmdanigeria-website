@@ -4,15 +4,61 @@ export const portableTextProjection = `
   _type == "reference" => @-> { _id, name, slug, title }
 `;
 
+export const imageProjection = `{
+  ...,
+  asset-> { url, _id }
+}`;
+
 /** Exclude Sanity's system drafts (unpublished Studio copies). */
 const NOT_DRAFT = `!(_id in path("drafts.**"))`;
 
 /** Publication lifecycle: hidden while Draft/Archived; Scheduled appears once due. */
 const VISIBLE = `!(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now()))`;
 
-export const imageProjection = `{
-  ..., 
-  asset-> { url, _id }
+/** Ordered page sections, each projected with its own images and copy resolved. */
+const sectionProjection = `{
+  _key, _type, visible, internalName, eyebrow, heading, width, ctaLabel, ctaHref, tone,
+  "body": coalesce(body[]{ ${portableTextProjection} }, []),
+  "backgroundImage": backgroundImage ${imageProjection},
+  "image": image ${imageProjection},
+  imageSide, imageAlt, imageCaption,
+  autoFill, items[]{ value, label },
+  "images": images[]{ ..., asset->{ url, _id } },
+  provider, videoId,
+  "poster": poster ${imageProjection},
+  caption
+}`;
+
+export const pageBySlugQuery = `
+*[_type == "page" && ${VISIBLE} && slug.current == $slug][0] {
+  _id, title, "slug": slug.current, arm, summary, seoTitle, seoDescription,
+  "coverImage": coverImage ${imageProjection},
+  "body": coalesce(body[]{ ${portableTextProjection} }, []),
+  "sections": sections[] ${sectionProjection}
+}
+`;
+
+/**
+ * Live counts for `statsSection` blocks flagged `autoFill`, so figures an admin is
+ * expected to manage are derived rather than typed into JSX.
+ */
+export const pageCountersQuery = `{
+  "students": {
+    "chapters": count(*[_type == "chapter" && arm == "students"]),
+    "zones": count(*[_type == "zone" && arm == "students"]),
+    "people": count(*[_type == "person" && chapter->arm == "students"])
+  },
+  "doctors": {
+    "chapters": count(*[_type == "chapter" && arm == "doctors"]),
+    "zones": count(*[_type == "zone" && arm == "doctors"]),
+    "people": count(*[_type == "person" && chapter->arm == "doctors"])
+  },
+  "global": {
+    "chapters": count(*[_type == "chapter"]),
+    "zones": count(*[_type == "zone"]),
+    "regions": count(*[_type == "region"]),
+    "people": count(*[_type == "person"])
+  }
 }`;
 
 export const personProjection = `{

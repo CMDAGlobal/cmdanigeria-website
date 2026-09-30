@@ -17,6 +17,8 @@ import {
   eventListQuery,
   leadershipQuery,
   necQuery,
+  pageBySlugQuery,
+  pageCountersQuery,
   postDetailQuery,
   postListQuery,
   prescriptionDetailQuery,
@@ -35,6 +37,8 @@ import type {
   EventRecord,
   LeaderRecord,
   LeadershipTeams,
+  PageCounters,
+  PageDocument,
   PostDetail,
   PostRecord,
   PrescriptionDetail,
@@ -95,6 +99,20 @@ export const fetchArmOverview = createServerFn({ method: "GET", strict: false })
     } catch (error) {
       console.error(`[sanity] fetchArmOverview failed for ${data}`, error);
       return { zones: [], nec: [], events: [], announcements: [] };
+    }
+  });
+
+export const fetchArmStats = createServerFn({ method: "GET", strict: false })
+  .validator((arm: Arm) => arm)
+  .handler(async ({ data }): Promise<PageCounters[Arm]> => {
+    const client = getClient();
+    if (!client) return {};
+    try {
+      const counters = await client.fetch<PageCounters>(pageCountersQuery);
+      return counters?.[data] ?? {};
+    } catch (error) {
+      console.error(`[sanity] fetchArmStats failed for ${data}`, error);
+      return {};
     }
   });
 
@@ -195,6 +213,38 @@ export const fetchPrescription = createServerFn({ method: "GET", strict: false }
       return null;
     }
   });
+
+export const fetchPageBySlug = createServerFn({ method: "GET", strict: false })
+  .validator((slug: string) => slug)
+  .handler(async ({ data: slug }): Promise<PageDocument | null> => {
+    const client = getClient();
+    if (!client || !slug) return null;
+    try {
+      return await client.fetch<PageDocument | null>(pageBySlugQuery, { slug });
+    } catch (error) {
+      console.error("[sanity] fetchPageBySlug failed", error);
+      return null;
+    }
+  });
+
+export const fetchPageCounters = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<PageCounters> => {
+    const client = getClient();
+    if (!client) return { students: {}, doctors: {}, global: {} };
+    try {
+      return (
+        (await client.fetch<PageCounters>(pageCountersQuery)) ?? {
+          students: {},
+          doctors: {},
+          global: {},
+        }
+      );
+    } catch (error) {
+      console.error("[sanity] fetchPageCounters failed", error);
+      return { students: {}, doctors: {}, global: {} };
+    }
+  },
+);
 
 export const fetchEvents = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<EventRecord[]> => {

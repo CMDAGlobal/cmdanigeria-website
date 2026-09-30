@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { armField, galleryImage } from "./objects";
+import { PAGE_SECTION_TYPES } from "./pageSection";
 import { publicationFields } from "./publication";
 
 const SECTIONS = [
@@ -73,11 +74,24 @@ export const page = defineType({
     }),
     defineField({ name: "summary", title: "Summary", type: "text", rows: 3, group: "content" }),
     defineField({
+      name: "sections",
+      title: "Sections",
+      description:
+        "Build the page from blocks. Drag to reorder, and untick “Show this section” to hide a block without deleting it.",
+      type: "array",
+      of: PAGE_SECTION_TYPES.map((type) => defineArrayMember({ type: type.name })),
+      group: "content",
+    }),
+    defineField({
       name: "body",
       title: "Body",
+      description: "Fallback copy for pages that have not been converted to sections yet.",
       type: "array",
       of: [defineArrayMember({ type: "block" })],
       group: "content",
+      hidden: ({ parent }) =>
+        Array.isArray((parent as { sections?: unknown[] })?.sections) &&
+        (parent as { sections: unknown[] }).sections.length > 0,
     }),
     defineField({
       name: "coverImage",

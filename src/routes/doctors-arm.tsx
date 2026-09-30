@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
-import { fetchArmOverview } from "@/sanity/data";
+import { fetchArmOverview, fetchArmStats } from "@/sanity/data";
+import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
 import { Award, BookOpen, Globe, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
 
@@ -11,7 +12,10 @@ const description =
   "The professional arm of CMDA Nigeria — uniting Christian doctors and dentists for clinical excellence, mentorship, missions and advocacy since 1972.";
 
 export const Route = createFileRoute("/doctors-arm")({
-  loader: async () => ({ data: await fetchArmOverview({ data: "doctors" }) }),
+  loader: async () => ({
+    data: await fetchArmOverview({ data: "doctors" }),
+    stats: await fetchArmStats({ data: "doctors" }),
+  }),
   component: DoctorsArmPage,
   head: () => ({
     meta: [
@@ -58,22 +62,37 @@ const pillars = [
   },
 ];
 
-const stats = [
-  { value: "1,200+", label: "Doctors & dentists" },
-  { value: "50+", label: "Doctor chapters" },
-  { value: "36+FCT", label: "States covered" },
-  { value: "20+", label: "Countries with CMDA alumni" },
-];
+// See DoctorsArmPage for the CMS-driven version of these figures.
 
 const newsletters = [
-  { title: "Touch Magazine", desc: "Annual publication of the Doctors' arm with news, reports and enriching articles addressing challenges faced by Christian medics in practice." },
-  { title: "CMDA-LD Magazine", desc: "Biannual publication for Lady Doctors addressing spiritual growth, career, leadership, family, wellness and missions." },
-  { title: "CMDA Annual Report", desc: "Comprehensive overview of the Association's activities, achievements and financial stewardship." },
-  { title: "The Prescription", desc: "Monthly devotional resource connecting Scripture to the daily realities of healthcare practice." },
+  {
+    title: "Touch Magazine",
+    desc: "Annual publication of the Doctors' arm with news, reports and enriching articles addressing challenges faced by Christian medics in practice.",
+  },
+  {
+    title: "CMDA-LD Magazine",
+    desc: "Biannual publication for Lady Doctors addressing spiritual growth, career, leadership, family, wellness and missions.",
+  },
+  {
+    title: "CMDA Annual Report",
+    desc: "Comprehensive overview of the Association's activities, achievements and financial stewardship.",
+  },
+  {
+    title: "The Prescription",
+    desc: "Monthly devotional resource connecting Scripture to the daily realities of healthcare practice.",
+  },
 ];
 
 function DoctorsArmPage() {
-  const { data } = Route.useLoaderData();
+  const { data, stats: liveStats } = Route.useLoaderData();
+  const chapters = liveStats?.chapters != null ? String(liveStats.chapters) : "—";
+  const zones = liveStats?.zones != null ? String(liveStats.zones) : "—";
+  // Counts come from the CMS so they cannot drift from what admins manage.
+  const stats = [
+    { value: `${ORG_TOTALS.doctorMembers.toLocaleString("en-NG")}+`, label: "Doctors & dentists" },
+    { value: liveCount(liveStats?.chapters) ?? "50+", label: "Doctor chapters" },
+    { value: liveCount(liveStats?.zones) ?? "6", label: "Zones" },
+  ];
   return (
     <>
       <PageHero
@@ -96,7 +115,9 @@ function DoctorsArmPage() {
                 />
               </div>
               <div className="absolute -bottom-8 -left-4 hidden w-56 bg-primary-deep p-6 text-primary-foreground shadow-elegant sm:block lg:-left-12">
-                <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">1972</p>
+                <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">
+                  1972
+                </p>
                 <p className="mt-3 text-xs leading-relaxed text-primary-foreground/75">
                   The year the Fellowship of Christian Doctors in Nigeria was established
                 </p>
@@ -121,14 +142,14 @@ function DoctorsArmPage() {
                   with faith, integrity and compassion.
                 </p>
                 <p>
-                  Over the decades, the doctors' arm has grown to include chapters in every
-                  Nigerian state, with members serving in teaching hospitals, general hospitals,
-                  private practice, public health and mission fields.
+                  Over the decades, the doctors' arm has grown to include chapters in every Nigerian
+                  state, with members serving in teaching hospitals, general hospitals, private
+                  practice, public health and mission fields.
                 </p>
                 <p>
-                  Today, CMDA Nigeria's doctors' arm is a full member of the International
-                  Christian Medical and Dental Association (ICMDA), participating in global
-                  conferences, mission networks and professional exchanges.
+                  Today, CMDA Nigeria's doctors' arm is a full member of the International Christian
+                  Medical and Dental Association (ICMDA), participating in global conferences,
+                  mission networks and professional exchanges.
                 </p>
               </div>
             </div>
@@ -156,10 +177,7 @@ function DoctorsArmPage() {
 
       {/* Pillars */}
       <Section className="bg-muted">
-        <SectionHead
-          eyebrow="What we do"
-          title="The pillars of our fellowship"
-        />
+        <SectionHead eyebrow="What we do" title="The pillars of our fellowship" />
         <div className="mt-16 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
           {pillars.map((p) => (
             <Reveal key={p.title}>
@@ -178,7 +196,11 @@ function DoctorsArmPage() {
       <ArmNec nec={data.nec} title="Doctors' national leadership" />
       <ArmZones
         zones={data.zones}
-        title="50+ doctor chapters across 6 zones"
+        title={
+          chapters === "—" || zones === "—"
+            ? "Doctor chapters across the nation"
+            : `${chapters} doctor chapters across ${zones} zones`
+        }
         intro="Click a chapter to explore its leadership, activities and events."
       />
       <ArmEvents events={data.events} title="Events for doctors" />
@@ -186,10 +208,7 @@ function DoctorsArmPage() {
 
       {/* Newsletters */}
       <Section className="paper">
-        <SectionHead
-          eyebrow="Newsletters & publications"
-          title="Stay informed and inspired"
-        />
+        <SectionHead eyebrow="Newsletters & publications" title="Stay informed and inspired" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {newsletters.map((n) => (
             <Reveal key={n.title}>
@@ -210,11 +229,17 @@ function DoctorsArmPage() {
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Join the professional fellowship</h2>
           <p className="lede mt-6 text-muted-foreground">
-            Whether you are a seasoned consultant or a young doctor just starting out, CMDA
-            Nigeria welcomes you to a community of faith, excellence and service.
+            Whether you are a seasoned consultant or a young doctor just starting out, CMDA Nigeria
+            welcomes you to a community of faith, excellence and service.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
-            <Link to="/membership" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "bg-cmda-green hover:bg-cmda-green-deep")}>
+            <Link
+              to="/membership"
+              className={cn(
+                buttonVariants({ variant: "primary", size: "lg" }),
+                "bg-cmda-green hover:bg-cmda-green-deep",
+              )}
+            >
               Become a Member
             </Link>
             <Link to="/contact" className={cn(buttonVariants({ variant: "outline", size: "lg" }))}>

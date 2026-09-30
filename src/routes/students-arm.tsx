@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
-import { fetchArmOverview } from "@/sanity/data";
+import { fetchArmOverview, fetchArmStats } from "@/sanity/data";
+import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
 import { BookOpen, Globe, GraduationCap, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
 
@@ -11,7 +12,10 @@ const description =
   "The student fellowship of CMDA Nigeria — equipping medical and dental students for faith, excellence and service since 1981.";
 
 export const Route = createFileRoute("/students-arm")({
-  loader: async () => ({ data: await fetchArmOverview({ data: "students" }) }),
+  loader: async () => ({
+    data: await fetchArmOverview({ data: "students" }),
+    stats: await fetchArmStats({ data: "students" }),
+  }),
   component: StudentsArmPage,
   head: () => ({
     meta: [
@@ -58,22 +62,34 @@ const highlights = [
   },
 ];
 
-const stats = [
-  { value: "9,700+", label: "Active student members" },
-  { value: "40", label: "Student chapters" },
-  { value: "3", label: "Zones (Eastern, Western, Northern)" },
-  { value: "60+", label: "Universities represented" },
-];
-
+// Chapter/zone counts come from the CMS; see StudentsArmStats below.
 const newsletters = [
-  { title: "Wholeness Journal", desc: "Annual academic and devotional journal featuring peer-reviewed articles, reflections, and chapter reports from across Nigeria." },
-  { title: "Wholeness Magazine", desc: "Flagship publication with news, reports, enriching articles and future plans for CMDA student members." },
-  { title: "Missions Exploits", desc: "Annual publication documenting the missions activities and experiences of student members." },
-  { title: "Chapter Newsletters", desc: "Regular newsletters from local chapters sharing fellowship updates, testimonies and prayer points." },
+  {
+    title: "Wholeness Journal",
+    desc: "Annual academic and devotional journal featuring peer-reviewed articles, reflections, and chapter reports from across Nigeria.",
+  },
+  {
+    title: "Wholeness Magazine",
+    desc: "Flagship publication with news, reports, enriching articles and future plans for CMDA student members.",
+  },
+  {
+    title: "Missions Exploits",
+    desc: "Annual publication documenting the missions activities and experiences of student members.",
+  },
+  {
+    title: "Chapter Newsletters",
+    desc: "Regular newsletters from local chapters sharing fellowship updates, testimonies and prayer points.",
+  },
 ];
 
 function StudentsArmPage() {
-  const { data } = Route.useLoaderData();
+  const { data, stats: liveStats } = Route.useLoaderData();
+  // Counts come from the CMS so they cannot drift from what admins manage.
+  const stats = [
+    { value: `${ORG_TOTALS.studentMembers.toLocaleString("en-NG")}+`, label: "Student members" },
+    { value: liveCount(liveStats?.chapters) ?? "40", label: "Student chapters" },
+    { value: liveCount(liveStats?.zones) ?? "3", label: "Zones" },
+  ];
   return (
     <>
       <PageHero
@@ -94,19 +110,20 @@ function StudentsArmPage() {
               <h2 className="display-2 text-balance">From 17 chapters to a nationwide movement</h2>
               <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
                 <p>
-                  The medical students' movement was founded in 1981 as the Intercollegiate Christian
-                  Medical and Dental Association — Students Section (ICMDA-SS). Within a decade it had
-                  become the largest student body of its kind in the world.
+                  The medical students' movement was founded in 1981 as the Intercollegiate
+                  Christian Medical and Dental Association — Students Section (ICMDA-SS). Within a
+                  decade it had become the largest student body of its kind in the world.
                 </p>
                 <p>
-                  In 1985, students produced the first edition of their journal after securing a loan of
-                  ₦30,000. The journal was launched at the annual conference in Port Harcourt, which
-                  attracted more than 600 participants from 17 university teaching hospitals.
+                  In 1985, students produced the first edition of their journal after securing a
+                  loan of ₦30,000. The journal was launched at the annual conference in Port
+                  Harcourt, which attracted more than 600 participants from 17 university teaching
+                  hospitals.
                 </p>
                 <p>
-                  Today, the student arm spans over 60 chapters across Nigerian universities, with 9,700+
-                  active members engaged in academic excellence, spiritual growth, clinical outreach and
-                  leadership development.
+                  Today, the student arm spans over 60 chapters across Nigerian universities, with
+                  9,700+ active members engaged in academic excellence, spiritual growth, clinical
+                  outreach and leadership development.
                 </p>
               </div>
             </div>
@@ -123,7 +140,9 @@ function StudentsArmPage() {
                 />
               </div>
               <div className="absolute -bottom-8 -right-4 hidden w-56 bg-primary-deep p-6 text-primary-foreground shadow-elegant sm:block lg:-right-12">
-                <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">9,700+</p>
+                <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">
+                  9,700+
+                </p>
                 <p className="mt-3 text-xs leading-relaxed text-primary-foreground/75">
                   Active student members across Nigeria
                 </p>
@@ -142,7 +161,9 @@ function StudentsArmPage() {
                 <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green-light lg:text-4xl">
                   {s.value}
                 </p>
-                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">{s.label}</p>
+                <p className="mt-2 text-xs tracking-wide uppercase text-primary-foreground/60">
+                  {s.label}
+                </p>
               </div>
             </Reveal>
           ))}
@@ -157,7 +178,9 @@ function StudentsArmPage() {
             <Reveal key={h.title}>
               <div className="border border-border bg-background p-8 transition-shadow hover:shadow-card">
                 <h.icon className="mb-4 size-8 text-cmda-green" aria-hidden="true" />
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{h.title}</h3>
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  {h.title}
+                </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{h.desc}</p>
               </div>
             </Reveal>
@@ -168,7 +191,11 @@ function StudentsArmPage() {
       <ArmNec nec={data.nec} title="Students' national leadership" />
       <ArmZones
         zones={data.zones}
-        title="Student chapters across 3 zones"
+        title={
+          liveStats?.chapters != null && liveStats?.zones != null
+            ? `${liveStats.chapters} student chapters across ${liveStats.zones} zones`
+            : "Student chapters across the nation"
+        }
         intro="Click a chapter to explore its leadership, activities and events."
       />
       <ArmEvents events={data.events} title="Events for students" />
@@ -182,7 +209,9 @@ function StudentsArmPage() {
             <Reveal key={n.title}>
               <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card">
                 <Newspaper className="mb-3 size-6 text-cmda-green" aria-hidden="true" />
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{n.title}</h3>
+                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                  {n.title}
+                </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{n.desc}</p>
               </div>
             </Reveal>
@@ -195,8 +224,8 @@ function StudentsArmPage() {
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Ready to join the fellowship?</h2>
           <p className="lede mt-6 text-primary-foreground/75">
-            Connect with a CMDA chapter at your university and start your journey of faith, excellence
-            and service.
+            Connect with a CMDA chapter at your university and start your journey of faith,
+            excellence and service.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/membership" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
