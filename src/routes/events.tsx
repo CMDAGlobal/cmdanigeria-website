@@ -1,21 +1,24 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { Events } from "@/components/site/Events";
-import { fetchEvents } from "@/sanity/data";
+import { fetchEvents, fetchPageBySlug } from "@/sanity/data";
 
 const title = "Events & Conferences | CMDA Nigeria";
 const description =
   "National conferences, regional retreats, medical outreaches and student camps — find the next CMDA Nigeria gathering near you.";
 
 export const Route = createFileRoute("/events")({
-  loader: async () => ({ events: await fetchEvents() }),
+  loader: async () => ({
+    page: await fetchPageBySlug({ data: "events" }),
+    events: await fetchEvents(),
+  }),
   component: EventsPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -23,15 +26,16 @@ export const Route = createFileRoute("/events")({
 });
 
 function EventsPage() {
-  const { events } = Route.useLoaderData();
+  const { events, page } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="Events"
-        title="Gather, be equipped, and go out again"
-        intro="Conferences, retreats, outreaches and student camps run through the year across our chapters nationwide."
-      />
+    <CmsPage
+      page={page}
+
+      eyebrow="Events"
+      title="Gather, be equipped, and go out again"
+      intro="Conferences, retreats, outreaches and student camps run through the year across our chapters nationwide."
+    >
       <Events events={events} />
-    </>
+    </CmsPage>
   );
 }

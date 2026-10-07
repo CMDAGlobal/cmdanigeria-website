@@ -70,7 +70,9 @@ export const fetchRegion = createServerFn({ method: "GET", strict: false })
     if (!client) return getFallbackRegion(data) ?? null;
     try {
       const region = await client.fetch<RegionDetail | null>(regionQuery, { slug: data });
-      if (!region) return getFallbackRegion(data) ?? null;
+      // A null here means the document is unpublished, deactivated or unknown.
+      // Falling back would defeat the publish controls, so only failures fall back.
+      if (!region) return null;
       return region;
     } catch (error) {
       console.error("[sanity] fetchRegion failed", error);
@@ -123,7 +125,9 @@ export const fetchChapter = createServerFn({ method: "GET", strict: false })
     if (!client) return getFallbackChapter(data) ?? null;
     try {
       const chapter = await client.fetch<ChapterDetail | null>(chapterQuery, { slug: data });
-      if (!chapter) return getFallbackChapter(data) ?? null;
+      // Unpublished / deactivated / unknown chapters render as not-found, not as
+      // stale fallback copy — otherwise the dashboard publish controls do nothing.
+      if (!chapter) return null;
       return chapter;
     } catch (error) {
       console.error("[sanity] fetchChapter failed", error);
@@ -138,7 +142,7 @@ export const fetchZone = createServerFn({ method: "GET", strict: false })
     if (!client) return getFallbackZone(data) ?? null;
     try {
       const zone = await client.fetch<ZoneDetail | null>(zoneQuery, { slug: data });
-      if (!zone) return getFallbackZone(data) ?? null;
+      if (!zone) return null;
       return zone;
     } catch (error) {
       console.error("[sanity] fetchZone failed", error);

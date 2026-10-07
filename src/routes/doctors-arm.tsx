@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
-import { fetchArmOverview, fetchArmStats } from "@/sanity/data";
+import { fetchArmOverview, fetchArmStats, fetchPageBySlug } from "@/sanity/data";
 import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
 import { Award, BookOpen, Globe, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
@@ -13,16 +13,17 @@ const description =
 
 export const Route = createFileRoute("/doctors-arm")({
   loader: async () => ({
+    page: await fetchPageBySlug({ data: "doctors-arm" }),
     data: await fetchArmOverview({ data: "doctors" }),
     stats: await fetchArmStats({ data: "doctors" }),
   }),
   component: DoctorsArmPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -84,7 +85,7 @@ const newsletters = [
 ];
 
 function DoctorsArmPage() {
-  const { data, stats: liveStats } = Route.useLoaderData();
+  const { data, stats: liveStats, page } = Route.useLoaderData();
   const chapters = liveStats?.chapters != null ? String(liveStats.chapters) : "—";
   const zones = liveStats?.zones != null ? String(liveStats.zones) : "—";
   // Counts come from the CMS so they cannot drift from what admins manage.
@@ -94,13 +95,13 @@ function DoctorsArmPage() {
     { value: liveCount(liveStats?.zones) ?? "6", label: "Zones" },
   ];
   return (
-    <>
-      <PageHero
-        eyebrow="Doctors' Arm"
-        title="Professional fellowship rooted in faith and service"
-        intro="Since 8 April 1972, CMDA Nigeria's doctors' arm has united Christian medical and dental professionals around clinical excellence, mentorship, missions and ethical practice."
-      />
+    <CmsPage
+      page={page}
 
+      eyebrow="Doctors' Arm"
+      title="Professional fellowship rooted in faith and service"
+      intro="Since 8 April 1972, CMDA Nigeria's doctors' arm has united Christian medical and dental professionals around clinical excellence, mentorship, missions and ethical practice."
+    >
       {/* Overview */}
       <Section className="paper">
         <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
@@ -248,6 +249,6 @@ function DoctorsArmPage() {
           </div>
         </Reveal>
       </Section>
-    </>
+    </CmsPage>
   );
 }

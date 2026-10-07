@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "EXCEL | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "Academic and professional development ministry — helping Christian medical professionals achieve excellence in learning, practice, and service.";
 
 export const Route = createFileRoute("/ministries/excel")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "excel" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: ExcelPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -48,14 +56,16 @@ const programmes = [
 ];
 
 function ExcelPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="EXCEL"
-        title="Academic and Professional Development Ministry"
-        intro="Helping Christian medical and dental students and practitioners achieve excellence in learning, practice, and service."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="EXCEL"
+      title="Academic and Professional Development Ministry"
+      intro="Helping Christian medical and dental students and practitioners achieve excellence in learning, practice, and service."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -79,7 +89,8 @@ function ExcelPage() {
               </p>
               <p>
                 Together, these initiatives promote academic excellence, patient-centred care,
-                values-based teaching, lifelong learning, and access to quality educational resources.
+                values-based teaching, lifelong learning, and access to quality educational
+                resources.
               </p>
             </div>
           </Reveal>
@@ -114,6 +125,6 @@ function ExcelPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

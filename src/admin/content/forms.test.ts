@@ -3,10 +3,17 @@ import {
   FORM_DEFAULTS,
   MODULE_FORM_FIELDS,
   assignableScopeOptions,
+  compactRows,
   flattenPortableText,
   formFieldsFor,
+  isBlankObject,
   isoToLocalInput,
+  jsonToObject,
+  jsonToRows,
   localInputToIso,
+  objectToJson,
+  pageSectionTypeLabel,
+  rowsToJson,
   tagsToText,
   textToBlocks,
   textToTags,
@@ -16,11 +23,13 @@ import { MODULE_MUTATIONS } from "./validate";
 
 const MODULES: ContentModuleKey[] = [
   "chapters",
+  "regions",
   "events",
   "news",
   "announcements",
   "outreaches",
   "pages",
+  "publications",
 ];
 
 const ORG = {
@@ -125,6 +134,32 @@ describe("value conversions", () => {
     expect(textToTags("news,  health ,news,")).toEqual(["news", "health"]);
     expect(textToTags("  ")).toEqual([]);
   });
+
+  it("round-trips nested object and list fields through JSON", () => {
+    const columns = [
+      { name: "email", label: "Email" },
+      { name: "phone", label: "Phone" },
+    ];
+    const empty = jsonToObject(columns, objectToJson(columns, null));
+    expect(empty).toEqual({ email: "", phone: "" });
+    expect(isBlankObject(empty)).toBe(true);
+
+    const stored = objectToJson(columns, { email: "a@b.co", phone: null, other: "dropped" });
+    expect(jsonToObject(columns, stored)).toEqual({ email: "a@b.co", phone: "" });
+    expect(isBlankObject(jsonToObject(columns, stored))).toBe(false);
+
+    const rowColumns = [
+      { name: "title", label: "Title" },
+      { name: "url", label: "Link" },
+    ];
+    const json = rowsToJson(rowColumns, [{ title: "Handbook" }, { title: "" }]);
+    expect(jsonToRows(rowColumns, json)).toEqual([
+      { title: "Handbook", url: "" },
+      { title: "", url: "" },
+    ]);
+    expect(compactRows(jsonToRows(rowColumns, json))).toEqual([{ title: "Handbook", url: "" }]);
+    expect(jsonToRows(rowColumns, "not json")).toEqual([]);
+  });
 });
 
 describe("assignableScopeOptions", () => {
@@ -185,5 +220,17 @@ describe("assignableScopeOptions", () => {
     expect(options.chapters).toEqual([{ slug: "ghost", title: "ghost", arm: "students" }]);
     expect(options.zones).toEqual([]);
     expect(options.regions).toEqual([]);
+  });
+});
+
+describe("pageSectionTypeLabel", () => {
+  it("uses the titles Sanity Studio shows", () => {
+    expect(pageSectionTypeLabel("heroSection")).toBe("Hero");
+    expect(pageSectionTypeLabel("statsSection")).toBe("Statistics");
+    expect(pageSectionTypeLabel("ctaSection")).toBe("Call to action");
+  });
+
+  it("falls back to the raw type for an unknown section", () => {
+    expect(pageSectionTypeLabel("newSection")).toBe("newSection");
   });
 });

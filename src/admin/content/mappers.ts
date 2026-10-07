@@ -6,6 +6,7 @@ export interface RawContentRow {
   title?: unknown;
   slug?: unknown;
   arm?: unknown;
+  active?: unknown;
   institution?: unknown;
   countries?: unknown;
   intro?: unknown;
@@ -87,6 +88,15 @@ function status(label: string, tone: StatusTone): ContentStatus {
   return { label, tone };
 }
 
+/**
+ * Chapters and regions are organisation units rather than posts, so their row
+ * reports whether they are live instead of a publication stage. A missing flag
+ * counts as active, keeping chapters that predate the flag visible.
+ */
+function activeStatus(row: RawContentRow): ContentStatus {
+  return row.active === false ? status("Inactive", "outline") : status("Active", "secondary");
+}
+
 function armCount(items: ContentItem[], arm: string): number {
   return items.filter((item) => item.arm === arm).length;
 }
@@ -105,7 +115,7 @@ export function mapChapters(rows: RawContentRow[]): ContentItem[] {
       arm: text(row.arm),
       subtitle: text(row.institution) ?? text(row.location),
       date: isoDate(row.date),
-      status: null,
+      status: activeStatus(row),
       draft: false,
       scope: buildScopeMeta({
         arm: row.arm,
@@ -129,7 +139,7 @@ export function mapRegions(rows: RawContentRow[]): ContentItem[] {
       arm: "global",
       subtitle: countries.length > 0 ? countries.join(", ") : text(row.intro),
       date: null,
-      status: null,
+      status: activeStatus(row),
       draft: false,
       // A region document is its own unit, exactly like a chapter document.
       scope: buildScopeMeta({ arm: "global", regions: slug }),

@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "IfEHL | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "Institute for Excellence in Healthcare and Leadership — raising healthcare professionals who lead with compassion, competence, and character.";
 
 export const Route = createFileRoute("/ministries/ifehl")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "ifehl" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: IfEhlPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -46,14 +54,16 @@ const programmes = [
 ];
 
 function IfEhlPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="IfEHL"
-        title="Institute for Excellence in Healthcare and Leadership"
-        intro="Raising healthcare professionals who lead with compassion, competence, and character."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="IfEHL"
+      title="Institute for Excellence in Healthcare and Leadership"
+      intro="Raising healthcare professionals who lead with compassion, competence, and character."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -71,15 +81,15 @@ function IfEhlPage() {
                 healthcare system and beyond.
               </p>
               <p>
-                Through values-driven training, mentorship, research, and strategic collaboration, the
-                Institute equips healthcare professionals to provide excellent care, influence health
-                systems, and drive sustainable change.
+                Through values-driven training, mentorship, research, and strategic collaboration,
+                the Institute equips healthcare professionals to provide excellent care, influence
+                health systems, and drive sustainable change.
               </p>
               <p>
-                Since its inception, IfEHL has trained and mentored over 350 healthcare professionals
-                through its Basic and Advanced leadership programmes, with alumni serving and making
-                an impact across hospitals, academia, public health, policy, and global health
-                institutions in Nigeria and around the world.
+                Since its inception, IfEHL has trained and mentored over 350 healthcare
+                professionals through its Basic and Advanced leadership programmes, with alumni
+                serving and making an impact across hospitals, academia, public health, policy, and
+                global health institutions in Nigeria and around the world.
               </p>
             </div>
           </Reveal>
@@ -87,9 +97,14 @@ function IfEhlPage() {
           <Reveal delay={120}>
             <div className="grid grid-cols-3 gap-6">
               {highlights.map((h) => (
-                <div key={h.label} className="border border-border bg-background p-6 text-center transition-shadow hover:shadow-card">
+                <div
+                  key={h.label}
+                  className="border border-border bg-background p-6 text-center transition-shadow hover:shadow-card"
+                >
                   <p className="font-display text-3xl font-extrabold text-cmda-green">{h.stat}</p>
-                  <p className="mt-2 text-xs font-semibold tracking-wide uppercase text-muted-foreground">{h.label}</p>
+                  <p className="mt-2 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                    {h.label}
+                  </p>
                 </div>
               ))}
             </div>
@@ -98,10 +113,7 @@ function IfEhlPage() {
       </Section>
 
       <Section id="programmes" className="bg-muted">
-        <SectionHead
-          eyebrow="Programmes"
-          title="Building leaders for the future of healthcare"
-        />
+        <SectionHead eyebrow="Programmes" title="Building leaders for the future of healthcare" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {programmes.map((item, i) => (
             <Reveal key={item.title} delay={(i % 2) * 90}>
@@ -115,6 +127,6 @@ function IfEhlPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

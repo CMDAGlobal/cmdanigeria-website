@@ -1,5 +1,13 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
-import { galleryImage, newsletterItem, statItem } from "./objects";
+import {
+  contactInfo,
+  galleryImage,
+  newsletterItem,
+  resourceItem,
+  socialLinks,
+  statItem,
+} from "./objects";
+import { publicationFields } from "./publication";
 
 export const region = defineType({
   name: "region",
@@ -11,7 +19,12 @@ export const region = defineType({
     { name: "media", title: "Media" },
   ],
   fields: [
-    defineField({ name: "name", title: "Region name", type: "string", validation: (r) => r.required() }),
+    defineField({
+      name: "name",
+      title: "Region name",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "slug",
       title: "Slug",
@@ -46,6 +59,13 @@ export const region = defineType({
     }),
     defineField({ name: "mission", title: "Mission", type: "text", group: "content" }),
     defineField({
+      name: "history",
+      title: "History",
+      type: "array",
+      of: [defineArrayMember({ type: "block" })],
+      group: "content",
+    }),
+    defineField({
       name: "focus",
       title: "Focus areas",
       type: "array",
@@ -73,7 +93,31 @@ export const region = defineType({
       of: [defineArrayMember({ type: galleryImage.name })],
       group: "media",
     }),
-    defineField({ name: "order", title: "Display order", type: "number", initialValue: 0, group: "content" }),
+    defineField({ ...contactInfo, group: "content" }),
+    defineField({ ...socialLinks, group: "content" }),
+    defineField({
+      name: "resources",
+      title: "Resources",
+      type: "array",
+      of: [defineArrayMember({ type: resourceItem.name })],
+      group: "content",
+    }),
+    defineField({
+      name: "active",
+      title: "Region is active",
+      description:
+        "Deactivated regions keep their content in the CMS but are hidden from the public site.",
+      type: "boolean",
+      initialValue: true,
+    }),
+    ...publicationFields.map((field) => defineField(field)),
+    defineField({
+      name: "order",
+      title: "Display order",
+      type: "number",
+      initialValue: 0,
+      group: "content",
+    }),
   ],
   preview: {
     select: { title: "name", subtitle: "intro", media: "heroImage" },

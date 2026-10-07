@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ContentInputError,
+  applySectionOrder,
   assertSlug,
   effectiveCreateScope,
   MODULE_MUTATIONS,
@@ -13,6 +14,7 @@ import {
   validatePublicationTransition,
 } from "./validate";
 
+const chapters = MODULE_MUTATIONS.chapters;
 const events = MODULE_MUTATIONS.events;
 const pages = MODULE_MUTATIONS.pages;
 const regions = MODULE_MUTATIONS.regions;
@@ -99,6 +101,47 @@ describe("validateFields", () => {
     ).toThrow(ContentInputError);
   });
 
+  it("whitelists nested contact, social and resource fields", () => {
+    const ok = validateFields(
+      chapters,
+      {
+        contactInfo: { email: "luth@cmda.org", phone: null, address: "Lagos" },
+        socialLinks: { instagram: "https://instagram.com/cmda" },
+        resources: [{ title: "Handbook", url: "", kind: "document" }],
+        active: false,
+      },
+      { partial: true },
+    );
+    expect(ok["contactInfo"]).toEqual({ email: "luth@cmda.org", phone: "", address: "Lagos" });
+    expect(ok["socialLinks"]).toEqual({
+      instagram: "https://instagram.com/cmda",
+      x: "",
+      facebook: "",
+      whatsapp: "",
+    });
+    expect(ok["resources"]).toEqual([
+      { title: "Handbook", description: "", url: "", kind: "document" },
+    ]);
+    expect(ok["active"]).toBe(false);
+
+    // A cleared object unsets the field; an emptied list stays a list.
+    expect(
+      validateFields(chapters, { contactInfo: null }, { partial: true })["contactInfo"],
+    ).toBeNull();
+    expect(validateFields(chapters, { resources: [] }, { partial: true })["resources"]).toEqual([]);
+
+    // Sub-keys outside the schema are rejected rather than silently dropped.
+    expect(() =>
+      validateFields(chapters, { contactInfo: { bankDetails: "secret" } }, { partial: true }),
+    ).toThrow(ContentInputError);
+    expect(() =>
+      validateFields(chapters, { socialLinks: ["https://x.com"] }, { partial: true }),
+    ).toThrow(ContentInputError);
+    expect(() =>
+      validateFields(chapters, { resources: [{ title: "ok" }, "row"] }, { partial: true }),
+    ).toThrow(ContentInputError);
+  });
+
   it("updates: allows partial input but not emptying required fields", () => {
     const ok = validateFields(events, { venue: "Hall" }, { partial: true });
     expect(ok).toEqual({ venue: "Hall" });
@@ -174,7 +217,13 @@ describe("validateFields", () => {
     // Issue metadata the dashboard does own.
     const meta = validateFields(
       publications,
-      { title: "x", issueDate: "2026-03-01", kind: "prescription", issueNumber: 65, author: "CMDA Nigeria" },
+      {
+        title: "x",
+        issueDate: "2026-03-01",
+        kind: "prescription",
+        issueNumber: 65,
+        author: "CMDA Nigeria",
+      },
       { partial: false },
     );
     expect(meta["issueNumber"]).toBe(65);
@@ -295,5 +344,81 @@ describe("scope inputs", () => {
       zones: [],
       chapters: [],
     });
+  });
+});
+
+describe("applySectionOrder", () => {
+  const stored = [
+    { _key: "a", type: "heroSection", heading: "Welcome", visible: true },
+    { _key: "b", type: "statsSection", heading: "Numbers", visible: false },
+    { _key: "c", type: "ctaSection", heading: "Join" },
+  ];
+
+  it("reorders and copies content from the stored document", () => {
+    const result = applySectionOrder(stored, [
+      { key: "c", visible: true },
+      { key: "a", visible: false },
+      { key: "b", visible: true },
+    ]);
+    expect(result.changed).toBe(true);
+    expect(result.sections.map((section) => section["_key"])).toEqual(["c", "a", "b"]);
+    expect(result.sections[0]?.["heading"]).toBe("Join");
+    expect(result.sections[1]?.["heading"]).toBe("Welcome");
+    expect(result.sections.map((section) => section["visible"])).toEqual([true, false, true]);
+  });
+
+  it("reports no change when order and flags already match", () => {
+    const result = applySectionOrder(stored, [
+      { key: "a", visible: true },
+      { key: "b", visible: false },
+      { key: "c", visible: true },
+    ]);
+    expect(result.changed).toBe(false);
+    expect(result.sections[2]?.["heading"]).toBe("Join");
+  });
+
+  it("rejects a list that drops a section", () => {
+    expect(() =>
+      applySectionOrder(stored, [
+        { key: "a", visible: true },
+        { key: "b", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("rejects a list that invents a section", () => {
+    expect(() =>
+      applySectionOrder(stored, [
+        { key: "a", visible: true },
+        { key: "b", visible: true },
+        { key: "zzz", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("rejects a duplicate key", () => {
+    expect(() =>
+      applySectionOrder(stored, [
+        { key: "a", visible: true },
+        { key: "a", visible: true },
+        { key: "b", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("rejects a non-boolean visible flag", () => {
+    expect(() =>
+      applySectionOrder(stored, [
+        { key: "a", visible: "yes" },
+        { key: "b", visible: true },
+        { key: "c", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("only accepts an empty list for a page with no sections", () => {
+    expect(applySectionOrder([], []).changed).toBe(false);
+    expect(applySectionOrder(null, []).changed).toBe(false);
+    expect(() => applySectionOrder(null, [{ key: "a", visible: true }])).toThrow(ContentInputError);
   });
 });

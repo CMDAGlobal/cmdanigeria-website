@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, Users } from "lucide-react";
-import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
 import type { LeaderRecord, LeadershipTeams } from "@/sanity/types";
@@ -31,7 +30,9 @@ function LeadershipSection({
         <Reveal className="mt-16">
           <div className="border border-border bg-background p-8 text-center">
             <Users className="mx-auto mb-4 size-8 text-cmda-green" aria-hidden="true" />
-            <h3 className="font-display text-lg font-bold tracking-tight text-foreground">{title}</h3>
+            <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+              {title}
+            </h3>
             <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
               Members of this team are listed here once they are added in the CMS (Studio).
             </p>
@@ -45,11 +46,6 @@ function LeadershipSection({
 export function LeadershipPage({ leadership }: { leadership: LeadershipTeams | null | undefined }) {
   return (
     <>
-      <PageHero
-        eyebrow="Who we are"
-        title="Our national leadership"
-        intro="CMDA Nigeria is guided by trustees, a governing board and a management team, alongside the National Executive Committee of the Students' Arm."
-      />
       <LeadershipSection
         leaders={leadership?.boardOfTrustees}
         title="Board of Trustees"

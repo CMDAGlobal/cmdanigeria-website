@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "The Lady Doctor | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "A platform addressing the life and journey of female medical professionals and students — spiritual growth, career, leadership, family and ministry.";
 
 export const Route = createFileRoute("/ministries/the-lady-doctor")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "the-lady-doctor" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: LadyDoctorPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -48,14 +56,16 @@ const pillars = [
 ];
 
 function LadyDoctorPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="The Lady Doctor"
-        title="Empowering women in medicine"
-        intro="A platform addressing key aspects of the life and journey of female medical professionals and students."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="The Lady Doctor"
+      title="Empowering women in medicine"
+      intro="A platform addressing key aspects of the life and journey of female medical professionals and students."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -94,10 +104,7 @@ function LadyDoctorPage() {
       </Section>
 
       <Section id="pillars" className="bg-muted">
-        <SectionHead
-          eyebrow="Focus areas"
-          title="Six dimensions of the Lady Doctor experience"
-        />
+        <SectionHead eyebrow="Focus areas" title="Six dimensions of the Lady Doctor experience" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {pillars.map((item, i) => (
             <Reveal key={item.title} delay={(i % 3) * 90}>
@@ -111,6 +118,6 @@ function LadyDoctorPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
-import { fetchArmOverview, fetchArmStats } from "@/sanity/data";
+import { fetchArmOverview, fetchArmStats, fetchPageBySlug } from "@/sanity/data";
 import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
 import { BookOpen, Globe, GraduationCap, Heart, Newspaper, Stethoscope, Users } from "lucide-react";
@@ -13,16 +13,17 @@ const description =
 
 export const Route = createFileRoute("/students-arm")({
   loader: async () => ({
+    page: await fetchPageBySlug({ data: "students-arm" }),
     data: await fetchArmOverview({ data: "students" }),
     stats: await fetchArmStats({ data: "students" }),
   }),
   component: StudentsArmPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -83,7 +84,7 @@ const newsletters = [
 ];
 
 function StudentsArmPage() {
-  const { data, stats: liveStats } = Route.useLoaderData();
+  const { data, stats: liveStats, page } = Route.useLoaderData();
   // Counts come from the CMS so they cannot drift from what admins manage.
   const stats = [
     { value: `${ORG_TOTALS.studentMembers.toLocaleString("en-NG")}+`, label: "Student members" },
@@ -91,13 +92,13 @@ function StudentsArmPage() {
     { value: liveCount(liveStats?.zones) ?? "3", label: "Zones" },
   ];
   return (
-    <>
-      <PageHero
-        eyebrow="Students' Arm"
-        title="Building faith, excellence and service in the next generation"
-        intro="Since 1981, CMDA Nigeria's student fellowship has grown into one of the largest Christian medical student movements in the world — shaping doctors who practise with conviction, compassion and skill."
-      />
+    <CmsPage
+      page={page}
 
+      eyebrow="Students' Arm"
+      title="Building faith, excellence and service in the next generation"
+      intro="Since 1981, CMDA Nigeria's student fellowship has grown into one of the largest Christian medical student movements in the world — shaping doctors who practise with conviction, compassion and skill."
+    >
       {/* Overview */}
       <Section className="paper">
         <div className="mx-auto grid max-w-6xl gap-16 lg:grid-cols-[1fr_1fr] lg:items-center">
@@ -237,6 +238,6 @@ function StudentsArmPage() {
           </div>
         </Reveal>
       </Section>
-    </>
+    </CmsPage>
   );
 }

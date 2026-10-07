@@ -1,20 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { Button, Reveal, Section } from "@/components/site/primitives";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 
 const title = "Contact CMDA Nigeria | National Secretariat";
 const description =
   "Reach the CMDA Nigeria National Secretariat in Abuja for membership, partnership, media and chapter enquiries.";
 
 export const Route = createFileRoute("/contact")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "contact" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: ContactPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -43,15 +51,16 @@ const details = [
   { Icon: Mail, label: "Email", value: "info@cmdanigeria.org" },
 ];
 
-
 function ContactPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="Contact"
-        title="We would love to hear from you"
-        intro="Whether you are joining the fellowship, partnering on a mission or making a media enquiry, our secretariat team is ready to help."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
+      eyebrow="Contact"
+      title="We would love to hear from you"
+      intro="Whether you are joining the fellowship, partnering on a mission or making a media enquiry, our secretariat team is ready to help."
+    >
       <Section>
         <div className="grid gap-14 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
           <Reveal>
@@ -102,7 +111,7 @@ function ContactPage() {
           </Reveal>
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }
 

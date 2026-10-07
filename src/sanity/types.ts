@@ -19,6 +19,26 @@ export interface NewsletterEntry {
   url?: string | null;
 }
 
+export interface ContactInfo {
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+}
+
+export interface SocialLinks {
+  instagram?: string | null;
+  x?: string | null;
+  facebook?: string | null;
+  whatsapp?: string | null;
+}
+
+export interface ResourceItem {
+  title?: string | null;
+  description?: string | null;
+  url?: string | null;
+  kind?: string | null;
+}
+
 export interface LeaderRecord {
   _id: string;
   name: string;
@@ -55,10 +75,16 @@ export interface ChapterRecord {
 
 export interface ChapterDetail extends ChapterRecord {
   description?: PortableTextBlock[] | null;
+  history?: PortableTextBlock[] | null;
+  mission?: string | null;
   membership?: StatEntry[] | null;
   exco?: LeaderRecord[] | null;
   events?: EventRecord[] | null;
+  news?: PostRecord[] | null;
   gallery?: SanityImage[] | null;
+  contactInfo?: ContactInfo | null;
+  socialLinks?: SocialLinks | null;
+  resources?: ResourceItem[] | null;
 }
 
 export interface ZoneRecord {
@@ -252,12 +278,17 @@ export interface RegionDetail extends RegionListEntry {
   mission?: string | null;
   focus?: string[] | null;
   overview?: PortableTextBlock[] | null;
+  history?: PortableTextBlock[] | null;
   leaders?: LeaderRecord[] | null;
   chapters?: ChapterRecord[] | null;
   events?: EventRecord[] | null;
   activities?: ActivityRecord[] | null;
   announcements?: AnnouncementRecord[] | null;
+  news?: PostRecord[] | null;
   newsletters?: NewsletterEntry[] | null;
+  contactInfo?: ContactInfo | null;
+  socialLinks?: SocialLinks | null;
+  resources?: ResourceItem[] | null;
   gallery?: SanityImage[] | null;
 }
 

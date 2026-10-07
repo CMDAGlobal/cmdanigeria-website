@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
 import {
@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { eventDateInfo, eventPlace, upcomingEvents } from "@/components/site/Events";
 import { typeLabel } from "@/components/site/org/cards";
-import { fetchEvents, fetchRegions } from "@/sanity/data";
+import { fetchEvents, fetchRegions, fetchPageBySlug } from "@/sanity/data";
 
 const title = "Global Network | CMDA Nigeria";
 const description =
@@ -23,16 +23,17 @@ const description =
 
 export const Route = createFileRoute("/global-network")({
   loader: async () => ({
+    page: await fetchPageBySlug({ data: "global-network" }),
     regions: await fetchRegions(),
     events: await fetchEvents(),
   }),
   component: GlobalNetworkPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -112,7 +113,7 @@ const ways = [
 ];
 
 function GlobalNetworkPage() {
-  const { regions, events } = Route.useLoaderData();
+  const { regions, events, page } = Route.useLoaderData();
   const cmsEvents = upcomingEvents(
     events.filter((event) => event.arm === "global"),
     4,
@@ -134,13 +135,13 @@ function GlobalNetworkPage() {
           place: event.place,
         }));
   return (
-    <>
-      <PageHero
-        eyebrow="Global Network"
-        title="Connecting Nigerian Christian healthcare professionals worldwide"
-        intro="From Lagos to London, Abuja to Atlanta — CMDA Nigeria's global network spans over 20 countries, uniting alumni and partners around faith, service and mission."
-      />
+    <CmsPage
+      page={page}
 
+      eyebrow="Global Network"
+      title="Connecting Nigerian Christian healthcare professionals worldwide"
+      intro="From Lagos to London, Abuja to Atlanta — CMDA Nigeria's global network spans over 20 countries, uniting alumni and partners around faith, service and mission."
+    >
       {/* Overview */}
       <Section className="paper">
         <div className="mx-auto max-w-4xl text-center">
@@ -313,6 +314,6 @@ function GlobalNetworkPage() {
           </div>
         </Reveal>
       </Section>
-    </>
+    </CmsPage>
   );
 }

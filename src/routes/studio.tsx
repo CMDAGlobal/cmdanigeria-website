@@ -18,8 +18,8 @@ function StudioRoute() {
           <h1 className="display-1 text-balance">Sanity is not configured</h1>
           <p className="lede mt-6 text-muted-foreground">
             Set <code className="font-mono text-cmda-green">VITE_SANITY_PROJECT_ID</code> (and
-            optionally <code className="font-mono text-cmda-green">VITE_SANITY_DATASET</code>)
-            in your environment to enable the admin studio on this site.
+            optionally <code className="font-mono text-cmda-green">VITE_SANITY_DATASET</code>) in
+            your environment to enable the admin studio on this site.
           </p>
         </div>
       </section>
@@ -29,7 +29,9 @@ function StudioRoute() {
     <Suspense
       fallback={
         <div className="flex min-h-screen items-center justify-center bg-background">
-          <p className="font-display text-sm tracking-wide text-muted-foreground">Loading studio…</p>
+          <p className="font-display text-sm tracking-wide text-muted-foreground">
+            Loading studio…
+          </p>
         </div>
       }
     >

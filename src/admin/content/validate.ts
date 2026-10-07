@@ -37,6 +37,13 @@ export interface ModuleMutationConfig {
   assetFields?: Record<string, AssetKind>;
   /** Alt-text companion of an image asset field, keyed by that field. */
   altFields?: Record<string, string>;
+  /**
+   * Nested plain-object fields (contact details, social links) and the sub-keys
+   * the dashboard may write. Anything outside the whitelist is rejected.
+   */
+  objectFields?: Record<string, readonly string[]>;
+  /** Arrays of plain objects (resources), whitelisted the same way. */
+  arrayFields?: Record<string, readonly string[]>;
 }
 
 export type AssetKind = "image" | "file";
@@ -94,8 +101,19 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       "establishedAt",
       "order",
       "description",
+      "mission",
+      "history",
+      "contactInfo",
+      "socialLinks",
+      "resources",
+      "active",
       "membership",
     ],
+    objectFields: {
+      contactInfo: ["email", "phone", "address"],
+      socialLinks: ["instagram", "x", "facebook", "whatsapp"],
+    },
+    arrayFields: { resources: ["title", "description", "url", "kind"] },
     // Chapters are organisation units — their visibility is their publication.
     publication: false,
     selfUnit: true,
@@ -116,9 +134,19 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       "countries",
       "overview",
       "mission",
+      "history",
+      "contactInfo",
+      "socialLinks",
+      "resources",
+      "active",
       "focus",
       "order",
     ],
+    objectFields: {
+      contactInfo: ["email", "phone", "address"],
+      socialLinks: ["instagram", "x", "facebook", "whatsapp"],
+    },
+    arrayFields: { resources: ["title", "description", "url", "kind"] },
     // Regions are organisation units — the public region page is always live.
     publication: false,
     selfUnit: true,
@@ -286,6 +314,7 @@ export function parseModuleConfig(value: unknown): ModuleMutationConfig | null {
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const MAX_FIELD_CHARS = 50_000;
 const MAX_STRING_CHARS = 100_000;
+const MAX_LIST_ITEMS = 50;
 
 export function slugify(value: string): string {
   return value
@@ -344,6 +373,55 @@ function assertValueShape(value: unknown): void {
 }
 
 /**
+ * Checks one row of a nested object against its column whitelist: unknown keys
+ * are rejected rather than silently dropped, and every column is present so a
+ * patched value always replaces the stored object in full.
+ */
+function normalizeStructRow(value: unknown, keys: readonly string[]): Record<string, string> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new ContentInputError("invalid_input");
+  }
+  const input = value as Record<string, unknown>;
+  const output: Record<string, string> = {};
+  for (const key of Object.keys(input)) {
+    if (!keys.includes(key)) throw new ContentInputError("invalid_input");
+    const entry = input[key];
+    if (entry === null || entry === undefined || entry === "") {
+      output[key] = "";
+      continue;
+    }
+    if (typeof entry !== "string" || entry.length > MAX_STRING_CHARS) {
+      throw new ContentInputError("invalid_input");
+    }
+    output[key] = entry;
+  }
+  for (const key of keys) {
+    if (!(key in output)) output[key] = "";
+  }
+  return output;
+}
+
+/** `null`/empty clears the field; anything malformed is rejected. */
+function normalizeStructObject(
+  value: unknown,
+  keys: readonly string[],
+): Record<string, string> | null {
+  if (value === null || value === undefined || value === "") return null;
+  return normalizeStructRow(value, keys);
+}
+
+function normalizeStructArray(
+  value: unknown,
+  keys: readonly string[],
+): Array<Record<string, string>> {
+  if (value === null || value === undefined || value === "") return [];
+  if (!Array.isArray(value) || value.length > MAX_LIST_ITEMS) {
+    throw new ContentInputError("invalid_input");
+  }
+  return value.map((entry) => normalizeStructRow(entry, keys));
+}
+
+/**
  * Validates an untrusted field map against the module allowlist and required
  * fields. Returns a copy containing only allowed keys. Scope arrays come back
  * as normalized string slug arrays; the arm field as an ArmKey or null.
@@ -361,6 +439,8 @@ export function validateFields(
 
   const altFields = config.altFields ?? {};
   const isAltField = (key: string): boolean => Object.values(altFields).includes(key);
+  const objectFields = config.objectFields ?? {};
+  const arrayFields = config.arrayFields ?? {};
 
   for (const key of Object.keys(input)) {
     if (!config.allowed.includes(key)) throw new ContentInputError("invalid_input");
@@ -368,6 +448,8 @@ export function validateFields(
     if ((SCOPE_FIELDS as readonly string[]).includes(key)) continue;
     // Asset fields accept a bare asset id, validated by `normalizeAssetField`.
     if (config.assetFields && key in config.assetFields) continue;
+    // Nested objects and row arrays are checked against their column whitelist.
+    if (key in objectFields || key in arrayFields) continue;
     // Alt text is written with its image, after the image resolves.
     if (isAltField(key)) continue;
     assertValueShape(input[key]);
@@ -405,6 +487,14 @@ export function validateFields(
       // Alt text rides along with the image so the form needs no nested object.
       const altKey = altFields[key];
       output[key] = normalizeAssetField(value, assetKind, altKey ? input[altKey] : undefined);
+      continue;
+    }
+    if (key in objectFields) {
+      output[key] = normalizeStructObject(value, objectFields[key] ?? []);
+      continue;
+    }
+    if (key in arrayFields) {
+      output[key] = normalizeStructArray(value, arrayFields[key] ?? []);
       continue;
     }
     if ((ARM_FIELDS as readonly string[]).includes(key)) {
@@ -467,6 +557,69 @@ export function validatePublicationTransition(
     return { publication: status, publishAt: new Date(publishAt).toISOString() };
   }
   return { publication: status, publishAt: null };
+}
+
+/** Upper bound on a page's sections, mirroring the other list limits. */
+export const MAX_PAGE_SECTIONS = 100;
+
+export interface SectionOrderResult {
+  sections: Record<string, unknown>[];
+  changed: boolean;
+}
+
+/**
+ * Applies the dashboard's order + visibility list to a page's stored sections.
+ * Sections are matched by their Sanity `_key`, so only order and `visible` can
+ * change: each section's content is spread from the stored object, and an
+ * invented, duplicate, missing or dropped key fails closed as invalid_input.
+ */
+export function applySectionOrder(storedValue: unknown, incoming: unknown): SectionOrderResult {
+  const stored = Array.isArray(storedValue) ? storedValue : [];
+  if (!Array.isArray(incoming) || incoming.length > MAX_PAGE_SECTIONS) {
+    throw new ContentInputError("invalid_input");
+  }
+  const byKey = new Map<string, Record<string, unknown>>();
+  for (const entry of stored) {
+    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const record = entry as Record<string, unknown>;
+    const key = typeof record["_key"] === "string" ? record["_key"] : "";
+    if (!key || byKey.has(key)) throw new ContentInputError("invalid_input");
+    byKey.set(key, record);
+  }
+  if (incoming.length !== byKey.size) throw new ContentInputError("invalid_input");
+
+  const seen = new Set<string>();
+  const sections: Record<string, unknown>[] = [];
+  for (const raw of incoming) {
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const entry = raw as Record<string, unknown>;
+    const key = typeof entry["key"] === "string" ? entry["key"] : "";
+    const visible = entry["visible"];
+    if (!key || typeof visible !== "boolean" || seen.has(key)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const source = byKey.get(key);
+    if (!source) throw new ContentInputError("invalid_input");
+    seen.add(key);
+    sections.push({ ...source, visible });
+  }
+
+  const wasVisible = (record: Record<string, unknown>) => record["visible"] !== false;
+  let changed = stored.length !== sections.length;
+  for (let index = 0; !changed && index < stored.length; index += 1) {
+    const previous = stored[index] as Record<string, unknown> | undefined;
+    const next = sections[index];
+    changed =
+      !previous ||
+      !next ||
+      previous["_key"] !== next["_key"] ||
+      wasVisible(previous) !== wasVisible(next);
+  }
+  return { sections, changed };
 }
 
 /** Normalizes the untrusted create/update scope input. */

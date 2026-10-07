@@ -284,7 +284,7 @@ const RENDERERS: Record<
 export interface PageSectionsProps {
   sections: PageSection[] | null | undefined;
   arm?: Arm | null | undefined;
-  counters?: PageCounters | null;
+  counters?: PageCounters | null | undefined;
 }
 
 /**

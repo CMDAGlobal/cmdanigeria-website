@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "Wholeness Missions | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "Whole-person care projects addressing body, mind and spirit in communities across Nigeria.";
 
 export const Route = createFileRoute("/ministries/wholeness-missions")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "wholeness-missions" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: WholenessMissionsPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -40,14 +48,16 @@ const approaches = [
 ];
 
 function WholenessMissionsPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="Wholeness Missions"
-        title="Whole-person care for every community"
-        intro="Addressing body, mind and spirit in communities across Nigeria."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="Wholeness Missions"
+      title="Whole-person care for every community"
+      intro="Addressing body, mind and spirit in communities across Nigeria."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -60,9 +70,9 @@ function WholenessMissionsPage() {
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                Wholeness Missions is CMDA Nigeria's flagship community health initiative,
-                bringing medical professionals together to provide compassionate, Christ-centred
-                care to underserved communities.
+                Wholeness Missions is CMDA Nigeria's flagship community health initiative, bringing
+                medical professionals together to provide compassionate, Christ-centred care to
+                underserved communities.
               </p>
               <p>
                 Through medical outreaches, health education, spiritual outreach and community
@@ -76,7 +86,9 @@ function WholenessMissionsPage() {
             <div className="relative">
               <div className="framed">
                 <div className="aspect-[4/3] w-full bg-cmda-green/10 flex items-center justify-center">
-                  <p className="text-sm text-cmda-green font-semibold">Wholeness Missions Outreach</p>
+                  <p className="text-sm text-cmda-green font-semibold">
+                    Wholeness Missions Outreach
+                  </p>
                 </div>
               </div>
             </div>
@@ -85,10 +97,7 @@ function WholenessMissionsPage() {
       </Section>
 
       <Section id="approaches" className="bg-muted">
-        <SectionHead
-          eyebrow="Our approach"
-          title="Four dimensions of whole-person care"
-        />
+        <SectionHead eyebrow="Our approach" title="Four dimensions of whole-person care" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {approaches.map((item, i) => (
             <Reveal key={item.title} delay={(i % 2) * 90}>
@@ -102,6 +111,6 @@ function WholenessMissionsPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

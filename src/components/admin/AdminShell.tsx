@@ -82,6 +82,13 @@ const NAV_ITEMS: NavItem[] = [
     group: "Website Content",
   },
   {
+    href: "/admin/newsletter",
+    label: "Prescription",
+    icon: Mail,
+    permission: "publications.read",
+    group: "Website Content",
+  },
+  {
     href: "/admin/students",
     label: "Students' Arm",
     icon: GraduationCap,
@@ -114,13 +121,6 @@ const NAV_ITEMS: NavItem[] = [
     label: "Blog",
     icon: BookOpen,
     permission: "news.read",
-    group: "Publishing",
-  },
-  {
-    href: "/admin/newsletter",
-    label: "Newsletter",
-    icon: Mail,
-    permission: "publications.read",
     group: "Publishing",
   },
   {

@@ -9,8 +9,10 @@ import {
   getContentModuleAction,
   getContentScopeOptionsAction,
   getMediaLibraryAction,
+  getPageSectionsAction,
   listSanityAssetsAction,
   setPublicationAction,
+  setPageSectionsAction,
   updateContentAction,
   uploadSanityAssetAction,
 } from "@/admin/content/server";
@@ -22,6 +24,8 @@ import type {
   ContentMutationResult,
   ContentScopeOptionsPayload,
   CreateContentInput,
+  PageSectionsPayload,
+  SetPageSectionsInput,
   SetPublicationInput,
   UpdateContentInput,
   UploadAssetInput,
@@ -85,6 +89,27 @@ export function useContentDoc(module: ContentModuleKey, id: string | null, enabl
     enabled: enabled && id !== null,
     staleTime: 15_000,
     retry: false,
+  });
+}
+
+export function usePageSections(id: string | null, enabled: boolean) {
+  return useQuery<PageSectionsPayload>({
+    queryKey: ["admin-page-sections", id] as const,
+    queryFn: () => getPageSectionsAction({ data: { module: "pages", id: id as string } }),
+    enabled: enabled && id !== null,
+    staleTime: 15_000,
+    retry: false,
+  });
+}
+
+export function useSetPageSections() {
+  const queryClient = useQueryClient();
+  return useMutation<ContentMutationResult, Error, SetPageSectionsInput>({
+    mutationFn: (input) => setPageSectionsAction({ data: input }),
+    onSuccess: (_result, input) => {
+      void queryClient.invalidateQueries({ queryKey: ["admin-page-sections", input.id] });
+      void queryClient.invalidateQueries({ queryKey: ["admin-content", "pages"] });
+    },
   });
 }
 

@@ -9,6 +9,8 @@ import type {
   ContentScopeOptionsPayload,
   CreateContentInput,
   MediaPayload,
+  PageSectionsPayload,
+  SetPageSectionsInput,
   SetPublicationInput,
   SettingsPayload,
   UpdateContentInput,
@@ -32,7 +34,11 @@ export type {
   CreateContentInput,
   MediaAsset,
   MediaPayload,
+  PageSectionOrder,
+  PageSectionRow,
+  PageSectionsPayload,
   ScopeUnitOptionPayload,
+  SetPageSectionsInput,
   SetPublicationInput,
   SettingsPayload,
   StatusTone,
@@ -60,6 +66,13 @@ export const getContentDocAction = createServerFn({ method: "GET", strict: false
   .handler(async ({ data }): Promise<ContentDocPayload> => {
     const { getContentDoc } = await import("./actions");
     return getContentDoc(data);
+  });
+
+export const getPageSectionsAction = createServerFn({ method: "GET", strict: false })
+  .validator((data: ContentDocInput) => data)
+  .handler(async ({ data }): Promise<PageSectionsPayload> => {
+    const { getPageSections } = await import("./actions");
+    return getPageSections(data);
   });
 
 export const getContentScopeOptionsAction = createServerFn({
@@ -103,6 +116,13 @@ export const setPublicationAction = createServerFn({ method: "POST", strict: fal
   .handler(async ({ data }): Promise<ContentMutationResult> => {
     const { setPublicationStatus } = await import("./mutations");
     return setPublicationStatus(data);
+  });
+
+export const setPageSectionsAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: SetPageSectionsInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { setPageSections } = await import("./mutations");
+    return setPageSections(data);
   });
 
 export const listSanityAssetsAction = createServerFn({ method: "GET", strict: false })

@@ -6,6 +6,7 @@ import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ChapterDetail } from "@/sanity/types";
 import { EventCard, GalleryGrid, LeaderCard } from "./cards";
+import { ContactSection, NewsSection, ResourcesSection } from "./UnitSections";
 
 const armLabels: Record<string, string> = {
   global: "Global Network",
@@ -15,7 +16,11 @@ const armLabels: Record<string, string> = {
 
 function BackLink({ chapter }: { chapter: ChapterDetail }) {
   const to =
-    chapter.arm === "doctors" ? "/doctors-arm" : chapter.arm === "global" ? "/global-network" : "/students-arm";
+    chapter.arm === "doctors"
+      ? "/doctors-arm"
+      : chapter.arm === "global"
+        ? "/global-network"
+        : "/students-arm";
   const label = armLabels[chapter.arm ?? ""] ?? "Chapters";
   return (
     <Section className="pb-0">
@@ -33,7 +38,10 @@ function BackLink({ chapter }: { chapter: ChapterDetail }) {
 }
 
 function About({ chapter }: { chapter: ChapterDetail }) {
-  if (!chapter.description?.length) return null;
+  const hasDescription = !!chapter.description?.length;
+  const hasHistory = !!chapter.history?.length;
+  const hasMission = typeof chapter.mission === "string" && chapter.mission.trim().length > 0;
+  if (!hasDescription && !hasHistory && !hasMission) return null;
   return (
     <Section className="bg-muted" id="about">
       <div className="mx-auto max-w-4xl">
@@ -43,9 +51,29 @@ function About({ chapter }: { chapter: ChapterDetail }) {
             <p className="eyebrow text-cmda-green">About this chapter</p>
           </div>
           <h2 className="display-2 mt-6 text-balance">{chapter.name} — overview</h2>
-          <div className="mt-8 text-base leading-relaxed text-muted-foreground">
-            <PortableContent value={chapter.description} />
-          </div>
+          {hasDescription && (
+            <div className="mt-8 text-base leading-relaxed text-muted-foreground">
+              <PortableContent value={chapter.description} />
+            </div>
+          )}
+          {hasMission && (
+            <div className="mt-10 rounded-xl border-l-4 border-cmda-green bg-background p-6">
+              <h3 className="font-display text-xl font-bold text-foreground">
+                Mission &amp; objectives
+              </h3>
+              <p className="mt-3 whitespace-pre-line text-base leading-relaxed text-muted-foreground">
+                {chapter.mission}
+              </p>
+            </div>
+          )}
+          {hasHistory && (
+            <div className="mt-10">
+              <h3 className="font-display text-xl font-bold text-foreground">History</h3>
+              <div className="mt-4 text-base leading-relaxed text-muted-foreground">
+                <PortableContent value={chapter.history} />
+              </div>
+            </div>
+          )}
         </Reveal>
       </div>
     </Section>
@@ -63,7 +91,9 @@ function Stats({ chapter }: { chapter: ChapterDetail }) {
               <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green lg:text-4xl">
                 {stat.value}
               </p>
-              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">{stat.label}</p>
+              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">
+                {stat.label}
+              </p>
             </div>
           </Reveal>
         ))}
@@ -79,7 +109,7 @@ function Exco({ chapter }: { chapter: ChapterDetail }) {
       <SectionHead
         eyebrow="Executive committee"
         title="Chapter leadership"
-        intro="The students leading fellowship, missions and excellence at this chapter."
+        intro="The officers steering fellowship, missions and excellence at this chapter."
       />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {chapter.exco.map((leader) => (
@@ -125,15 +155,21 @@ export function ChapterPage({ chapter }: { chapter: ChapterDetail | null | undef
           <p className="lede mt-6 text-muted-foreground">
             The chapter you are looking for does not exist or has not been published yet.
           </p>
-          <Link to="/students-arm" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}>
-            <ArrowLeft className="size-4" aria-hidden="true" />Back to Students' Arm
+          <Link
+            to="/students-arm"
+            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Back to Students' Arm
           </Link>
         </div>
       </Section>
     );
   }
 
-  const subtitle = [chapter.institution, chapter.location, chapter.country].filter(Boolean).join(" · ");
+  const subtitle = [chapter.institution, chapter.location, chapter.country]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <>
       <PageHero
@@ -147,12 +183,16 @@ export function ChapterPage({ chapter }: { chapter: ChapterDetail | null | undef
       <Stats chapter={chapter} />
       <Exco chapter={chapter} />
       <Events chapter={chapter} />
+      <NewsSection news={chapter.news} title={`${chapter.name} news`} />
       <Gallery chapter={chapter} />
+      <ResourcesSection resources={chapter.resources} title="Chapter resources" />
+      <ContactSection contact={chapter.contactInfo} social={chapter.socialLinks} />
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Get involved at {chapter.name}</h2>
           <p className="lede mt-6 text-primary-foreground/75">
-            Join the chapter fellowship, volunteer for outreach, or reach out to the executive committee.
+            Join the chapter fellowship, volunteer for outreach, or reach out to the executive
+            committee.
           </p>
           <div className="mt-10 flex flex-wrap justify-center gap-4">
             <Link to="/membership" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>

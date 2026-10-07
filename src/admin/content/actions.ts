@@ -14,7 +14,7 @@ import type { CurrentActorResult } from "../auth/actions";
 import { grantsFromRoles, visibleToGrants, buildScopeMeta } from "./scope";
 import { getOrgOptions } from "./org";
 import { assignableScopeOptions } from "./forms";
-import { CONTENT_QUERIES, DOCUMENT_COUNT_QUERY, MEDIA_QUERY } from "./queries";
+import { CONTENT_QUERIES, DOCUMENT_COUNT_QUERY, MEDIA_QUERY, PAGE_SECTIONS_QUERY } from "./queries";
 import { MODULE_MUTATIONS, parseModuleConfig } from "./validate";
 import type { ModuleMutationConfig } from "./validate";
 import {
@@ -46,6 +46,8 @@ import type {
   ContentStat,
   MediaAsset,
   MediaPayload,
+  PageSectionRow,
+  PageSectionsPayload,
   ScopeGrant,
   SettingsPayload,
 } from "./types";
@@ -443,6 +445,69 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
       return { ...empty, error: readErrorMessage(error.reason) };
     }
     console.error("[admin:content] getContentDoc failed", error);
+    return { ...empty, error: readErrorMessage("unexpected_error") };
+  }
+}
+
+/**
+ * One page's section list, for the dashboard's order/visibility editor. Only
+ * order and `visible` are exposed - section content stays in Studio - and the
+ * same actor, permission and grant checks as `getContentDoc` apply.
+ */
+export async function getPageSections(input: ContentDocInput): Promise<PageSectionsPayload> {
+  const empty: PageSectionsPayload = { ok: false, sections: [] };
+  try {
+    const config = parseModuleConfig("pages");
+    if (!config) return { ...empty, error: readErrorMessage("invalid_module") };
+
+    const id = typeof input?.id === "string" ? input.id.trim() : "";
+    if (!id || id.length > 64) return { ...empty, error: readErrorMessage("content_not_found") };
+
+    const session = await requireActor();
+    assertPermission(session, MODULE_CONFIG.pages.permission);
+
+    const client = getClient();
+    if (!client) return { ...empty, error: readErrorMessage("no_content_client") };
+
+    const doc = await client.fetch<Record<string, unknown> | null>(PAGE_SECTIONS_QUERY, {
+      type: config.type,
+      id,
+    });
+    if (!doc || typeof doc["_id"] !== "string") {
+      return { ...empty, error: readErrorMessage("content_not_found") };
+    }
+
+    const scope = buildScopeMeta({
+      arm: doc["arm"],
+      regions: doc["regions"],
+      zones: doc["zones"],
+      chapters: doc["chapters"],
+    });
+    const grants: ScopeGrant[] = grantsFromRoles(session.roles);
+    if (!visibleToGrants(scope, grants)) {
+      return { ...empty, error: readErrorMessage("content_not_found") };
+    }
+
+    const rows = Array.isArray(doc["sections"]) ? (doc["sections"] as PageSectionRow[]) : [];
+    const sections: PageSectionRow[] = [];
+    for (const row of rows) {
+      if (!row || typeof row !== "object") continue;
+      const key = typeof row.key === "string" ? row.key : "";
+      if (!key) continue;
+      const type = typeof row.type === "string" ? row.type : "";
+      sections.push({
+        key,
+        type,
+        label: typeof row.label === "string" && row.label.trim() ? row.label : type,
+        visible: row.visible !== false,
+      });
+    }
+    return { ok: true, sections };
+  } catch (error) {
+    if (isAuthorizationError(error)) {
+      return { ...empty, error: readErrorMessage(error.reason) };
+    }
+    console.error("[admin:content] getPageSections failed", error);
     return { ...empty, error: readErrorMessage("unexpected_error") };
   }
 }

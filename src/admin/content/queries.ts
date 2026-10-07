@@ -8,6 +8,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     arm,
     "subtitle": institution,
     "date": establishedAt,
+    active,
     "region": region->slug.current,
     "zone": zone->slug.current
   }`,
@@ -18,7 +19,8 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     arm,
     countries,
     "subtitle": tagline,
-    intro
+    intro,
+    active
   }`,
   events: `*[_type == "event" && !(_id in path("drafts.**"))] | order(startDate desc) {
     "id": _id,
@@ -190,3 +192,28 @@ export const STUDIO_TYPE_BY_MODULE: Record<ContentModuleKey, string> = {
   outreaches: "outreach",
   pages: "page",
 };
+
+/**
+ * One page's section list, with just the columns the dashboard's
+ * order/visibility editor shows. Section *content* stays in Studio — only
+ * `order` and `visible` are managed from here.
+ */
+export const PAGE_SECTIONS_QUERY = `*[_type == $type && _id == $id][0]{
+  _id,
+  "sections": sections[]{
+    _key,
+    type,
+    "label": coalesce(internalName, heading, type),
+    "visible": coalesce(visible, true)
+  },
+  arm,
+  regions,
+  zones,
+  chapters
+}`;
+
+/**
+ * The raw stored sections, read back before a reorder so the patch rewrites
+ * the array with the existing content rather than a projection of it.
+ */
+export const PAGE_SECTIONS_STORED_QUERY = `*[_type == $type && _id == $id][0].sections`;

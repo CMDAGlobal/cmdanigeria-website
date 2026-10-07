@@ -35,16 +35,19 @@ describe("mapRegions", () => {
     expect(items[3]?.scope).toEqual({ arm: "global", regions: [], zones: [], chapters: [] });
   });
 
-  it("summarises countries as the subtitle and keeps regions publication-free", () => {
+  it("summarises countries as the subtitle and reports the active flag", () => {
     const items = mapRegions(ROWS);
     expect(items[0]?.title).toBe("West Africa");
     expect(items[0]?.subtitle).toBe("Nigeria, Ghana");
     expect(items[2]?.subtitle).toBeNull();
     for (const item of items) {
-      expect(item.status).toBeNull();
+      // Units carry no publication stage — an unset flag counts as active.
+      expect(item.status).toEqual({ label: "Active", tone: "secondary" });
       expect(item.draft).toBe(false);
       expect(item.date).toBeNull();
     }
+    const off = mapRegions([{ ...ROWS[0], active: false }]);
+    expect(off[0]?.status).toEqual({ label: "Inactive", tone: "outline" });
   });
 
   it("counts regions and those with country coverage", () => {

@@ -5,11 +5,13 @@ import { recordAudit } from "../audit/record";
 import { AuthorizationError } from "../rbac/engine";
 import type { Scope } from "../rbac/roles";
 import type { PermissionKey } from "../rbac/permissions";
+import { PAGE_SECTIONS_STORED_QUERY } from "./queries";
 import { buildScopeMeta, strArray } from "./scope";
 import { actorCoversDoc, deriveWriteScope, type CoverOrg } from "./cover";
 import { getOrgOptions } from "./org";
 import {
   ContentInputError,
+  applySectionOrder,
   assertSlug,
   effectiveCreateScope,
   normalizeScopeInput,
@@ -25,6 +27,7 @@ import type {
   ContentMutationResult,
   ContentScopeMeta,
   CreateContentInput,
+  SetPageSectionsInput,
   SetPublicationInput,
   UpdateContentInput,
 } from "./types";
@@ -557,6 +560,62 @@ export async function setPublicationStatus(
       scope,
       outcome: "success",
       reason: `publication:${transition.publication}`,
+    });
+    return { ok: true, id: current.id };
+  } catch (error) {
+    return failContent(session, config, action, targetId, scope, error);
+  }
+}
+
+/**
+ * Reorders and shows/hides the sections of one page. The section set itself is
+ * fixed: every stored `_key` must come back exactly once, so the dashboard can
+ * neither invent a section nor drop one, and each section's content is copied
+ * from the stored document instead of being taken from the client.
+ */
+export async function setPageSections(input: SetPageSectionsInput): Promise<ContentMutationResult> {
+  const config = parseModuleConfig("pages");
+  if (!config) return { ok: false, error: messageFor("invalid_module") };
+  const action = `${config.auditPrefix}.update`;
+  let session: SessionLike = null;
+  let scope: Scope | null = null;
+  let targetId: string | null = null;
+
+  try {
+    session = await getCurrentActor();
+    if (!session) throw authError(config.writePermission);
+
+    const client = requireClient();
+    const current = await loadDoc(client, config, input?.id);
+    targetId = current.id;
+
+    scope = deriveWriteScope(current.meta);
+    const authorized = await authorizeActor(config.writePermission, scope);
+    session = authorized;
+
+    const org = await loadCoverOrg();
+    const selfSlug = config.selfUnit ? (current.slug ?? undefined) : undefined;
+    if (!actorCoversDoc(authorized.actor, current.meta, org, selfSlug)) {
+      throw new ContentMutationError("coverage_denied");
+    }
+
+    const stored = await client.fetch<unknown>(PAGE_SECTIONS_STORED_QUERY, {
+      type: config.type,
+      id: current.id,
+    });
+    const order = applySectionOrder(stored, input?.sections);
+    if (order.changed) {
+      await client.patch(current.id, { set: { sections: order.sections } }).commit();
+    }
+
+    await recordAudit({
+      actorUserId: authorized.user.id,
+      action,
+      targetType: config.type,
+      targetId: current.id,
+      scope,
+      outcome: "success",
+      reason: order.changed ? "sections:order" : "sections:unchanged",
     });
     return { ok: true, id: current.id };
   } catch (error) {

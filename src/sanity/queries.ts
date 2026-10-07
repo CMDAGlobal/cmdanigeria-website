@@ -9,11 +9,23 @@ export const imageProjection = `{
   asset-> { url, _id }
 }`;
 
+/** Summary fields for public post/news cards. Declared early: section queries embed it. */
+const postFields = `_id, title, "slug": slug.current, kind, arm, category, tags,
+  publishedAt, featured, excerpt, link, "hasBody": defined(body),
+  "cover": coverImage ${imageProjection}, "author": author->{ name }`;
+
 /** Exclude Sanity's system drafts (unpublished Studio copies). */
 const NOT_DRAFT = `!(_id in path("drafts.**"))`;
 
 /** Publication lifecycle: hidden while Draft/Archived; Scheduled appears once due. */
 const VISIBLE = `!(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now()))`;
+
+/**
+ * Public chapters and regions: not a system draft, not deactivated, not Draft/Archived.
+ * These documents predate the `active` and `publication` fields, so a missing value
+ * defaults to visible — without that, every existing chapter would vanish from the site.
+ */
+const LIVE_UNIT = `!(_id in path("drafts.**")) && coalesce(active, true) == true && (coalesce(publication, "published") == "published" || (publication == "scheduled" && publishAt <= now()))`;
 
 /** Ordered page sections, each projected with its own images and copy resolved. */
 const sectionProjection = `{
@@ -44,19 +56,19 @@ export const pageBySlugQuery = `
  */
 export const pageCountersQuery = `{
   "students": {
-    "chapters": count(*[_type == "chapter" && arm == "students"]),
+    "chapters": count(*[_type == "chapter" && ${LIVE_UNIT} && arm == "students"]),
     "zones": count(*[_type == "zone" && arm == "students"]),
     "people": count(*[_type == "person" && chapter->arm == "students"])
   },
   "doctors": {
-    "chapters": count(*[_type == "chapter" && arm == "doctors"]),
+    "chapters": count(*[_type == "chapter" && ${LIVE_UNIT} && arm == "doctors"]),
     "zones": count(*[_type == "zone" && arm == "doctors"]),
     "people": count(*[_type == "person" && chapter->arm == "doctors"])
   },
   "global": {
-    "chapters": count(*[_type == "chapter"]),
+    "chapters": count(*[_type == "chapter" && ${LIVE_UNIT}]),
     "zones": count(*[_type == "zone"]),
-    "regions": count(*[_type == "region"]),
+    "regions": count(*[_type == "region" && ${LIVE_UNIT}]),
     "people": count(*[_type == "person"])
   }
 }`;
@@ -78,7 +90,7 @@ export const chapterListProjection = `{
 }`;
 
 export const regionListQuery = `
-*[_type == "region" && ${NOT_DRAFT}] | order(order asc, _createdAt asc) {
+*[_type == "region" && ${LIVE_UNIT}] | order(order asc, _createdAt asc) {
   _id,
   name,
   slug,
@@ -87,13 +99,13 @@ export const regionListQuery = `
   intro,
   countries,
   stats,
-  "chapterCount": count(*[_type == "chapter" && ${NOT_DRAFT} && references(^._id)]),
+  "chapterCount": count(*[_type == "chapter" && ${LIVE_UNIT} && references(^._id)]),
   "eventCount": count(*[_type == "event" && ${VISIBLE} && references(^._id)])
 }
 `;
 
 export const regionQuery = `
-*[_type == "region" && ${NOT_DRAFT} && slug.current == $slug][0] {
+*[_type == "region" && ${LIVE_UNIT} && slug.current == $slug][0] {
   _id,
   name,
   slug,
@@ -105,10 +117,14 @@ export const regionQuery = `
   focus,
   stats,
   newsletters,
+  contactInfo,
+  socialLinks,
+  resources,
+  "history": coalesce(history[]{ ${portableTextProjection} }, []),
   "heroImage": heroImage ${imageProjection},
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
   "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
-  "chapters": *[_type == "chapter" && ${NOT_DRAFT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
+  "chapters": *[_type == "chapter" && ${LIVE_UNIT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
   "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection},
   "activities": *[_type == "activity" && ${VISIBLE} && references(^._id)] | order(date desc, _createdAt desc) {
     _id, title, slug, type, arm, date, outcome,
@@ -118,7 +134,8 @@ export const regionQuery = `
     _id, title, slug, category, publishedAt, pinned, link,
     "body": coalesce(body[]{ ${portableTextProjection} }, [])
   },
-  "gallery": coalesce(gallery[]{ ${imageProjection} }, [])
+  "news": *[_type == "post" && ${VISIBLE} && references(^._id)] | order(publishedAt desc)[0...6] { ${postFields} },
+  "gallery": coalesce(gallery[]${imageProjection})
 }
 `;
 
@@ -138,8 +155,8 @@ export const leadershipQuery = `
 export const zonesQuery = `
 *[_type == "zone" && ${NOT_DRAFT} && arm == $arm] | order(order asc, name asc) {
   _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
-  "chapterCount": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == $arm && references(^._id)]),
-  "sampleChapters": *[_type == "chapter" && ${NOT_DRAFT} && arm == $arm && references(^._id)] | order(order asc, name asc)[0...16] ${chapterListProjection}
+  "chapterCount": count(*[_type == "chapter" && ${LIVE_UNIT} && arm == $arm && references(^._id)]),
+  "sampleChapters": *[_type == "chapter" && ${LIVE_UNIT} && arm == $arm && references(^._id)] | order(order asc, name asc)[0...16] ${chapterListProjection}
 }
 `;
 
@@ -153,10 +170,6 @@ export const armAnnouncementsQuery = `
   "body": coalesce(body[]{ ${portableTextProjection} }, [])
 }
 `;
-
-const postFields = `_id, title, "slug": slug.current, kind, arm, category, tags,
-  publishedAt, featured, excerpt, link, "hasBody": defined(body),
-  "cover": coverImage ${imageProjection}, "author": author->{ name }`;
 
 export const postListQuery = `
 *[_type == "post" && ${VISIBLE}] | order(featured desc, publishedAt desc) {
@@ -195,16 +208,22 @@ export const prescriptionDetailQuery = `
 `;
 
 export const chapterQuery = `
-*[_type == "chapter" && ${NOT_DRAFT} && slug.current == $slug][0] {
+*[_type == "chapter" && ${LIVE_UNIT} && slug.current == $slug][0] {
   _id, name, slug, institution, location, country, arm, establishedAt, order,
   "zone": zone->{ _id, name, slug },
   "region": region->{ _id, name, slug },
   "logo": logo ${imageProjection},
   "description": coalesce(description[]{ ${portableTextProjection} }, []),
+  "history": coalesce(history[]{ ${portableTextProjection} }, []),
+  mission,
+  contactInfo,
+  socialLinks,
+  resources,
   "membership": membership,
   "exco": *[_type == "person" && ${NOT_DRAFT} && memberOfChapter._ref == ^._id] | order(order asc, _createdAt asc) ${personProjection},
-  "gallery": coalesce(gallery[]{ ${imageProjection} }, []),
-  "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection}
+  "gallery": coalesce(gallery[]${imageProjection}, []),
+  "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection},
+  "news": *[_type == "post" && ${VISIBLE} && references(^._id)] | order(publishedAt desc)[0...6] { ${postFields} }
 }
 `;
 
@@ -212,13 +231,13 @@ export const zoneQuery = `
 *[_type == "zone" && ${NOT_DRAFT} && slug.current == $slug][0] {
   _id, name, slug, arm, eyebrow, tagline, intro, countries, stats, order,
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
-  "chapters": *[_type == "chapter" && ${NOT_DRAFT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
+  "chapters": *[_type == "chapter" && ${LIVE_UNIT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
   "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
-  "gallery": coalesce(gallery[]{ ${imageProjection} }, [])
+  "gallery": coalesce(gallery[]${imageProjection}, [])
 }
 `;
 
 export const chapterCountsQuery = `{
-  "students": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == "students"]),
-  "doctors": count(*[_type == "chapter" && ${NOT_DRAFT} && arm == "doctors"])
+  "students": count(*[_type == "chapter" && ${LIVE_UNIT} && arm == "students"]),
+  "doctors": count(*[_type == "chapter" && ${LIVE_UNIT} && arm == "doctors"])
 }`;

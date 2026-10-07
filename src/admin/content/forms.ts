@@ -15,11 +15,24 @@ export type FormFieldKind =
   | "tags"
   | "image"
   | "file"
-  | "note";
+  | "note"
+  /** Nested object edited as one labelled input per column (contact details). */
+  | "object"
+  /** Repeating rows of columns, each row one entry (resources). */
+  | "list";
 
 export interface FormFieldOption {
   value: string;
   title: string;
+}
+
+export interface FormFieldColumn {
+  name: string;
+  label: string;
+  /** Input type for this column. Defaults to a single-line text input. */
+  kind?: "text" | "url" | "select";
+  placeholder?: string;
+  options?: FormFieldOption[];
 }
 
 export interface FormField {
@@ -34,12 +47,17 @@ export interface FormField {
   help?: string;
   /** Read-only hint — rendered as text, never submitted. */
   note?: string;
+  /** Columns for `object` and `list` fields. */
+  columns?: FormFieldColumn[];
+  /** Button label for `list` fields. */
+  addLabel?: string;
 }
 
 const SLUG_HELP = "Lowercase letters, numbers and dashes. Generated from the title when blank.";
 const RICH_HELP =
   "Plain paragraphs — one per line. Bold, links and headings stay editable in Studio.";
-const FILE_HELP = "Optional. For downloadable issues such as the Wholeness Journal abstracts. Most issues are read on the site instead.";
+const FILE_HELP =
+  "Optional. For downloadable issues such as the Wholeness Journal abstracts. Most issues are read on the site instead.";
 const ISSUE_NUMBER_HELP = "Shown as “#65” in the archive.";
 const URL_HELP = "Optional. Only if the issue lives somewhere else.";
 const BODY_NOTE =
@@ -95,6 +113,40 @@ const PAGE_SECTIONS: FormFieldOption[] = [
   { value: "contact", title: "Contact" },
 ];
 
+const RESOURCE_KINDS: FormFieldOption[] = [
+  { value: "document", title: "Document" },
+  { value: "form", title: "Form" },
+  { value: "video", title: "Video" },
+  { value: "tool", title: "Tool" },
+  { value: "other", title: "Other" },
+];
+
+const CONTACT_COLUMNS: FormFieldColumn[] = [
+  { name: "email", label: "Email", kind: "text", placeholder: "hello@cmda.org" },
+  { name: "phone", label: "Phone", kind: "text" },
+  { name: "address", label: "Address", kind: "text" },
+];
+
+const SOCIAL_COLUMNS: FormFieldColumn[] = [
+  { name: "instagram", label: "Instagram", kind: "url", placeholder: "https://" },
+  { name: "x", label: "X", kind: "url", placeholder: "https://" },
+  { name: "facebook", label: "Facebook", kind: "url", placeholder: "https://" },
+  { name: "whatsapp", label: "WhatsApp", kind: "url", placeholder: "https://" },
+];
+
+const RESOURCE_COLUMNS: FormFieldColumn[] = [
+  { name: "title", label: "Title", kind: "text", placeholder: "Membership form" },
+  { name: "kind", label: "Type", kind: "select", options: RESOURCE_KINDS },
+  { name: "url", label: "Link", kind: "url", placeholder: "https://" },
+  { name: "description", label: "Description", kind: "text" },
+];
+
+const ACTIVE_HELP =
+  "Turn off to hide this unit from the public site — its content stays in the CMS.";
+const LIST_HELP =
+  "One entry per row. Bold, links and headings in longer prose stay editable in Studio.";
+const RESOURCE_MAX = 50;
+
 /**
  * Curated dashboard fields per module — always a subset of the server-side
  * `MODULE_MUTATIONS` allowlist (enforced by `forms.test.ts`). The arm field is
@@ -116,6 +168,19 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "establishedAt", label: "Established", kind: "date" },
     { name: "order", label: "Display order", kind: "number", help: "Lower numbers appear first." },
     { name: "description", label: "Description", kind: "rich", rows: 5, help: RICH_HELP },
+    { name: "mission", label: "Mission / objectives", kind: "textarea", rows: 3 },
+    { name: "history", label: "History", kind: "rich", rows: 6, help: RICH_HELP },
+    { name: "contactInfo", label: "Contact details", kind: "object", columns: CONTACT_COLUMNS },
+    { name: "socialLinks", label: "Social links", kind: "object", columns: SOCIAL_COLUMNS },
+    {
+      name: "resources",
+      label: "Resources",
+      kind: "list",
+      addLabel: "Add resource",
+      columns: RESOURCE_COLUMNS,
+      help: LIST_HELP,
+    },
+    { name: "active", label: "Chapter is active", kind: "boolean", help: ACTIVE_HELP },
   ],
   regions: [
     { name: "name", label: "Region name", kind: "text", placeholder: "e.g. West Africa" },
@@ -134,6 +199,18 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "mission", label: "Mission", kind: "textarea", rows: 3 },
     { name: "focus", label: "Focus areas", kind: "tags", placeholder: "training, mentorship" },
     { name: "order", label: "Display order", kind: "number", help: "Lower numbers appear first." },
+    { name: "history", label: "History", kind: "rich", rows: 6, help: RICH_HELP },
+    { name: "contactInfo", label: "Contact details", kind: "object", columns: CONTACT_COLUMNS },
+    { name: "socialLinks", label: "Social links", kind: "object", columns: SOCIAL_COLUMNS },
+    {
+      name: "resources",
+      label: "Resources",
+      kind: "list",
+      addLabel: "Add resource",
+      columns: RESOURCE_COLUMNS,
+      help: LIST_HELP,
+    },
+    { name: "active", label: "Region is active", kind: "boolean", help: ACTIVE_HELP },
   ],
   events: [
     { name: "title", label: "Event title", kind: "text" },
@@ -229,6 +306,8 @@ export const FORM_DEFAULTS: Record<string, string | boolean> = {
   pinned: false,
   featured: false,
   order: "0",
+  // Units created before the flag existed never stored it, and stay live.
+  active: true,
 };
 
 /** Form fields for a module with `required` derived from server validation. */
@@ -237,6 +316,21 @@ export function formFieldsFor(module: ContentModuleKey): FormField[] {
   return MODULE_FORM_FIELDS[module].map((field) =>
     required.has(field.name) ? { ...field, required: true } : field,
   );
+}
+
+/** Titles Sanity Studio shows for each section type; unknown types fall back. */
+const PAGE_SECTION_TYPE_TITLES: Record<string, string> = {
+  heroSection: "Hero",
+  richTextSection: "Text",
+  imageTextSection: "Image + text",
+  statsSection: "Statistics",
+  gallerySection: "Gallery",
+  videoSection: "Video",
+  ctaSection: "Call to action",
+};
+
+export function pageSectionTypeLabel(type: string): string {
+  return PAGE_SECTION_TYPE_TITLES[type] ?? type;
 }
 
 /* --------------------------- value conversions --------------------------- */
@@ -313,6 +407,72 @@ export function textToTags(value: string): string[] {
     tags.push(tag);
   }
   return tags;
+}
+
+/* ---------------------- nested object / list conversions ----------------- */
+
+/** Reads one column-shaped row out of an untrusted stored value. */
+function structRow(columns: FormFieldColumn[], raw: unknown): Record<string, string> {
+  const source =
+    raw && typeof raw === "object" && !Array.isArray(raw) ? (raw as Record<string, unknown>) : {};
+  const row: Record<string, string> = {};
+  for (const column of columns) {
+    const value = source[column.name];
+    row[column.name] =
+      typeof value === "string"
+        ? value
+        : value === null || value === undefined
+          ? ""
+          : String(value);
+  }
+  return row;
+}
+
+/**
+ * Nested `object` fields are kept in `values` as JSON so the ordinary
+ * string comparison used for change detection still applies.
+ */
+export function objectToJson(columns: FormFieldColumn[], raw: unknown): string {
+  return JSON.stringify(structRow(columns, raw));
+}
+
+/** Same for `list` fields, whose value is an array of column-shaped rows. */
+export function rowsToJson(columns: FormFieldColumn[], raw: unknown): string {
+  const rows = Array.isArray(raw) ? raw : [];
+  return JSON.stringify(rows.map((entry) => structRow(columns, entry)));
+}
+
+function parseJson(json: string): unknown {
+  try {
+    return JSON.parse(json) as unknown;
+  } catch {
+    return null;
+  }
+}
+
+/** Form JSON → the stored object shape, with every column present (blank if unset). */
+export function jsonToObject(columns: FormFieldColumn[], json: string): Record<string, string> {
+  return structRow(columns, parseJson(json));
+}
+
+/** Form JSON → every row, blank ones included — the renderer needs them kept. */
+export function jsonToRows(
+  columns: FormFieldColumn[],
+  json: string,
+): Array<Record<string, string>> {
+  const parsed = parseJson(json);
+  if (!Array.isArray(parsed)) return [];
+  return parsed.map((entry) => structRow(columns, entry));
+}
+
+/** Drops rows where every column is blank. */
+export function compactRows(rows: Array<Record<string, string>>): Array<Record<string, string>> {
+  return rows.filter((row) => Object.values(row).some((value) => value.trim() !== ""));
+}
+
+/** True when every column of a nested object field is blank. */
+export function isBlankObject(record: Record<string, string>): boolean {
+  return Object.values(record).every((value) => value.trim() === "");
 }
 
 /* ------------------------- scope option filtering ------------------------ */

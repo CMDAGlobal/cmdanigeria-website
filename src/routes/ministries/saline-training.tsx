@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "Saline Training | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "Practical clinical skills training programme equipping students and young doctors with hands-on competencies for compassionate, whole-person patient care.";
 
 export const Route = createFileRoute("/ministries/saline-training")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "saline-training" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: SalineTrainingPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -40,14 +48,16 @@ const skills = [
 ];
 
 function SalineTrainingPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="Saline Training"
-        title="Practical clinical skills for compassionate care"
-        intro="Equipping students and young doctors with hands-on competencies for whole-person patient care."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="Saline Training"
+      title="Practical clinical skills for compassionate care"
+      intro="Equipping students and young doctors with hands-on competencies for whole-person patient care."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -85,10 +95,7 @@ function SalineTrainingPage() {
       </Section>
 
       <Section id="skills" className="bg-muted">
-        <SectionHead
-          eyebrow="Core skills"
-          title="Four areas of hands-on competency"
-        />
+        <SectionHead eyebrow="Core skills" title="Four areas of hands-on competency" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {skills.map((item, i) => (
             <Reveal key={item.title} delay={(i % 2) * 90}>
@@ -102,6 +109,6 @@ function SalineTrainingPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

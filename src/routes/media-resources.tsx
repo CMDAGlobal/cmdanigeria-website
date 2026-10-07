@@ -1,19 +1,27 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
 import { MediaResources } from "@/components/site/MediaResources";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 
 const title = "Media & Resources | CMDA Nigeria";
 const description =
   "Podcasts, webinars, devotionals and training resources from CMDA Nigeria — equipping healthcare professionals for faith and practice.";
 
 export const Route = createFileRoute("/media-resources")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "media-resources" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: MediaResourcesPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -21,14 +29,16 @@ export const Route = createFileRoute("/media-resources")({
 });
 
 function MediaResourcesPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="Media & resources"
-        title="Tools for growth, learning and spiritual nourishment"
-        intro="From webinars to podcasts to devotionals — CMDA Nigeria produces resources to equip every member for faith and practice."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
+      eyebrow="Media & resources"
+      title="Tools for growth, learning and spiritual nourishment"
+      intro="From webinars to podcasts to devotionals — CMDA Nigeria produces resources to equip every member for faith and practice."
+    >
       <MediaResources />
-    </>
+    </CmsPage>
   );
 }

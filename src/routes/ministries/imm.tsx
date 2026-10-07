@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { PageHero } from "@/components/site/PageHero";
+import { CmsPage } from "@/components/site/CmsPage";
+import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
 const title = "IMM | CMDA Nigeria";
@@ -7,13 +8,20 @@ const description =
   "Institute of Medical Missions — raising Christian healthcare professionals who advance God's Kingdom through medical missions.";
 
 export const Route = createFileRoute("/ministries/imm")({
+  loader: async () => {
+    const [page, counters] = await Promise.all([
+      fetchPageBySlug({ data: "imm" }),
+      fetchPageCounters(),
+    ]);
+    return { page, counters };
+  },
   component: ImmPage,
-  head: () => ({
+  head: ({ loaderData }) => ({
     meta: [
-      { title },
-      { name: "description", content: description },
-      { property: "og:title", content: title },
-      { property: "og:description", content: description },
+      { title: loaderData?.page?.seoTitle || title },
+      { name: "description", content: loaderData?.page?.seoDescription || description },
+      { property: "og:title", content: loaderData?.page?.seoTitle || title },
+      { property: "og:description", content: loaderData?.page?.seoDescription || description },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -40,14 +48,16 @@ const pillars = [
 ];
 
 function ImmPage() {
+  const { page, counters } = Route.useLoaderData();
   return (
-    <>
-      <PageHero
-        eyebrow="IMM"
-        title="Institute of Medical Missions"
-        intro="Raising Christian healthcare professionals who advance God's Kingdom through medical missions."
-      />
+    <CmsPage
+      page={page}
+      counters={counters}
 
+      eyebrow="IMM"
+      title="Institute of Medical Missions"
+      intro="Raising Christian healthcare professionals who advance God's Kingdom through medical missions."
+    >
       <Section id="about" className="paper">
         <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
           <Reveal>
@@ -67,8 +77,8 @@ function ImmPage() {
               </p>
               <p>
                 Through mission-focused training, mentorship, research, and strategic partnerships,
-                IMM prepares healthcare professionals for impactful service in Nigeria and across the
-                world.
+                IMM prepares healthcare professionals for impactful service in Nigeria and across
+                the world.
               </p>
               <p>
                 IMM is a growing movement committed to building a generation of disciple-makers who
@@ -91,10 +101,7 @@ function ImmPage() {
       </Section>
 
       <Section id="pillars" className="bg-muted">
-        <SectionHead
-          eyebrow="Our pillars"
-          title="Building a generation of disciple-makers"
-        />
+        <SectionHead eyebrow="Our pillars" title="Building a generation of disciple-makers" />
         <div className="mt-16 grid gap-6 sm:grid-cols-2">
           {pillars.map((item, i) => (
             <Reveal key={item.title} delay={(i % 2) * 90}>
@@ -108,6 +115,6 @@ function ImmPage() {
           ))}
         </div>
       </Section>
-    </>
+    </CmsPage>
   );
 }

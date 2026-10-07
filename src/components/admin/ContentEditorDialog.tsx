@@ -30,10 +30,16 @@ import { Textarea } from "@/components/ui/textarea";
 import { armLabel } from "@/admin/content/mappers";
 import {
   FORM_DEFAULTS,
+  compactRows,
   flattenPortableText,
   formFieldsFor,
+  isBlankObject,
   isoToLocalInput,
+  jsonToObject,
+  jsonToRows,
   localInputToIso,
+  objectToJson,
+  rowsToJson,
   tagsToText,
   textToBlocks,
   textToTags,
@@ -130,6 +136,10 @@ export function ContentEditorDialog({
     for (const field of fields) {
       if (field.kind === "boolean") {
         nextFlags[field.name] = FORM_DEFAULTS[field.name] === true;
+      } else if (field.kind === "object") {
+        nextValues[field.name] = objectToJson(field.columns ?? [], null);
+      } else if (field.kind === "list") {
+        nextValues[field.name] = rowsToJson(field.columns ?? [], null);
       } else {
         const fallback = FORM_DEFAULTS[field.name];
         const candidate = typeof fallback === "string" ? fallback : "";
@@ -158,7 +168,9 @@ export function ContentEditorDialog({
     for (const field of fields) {
       const raw = data.fields[field.name];
       if (field.kind === "boolean") {
-        nextFlags[field.name] = raw === true;
+        // An unset flag falls back to its schema default rather than "off".
+        nextFlags[field.name] =
+          raw === undefined ? FORM_DEFAULTS[field.name] === true : raw === true;
       } else if (field.kind === "datetime") {
         nextValues[field.name] = isoToLocalInput(raw);
       } else if (field.kind === "rich") {
@@ -167,6 +179,10 @@ export function ContentEditorDialog({
         nextValues[field.name] = tagsToText(raw);
       } else if (field.kind === "number") {
         nextValues[field.name] = raw === null || raw === undefined || raw === "" ? "" : String(raw);
+      } else if (field.kind === "object") {
+        nextValues[field.name] = objectToJson(field.columns ?? [], raw);
+      } else if (field.kind === "list") {
+        nextValues[field.name] = rowsToJson(field.columns ?? [], raw);
       } else {
         nextValues[field.name] = typeof raw === "string" ? raw : "";
       }
@@ -272,6 +288,19 @@ export function ContentEditorDialog({
       if (field.kind === "number" && Number.isNaN(Number(raw))) {
         return `${field.label} must be a number.`;
       }
+      if (field.kind === "object" || field.kind === "list") {
+        let parsed: unknown = null;
+        try {
+          parsed = JSON.parse(raw);
+        } catch {
+          parsed = null;
+        }
+        const shapeOk =
+          field.kind === "list"
+            ? Array.isArray(parsed)
+            : typeof parsed === "object" && parsed !== null && !Array.isArray(parsed);
+        if (!shapeOk) return `${field.label} could not be read. Close the editor and try again.`;
+      }
     }
     const slug = (values["slug"] ?? "").trim();
     if (slug) {
@@ -299,6 +328,16 @@ export function ContentEditorDialog({
         case "rich": {
           const blocks = textToBlocks(raw);
           if (blocks.length > 0) out[field.name] = blocks;
+          break;
+        }
+        case "object": {
+          const value = jsonToObject(field.columns ?? [], raw);
+          if (!isBlankObject(value)) out[field.name] = value;
+          break;
+        }
+        case "list": {
+          const rows = compactRows(jsonToRows(field.columns ?? [], raw));
+          if (rows.length > 0) out[field.name] = rows;
           break;
         }
         case "tags": {
@@ -346,6 +385,15 @@ export function ContentEditorDialog({
           break;
         case "rich":
           out[field.name] = textToBlocks(now);
+          break;
+        case "object": {
+          const value = jsonToObject(field.columns ?? [], now);
+          // A fully cleared object unsets the field rather than storing blanks.
+          out[field.name] = isBlankObject(value) ? null : value;
+          break;
+        }
+        case "list":
+          out[field.name] = compactRows(jsonToRows(field.columns ?? [], now));
           break;
         case "tags":
           out[field.name] = textToTags(now);
@@ -529,6 +577,137 @@ export function ContentEditorDialog({
             setPreviews((prev) => ({ ...prev, [field.name]: { url, name: null } }));
           }}
         />
+      );
+    }
+
+    if (field.kind === "object") {
+      const columns = field.columns ?? [];
+      const current = jsonToObject(columns, values[field.name] ?? "");
+      const setColumn = (name: string, value: string) =>
+        setValues((prev) => ({
+          ...prev,
+          [field.name]: objectToJson(columns, { ...current, [name]: value }),
+        }));
+      return (
+        <div key={field.name} className="space-y-3 rounded-lg border p-4 sm:col-span-2">
+          <div className="space-y-2">
+            <Label>
+              {field.label}
+              {required}
+            </Label>
+            {help}
+          </div>
+          <div className="grid gap-3 sm:grid-cols-2">
+            {columns.map((column) => (
+              <div key={column.name} className="space-y-1.5">
+                <Label htmlFor={`${id}-${column.name}`} className="text-muted-foreground">
+                  {column.label}
+                </Label>
+                <Input
+                  id={`${id}-${column.name}`}
+                  type={column.kind === "url" ? "url" : "text"}
+                  value={current[column.name] ?? ""}
+                  onChange={(event) => setColumn(column.name, event.target.value)}
+                  placeholder={column.placeholder}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    if (field.kind === "list") {
+      const columns = field.columns ?? [];
+      const rows = jsonToRows(columns, values[field.name] ?? "");
+      const write = (next: Array<Record<string, string>>) =>
+        setValues((prev) => ({ ...prev, [field.name]: rowsToJson(columns, next) }));
+      const emptyRow = (): Record<string, string> => {
+        const row: Record<string, string> = {};
+        for (const column of columns) row[column.name] = "";
+        return row;
+      };
+      return (
+        <div key={field.name} className="space-y-3 rounded-lg border p-4 sm:col-span-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <Label>
+                {field.label}
+                {required}
+              </Label>
+              {help}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => write([...rows, emptyRow()])}
+              disabled={rows.length >= 50}
+            >
+              {field.addLabel ?? "Add entry"}
+            </Button>
+          </div>
+          {rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No entries yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {rows.map((row, index) => (
+                <div key={index} className="space-y-3 rounded-md border p-3">
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {columns.map((column) => {
+                      const inputId = `${id}-${index}-${column.name}`;
+                      const setCell = (value: string) =>
+                        write(
+                          rows.map((entry, rowIndex) =>
+                            rowIndex === index ? { ...entry, [column.name]: value } : entry,
+                          ),
+                        );
+                      return (
+                        <div key={column.name} className="space-y-1.5">
+                          <Label htmlFor={inputId} className="text-muted-foreground">
+                            {column.label}
+                          </Label>
+                          {column.kind === "select" ? (
+                            <Select value={row[column.name] ?? ""} onValueChange={setCell}>
+                              <SelectTrigger id={inputId} aria-label={column.label}>
+                                <SelectValue placeholder="Select..." />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {(column.options ?? []).map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    {option.title}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (
+                            <Input
+                              id={inputId}
+                              type={column.kind === "url" ? "url" : "text"}
+                              value={row[column.name] ?? ""}
+                              onChange={(event) => setCell(event.target.value)}
+                              placeholder={column.placeholder}
+                            />
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => write(rows.filter((_, rowIndex) => rowIndex !== index))}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       );
     }
 

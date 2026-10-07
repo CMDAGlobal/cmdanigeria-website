@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   CalendarClock,
   ExternalLink,
+  ListOrdered,
   MoreHorizontal,
   Pencil,
   Plus,
@@ -70,6 +71,7 @@ import { useContentModule, useDeleteContent, useSetPublication } from "./admin-c
 import { hasPermission, useAdminSession } from "./admin-session";
 import { ContentEditorDialog } from "./ContentEditorDialog";
 import { NoAccess } from "./NoAccess";
+import { PageSectionsDialog } from "./PageSectionsDialog";
 
 export interface ContentModuleProps {
   module: ContentModuleKey;
@@ -153,6 +155,7 @@ export function ContentModule({
     open: false,
     item: null,
   });
+  const [sectionItem, setSectionItem] = useState<ContentItem | null>(null);
   const [nextStatus, setNextStatus] = useState<ContentPublicationStatus>("published");
   const [publishAtLocal, setPublishAtLocal] = useState("");
 
@@ -443,6 +446,12 @@ export function ContentModule({
                                     Edit…
                                   </DropdownMenuItem>
                                 ) : null}
+                                {canWrite && module === "pages" ? (
+                                  <DropdownMenuItem onSelect={() => setSectionItem(item)}>
+                                    <ListOrdered className="mr-2 h-4 w-4" />
+                                    Sections…
+                                  </DropdownMenuItem>
+                                ) : null}
                                 {canWrite && supportsPublication ? (
                                   <DropdownMenuItem onSelect={() => openStatusDialog(item)}>
                                     <CalendarClock className="mr-2 h-4 w-4" />
@@ -483,6 +492,14 @@ export function ContentModule({
         onOpenChange={(open) => setEditor((prev) => ({ ...prev, open }))}
         item={editor.item}
         noun={noun}
+      />
+
+      <PageSectionsDialog
+        open={sectionItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setSectionItem(null);
+        }}
+        item={sectionItem}
       />
 
       <Dialog

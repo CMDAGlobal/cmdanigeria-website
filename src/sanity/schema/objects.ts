@@ -52,6 +52,35 @@ export const newsletterItem = defineType({
   },
 });
 
+export const resourceItem = defineType({
+  name: "resourceItem",
+  title: "Resource",
+  type: "object",
+  fields: [
+    defineField({ name: "title", type: "string", title: "Title", validation: (r) => r.required() }),
+    defineField({ name: "description", type: "text", title: "Description" }),
+    defineField({ name: "url", type: "url", title: "Link" }),
+    defineField({
+      name: "kind",
+      title: "Type",
+      type: "string",
+      options: {
+        list: [
+          { title: "Document", value: "document" },
+          { title: "Form", value: "form" },
+          { title: "Video", value: "video" },
+          { title: "Tool", value: "tool" },
+          { title: "Other", value: "other" },
+        ],
+      },
+      initialValue: "document",
+    }),
+  ],
+  preview: {
+    select: { title: "title", subtitle: "description" },
+  },
+});
+
 export const socialLinks = defineType({
   name: "socialLinks",
   title: "Social links",

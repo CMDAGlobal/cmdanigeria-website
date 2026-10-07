@@ -6,7 +6,14 @@ import { event } from "./event";
 import { outreach } from "./outreach";
 import { page } from "./page";
 import { PAGE_SECTION_TYPES } from "./pageSection";
-import { contactInfo, galleryImage, newsletterItem, socialLinks, statItem } from "./objects";
+import {
+  contactInfo,
+  galleryImage,
+  newsletterItem,
+  resourceItem,
+  socialLinks,
+  statItem,
+} from "./objects";
 import { person } from "./person";
 import { post } from "./post";
 import { prescription } from "./prescription";
@@ -30,5 +37,6 @@ export const schemaTypes: SchemaTypeDefinition[] = [
   statItem,
   contactInfo,
   newsletterItem,
+  resourceItem,
   socialLinks,
 ];

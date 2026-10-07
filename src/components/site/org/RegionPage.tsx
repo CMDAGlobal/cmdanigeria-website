@@ -14,6 +14,7 @@ import {
   LeaderCard,
   NewsletterCard,
 } from "./cards";
+import { ContactSection, NewsSection, ResourcesSection } from "./UnitSections";
 
 function Stats({ region }: { region: RegionDetail }) {
   if (!region.stats?.length) return null;
@@ -26,7 +27,9 @@ function Stats({ region }: { region: RegionDetail }) {
               <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green lg:text-4xl">
                 {stat.value}
               </p>
-              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">{stat.label}</p>
+              <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">
+                {stat.label}
+              </p>
             </div>
           </Reveal>
         ))}
@@ -56,6 +59,14 @@ function Overview({ region }: { region: RegionDetail }) {
             <p className="mt-6 border-l-4 border-cmda-green pl-6 font-display text-lg font-semibold tracking-tight text-foreground">
               {region.mission}
             </p>
+          ) : null}
+          {region.history?.length ? (
+            <div className="mt-10">
+              <p className="eyebrow text-cmda-green">History</p>
+              <div className="mt-4 text-base leading-relaxed text-muted-foreground">
+                <PortableContent value={region.history} />
+              </div>
+            </div>
           ) : null}
         </Reveal>
         {region.countries?.length ? (
@@ -216,8 +227,12 @@ export function RegionPage({ region }: { region: RegionDetail | null | undefined
           <p className="lede mt-6 text-muted-foreground">
             The region you are looking for does not exist or has not been published yet.
           </p>
-          <Link to="/global-network" className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}>
-            <ArrowLeft className="size-4" aria-hidden="true" />Back to Global Network
+          <Link
+            to="/global-network"
+            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+          >
+            <ArrowLeft className="size-4" aria-hidden="true" />
+            Back to Global Network
           </Link>
         </div>
       </Section>
@@ -238,9 +253,12 @@ export function RegionPage({ region }: { region: RegionDetail | null | undefined
       <Activities region={region} />
       <Events region={region} />
       <Announcements region={region} />
+      <NewsSection news={region.news} title={`${region.name} news`} />
       <Chapters region={region} />
       <Publications region={region} />
       <Gallery region={region} />
+      <ResourcesSection resources={region.resources} title="Regional resources" />
+      <ContactSection contact={region.contactInfo} social={region.socialLinks} />
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">
           <h2 className="display-2 text-balance">Get involved in {region.name}</h2>
@@ -251,8 +269,12 @@ export function RegionPage({ region }: { region: RegionDetail | null | undefined
             <Link to="/membership" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
               Join the Region
             </Link>
-            <Link to="/global-network" className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}>
-              <ArrowLeft className="size-4" aria-hidden="true" />Back to Global Network
+            <Link
+              to="/global-network"
+              className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              Back to Global Network
             </Link>
           </div>
         </Reveal>

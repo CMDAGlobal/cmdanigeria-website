@@ -1,5 +1,13 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
-import { armField, contactInfo, galleryImage, socialLinks, statItem } from "./objects";
+import {
+  armField,
+  contactInfo,
+  galleryImage,
+  resourceItem,
+  socialLinks,
+  statItem,
+} from "./objects";
+import { publicationFields } from "./publication";
 
 export const chapter = defineType({
   name: "chapter",
@@ -11,7 +19,12 @@ export const chapter = defineType({
     { name: "media", title: "Media" },
   ],
   fields: [
-    defineField({ name: "name", title: "Chapter name", type: "string", validation: (r) => r.required() }),
+    defineField({
+      name: "name",
+      title: "Chapter name",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "slug",
       title: "Slug",
@@ -47,6 +60,14 @@ export const chapter = defineType({
       of: [defineArrayMember({ type: "block" })],
       group: "content",
     }),
+    defineField({
+      name: "history",
+      title: "History",
+      type: "array",
+      of: [defineArrayMember({ type: "block" })],
+      group: "content",
+    }),
+    defineField({ name: "mission", title: "Mission / objectives", type: "text", group: "content" }),
     defineField({ name: "establishedAt", title: "Established (date)", type: "date" }),
     defineField({
       name: "logo",
@@ -79,6 +100,22 @@ export const chapter = defineType({
     }),
     defineField(contactInfo),
     defineField(socialLinks),
+    defineField({
+      name: "resources",
+      title: "Resources",
+      type: "array",
+      of: [defineArrayMember({ type: resourceItem.name })],
+      group: "content",
+    }),
+    defineField({
+      name: "active",
+      title: "Chapter is active",
+      description:
+        "Deactivated chapters keep their content in the CMS but are hidden from the public site.",
+      type: "boolean",
+      initialValue: true,
+    }),
+    ...publicationFields.map((field) => defineField(field)),
     defineField({ name: "order", title: "Display order", type: "number", initialValue: 0 }),
   ],
   preview: {

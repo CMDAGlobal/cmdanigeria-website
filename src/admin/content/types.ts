@@ -130,6 +130,31 @@ export interface ContentMutationResult {
   id?: string;
 }
 
+/** One row of a page's `sections` array as the dashboard needs to show it. */
+export interface PageSectionRow {
+  key: string;
+  type: string;
+  label: string;
+  visible: boolean;
+}
+
+export interface PageSectionsPayload {
+  ok: boolean;
+  sections: PageSectionRow[];
+  error?: string;
+}
+
+/** Wire shape for reordering/hiding: match a stored section by its `_key`. */
+export interface PageSectionOrder {
+  key: string;
+  visible: boolean;
+}
+
+export interface SetPageSectionsInput {
+  id: string;
+  sections: PageSectionOrder[];
+}
+
 /** Untrusted wire shape for content mutations — normalized server-side. */
 export interface ContentDocPayload {
   ok: boolean;

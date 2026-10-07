@@ -9,7 +9,10 @@ export const Route = createFileRoute("/zones/$slug")({
   head: ({ loaderData }) => {
     const zone = loaderData?.zone;
     const title = zone ? `${zone.name} | CMDA Nigeria` : "Zone | CMDA Nigeria";
-    const description = zone?.intro ?? zone?.tagline ?? "Explore a CMDA Nigeria zone — leadership, chapters, events and outreach.";
+    const description =
+      zone?.intro ??
+      zone?.tagline ??
+      "Explore a CMDA Nigeria zone — leadership, chapters, events and outreach.";
     return {
       meta: [
         { title },
