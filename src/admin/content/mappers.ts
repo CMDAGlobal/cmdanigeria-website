@@ -121,6 +121,7 @@ export function mapChapters(rows: RawContentRow[]): ContentItem[] {
         arm: row.arm,
         regions: row.region,
         zones: row.zone,
+        chapters: row.slug,
       }),
     };
   });

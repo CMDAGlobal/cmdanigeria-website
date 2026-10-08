@@ -4,28 +4,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ComponentType, type ReactNode } from "react";
 import { toast } from "sonner";
-import {
-  LayoutDashboard,
-  ScrollText,
-  Users,
-  CalendarDays,
-  Newspaper,
-  Megaphone,
-  HeartHandshake,
-  Images,
-  Settings2,
-  BookOpen,
-  Globe2,
-  GraduationCap,
-  Stethoscope,
-  Menu,
-  X,
-  LogOut,
-  ShieldCheck,
-  FileText,
-  Mail,
-  type LucideIcon,
-} from "lucide-react";
+import { Menu, X, LogOut, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -42,116 +21,7 @@ import { logoutAction } from "@/admin/auth/server";
 import { cn } from "@/lib/utils";
 import { scopeLabel } from "./admin-session";
 import type { AdminSession } from "./admin-session";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string }> | LucideIcon;
-  permission?: string;
-  group: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { href: "/admin", label: "Overview", icon: LayoutDashboard, group: "Overview" },
-  {
-    href: "/admin/news",
-    label: "News",
-    icon: Newspaper,
-    permission: "news.read",
-    group: "Website Content",
-  },
-  {
-    href: "/admin/announcements",
-    label: "Announcements",
-    icon: Megaphone,
-    permission: "announcements.read",
-    group: "Website Content",
-  },
-  {
-    href: "/admin/outreaches",
-    label: "Outreaches",
-    icon: HeartHandshake,
-    permission: "outreaches.read",
-    group: "Website Content",
-  },
-  {
-    href: "/admin/pages",
-    label: "Pages",
-    icon: FileText,
-    permission: "pages.read",
-    group: "Website Content",
-  },
-  {
-    href: "/admin/newsletter",
-    label: "Prescription",
-    icon: Mail,
-    permission: "publications.read",
-    group: "Website Content",
-  },
-  {
-    href: "/admin/students",
-    label: "Students' Arm",
-    icon: GraduationCap,
-    permission: "chapters.read",
-    group: "CMDA Nigeria",
-  },
-  {
-    href: "/admin/doctors",
-    label: "Doctors' Arm",
-    icon: Stethoscope,
-    permission: "chapters.read",
-    group: "CMDA Nigeria",
-  },
-  {
-    href: "/admin/global-network",
-    label: "Global Network",
-    icon: Globe2,
-    permission: "regions.read",
-    group: "CMDA Nigeria",
-  },
-  {
-    href: "/admin/events",
-    label: "Events",
-    icon: CalendarDays,
-    permission: "events.read",
-    group: "Publishing",
-  },
-  {
-    href: "/admin/blog",
-    label: "Blog",
-    icon: BookOpen,
-    permission: "news.read",
-    group: "Publishing",
-  },
-  {
-    href: "/admin/media",
-    label: "Media Library",
-    icon: Images,
-    permission: "media.read",
-    group: "Publishing",
-  },
-  {
-    href: "/admin/users",
-    label: "Users & Permissions",
-    icon: Users,
-    permission: "users.read",
-    group: "Administration",
-  },
-  {
-    href: "/admin/audit",
-    label: "Audit Log",
-    icon: ScrollText,
-    permission: "audit_logs.view",
-    group: "Administration",
-  },
-  {
-    href: "/admin/settings",
-    label: "Settings",
-    icon: Settings2,
-    permission: "settings.read",
-    group: "Settings",
-  },
-];
+import { visibleNavItems } from "./nav-items";
 
 function initials(name: string): string {
   return name
@@ -170,7 +40,8 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const location = useLocation();
-  const groups = [...new Set(NAV_ITEMS.map((item) => item.group))];
+  const visibleItems = visibleNavItems(session);
+  const groups = [...new Set(visibleItems.map((item) => item.group))];
 
   return (
     <div className="flex h-full flex-col">
@@ -188,10 +59,7 @@ function SidebarContent({
 
       <div className="flex-1 space-y-6 overflow-y-auto px-3 py-2">
         {groups.map((group) => {
-          const items = NAV_ITEMS.filter((item) => item.group === group);
-          const visible = items.filter(
-            (item) => !item.permission || session.permissions.includes(item.permission),
-          );
+          const visible = visibleItems.filter((item) => item.group === group);
           if (!visible.length) return null;
           return (
             <div key={group}>
@@ -254,7 +122,7 @@ function AdminTopbar({
 }) {
   const queryClient = useQueryClient();
   const location = useLocation();
-  const current = NAV_ITEMS.find((item) => item.href === location.pathname);
+  const current = visibleNavItems(session).find((item) => item.href === location.pathname);
 
   async function handleLogout() {
     try {

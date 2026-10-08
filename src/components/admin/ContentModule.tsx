@@ -70,6 +70,7 @@ import type { PermissionKey } from "@/admin/rbac/permissions";
 import { useContentModule, useDeleteContent, useSetPublication } from "./admin-content";
 import { hasPermission, useAdminSession } from "./admin-session";
 import { ContentEditorDialog } from "./ContentEditorDialog";
+import { isChapterDashboard } from "./nav-items";
 import { NoAccess } from "./NoAccess";
 import { PageSectionsDialog } from "./PageSectionsDialog";
 
@@ -255,6 +256,8 @@ export function ContentModule({
   }
 
   const configured = query.data?.configured !== false;
+  const canCreate =
+    canWrite && configured && !(isChapterDashboard(session.data) && module === "chapters");
 
   return (
     <div className="space-y-6">
@@ -264,7 +267,7 @@ export function ContentModule({
           <p className="mt-1.5 text-sm text-muted-foreground">{description}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          {canWrite && configured ? (
+          {canCreate ? (
             <Button onClick={() => setEditor({ open: true, item: null })}>
               <Plus className="h-4 w-4" />
               New {noun}

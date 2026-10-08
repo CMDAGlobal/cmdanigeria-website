@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSession, scopeLabel } from "@/components/admin/admin-session";
+import { isChapterDashboard } from "@/components/admin/nav-items";
 import { useAdminOverview } from "@/components/admin/admin-data";
 
 export const Route = createFileRoute("/admin/_layout/")({
@@ -127,20 +128,89 @@ function AuditTable() {
 function AdminDashboardPage() {
   const session = useAdminSession();
   const overview = useAdminOverview();
+  const chapterOnly = isChapterDashboard(session.data);
   const canViewUsers = session.data?.permissions.includes("users.read") === true;
   const canViewAudit = session.data?.permissions.includes("audit_logs.view") === true;
   const firstName = session.data?.user?.name?.split(/\s+/)[0] ?? "Admin";
+  const roles = session.data?.roles ?? [];
+  const scopeBadge = roles.some((role) => Object.keys(role.scope).length > 0)
+    ? roles
+        .filter((role) => Object.keys(role.scope).length > 0)
+        .map((role) => scopeLabel(role.scope))
+        .join(" · ")
+    : "System-wide access";
+
+  if (chapterOnly) {
+    const arm = roles.find((role) => role.key === "chapter_admin")?.scope.arm;
+    const chapterLinks = [
+      {
+        to: arm === "doctors" ? "/admin/doctors" : "/admin/students",
+        label: "Manage your chapter",
+      },
+      { to: "/admin/events", label: "Events" },
+      { to: "/admin/news", label: "News" },
+      { to: "/admin/announcements", label: "Announcements" },
+      { to: "/admin/outreaches", label: "Outreaches" },
+      { to: "/admin/media", label: "Media Library" },
+      { to: "/", label: "Open public site" },
+    ] as const;
+
+    return (
+      <div className="space-y-8">
+        <div>
+          <Badge variant="secondary" className="mb-3">
+            {scopeBadge}
+          </Badge>
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Welcome back, {firstName}
+          </h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Your chapter workspace — manage its content, events and outreach from here.
+          </p>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Your chapter</CardTitle>
+              <CardDescription>
+                Jump into your chapter’s content. Everything you create here is scoped to your
+                chapter.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2">
+              {chapterLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  {link.label}
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <p className="text-sm font-semibold text-primary">Your access</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                You hold {roles.length} role{roles.length === 1 ? "" : "s"} as a chapter
+                administrator. Your dashboard, modules and content are limited to your chapter.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
       <div>
         <Badge variant="secondary" className="mb-3">
-          {session.data?.roles.some((role) => Object.keys(role.scope).length > 0)
-            ? session.data.roles
-                .filter((role) => Object.keys(role.scope).length > 0)
-                .map((role) => scopeLabel(role.scope))
-                .join(" · ")
-            : "System-wide access"}
+          {scopeBadge}
         </Badge>
         <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
           Welcome back, {firstName}

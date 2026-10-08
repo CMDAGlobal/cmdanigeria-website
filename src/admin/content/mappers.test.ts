@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { mapPublications, mapRegions, publicationStats, regionStats } from "./mappers";
+import { mapChapters, mapPublications, mapRegions, publicationStats, regionStats } from "./mappers";
+import { grantsFromRoles, visibleToGrants } from "./scope";
 
 const ROWS = [
   {
@@ -59,6 +60,61 @@ describe("mapRegions", () => {
       { label: "Total regions", value: 0 },
       { label: "With country coverage", value: 0 },
     ]);
+  });
+});
+
+const CHAPTER_ROWS = [
+  {
+    id: "c1",
+    title: "CMDA LUTH",
+    slug: "luth",
+    arm: "students",
+    institution: "LUTH",
+    zone: "lagos-zone",
+  },
+  { id: "c2", title: "CMDA Unilag", slug: "unilag", arm: "students", institution: "Unilag" },
+  { id: "c3", title: "CMDA ABU", slug: "abu", arm: "doctors" },
+  { id: "c4", title: "No slug yet", arm: "doctors" },
+];
+
+describe("mapChapters", () => {
+  it("scopes every chapter to itself inside its arm", () => {
+    const items = mapChapters(CHAPTER_ROWS);
+    expect(items[0]?.scope).toEqual({
+      arm: "students",
+      regions: [],
+      zones: ["lagos-zone"],
+      chapters: ["luth"],
+    });
+    expect(items[1]?.scope?.chapters).toEqual(["unilag"]);
+    expect(items[2]?.scope).toEqual({
+      arm: "doctors",
+      regions: [],
+      zones: [],
+      chapters: ["abu"],
+    });
+    expect(items[3]?.scope).toEqual({ arm: "doctors", regions: [], zones: [], chapters: [] });
+  });
+
+  it("shows a chapter admin only their own chapter", () => {
+    const items = mapChapters(CHAPTER_ROWS);
+    const luth = grantsFromRoles([{ scope: { arm: "students", chapterSlug: "luth" } }]);
+    const visible = items.filter((item) => item.scope && visibleToGrants(item.scope, luth));
+    expect(visible.map((item) => item.slug)).toEqual(["luth"]);
+  });
+
+  it("keeps arm and system grants on every chapter", () => {
+    const items = mapChapters(CHAPTER_ROWS);
+    const arm = grantsFromRoles([{ scope: { arm: "students" } }]);
+    expect(
+      items
+        .filter((item) => item.scope && visibleToGrants(item.scope, arm))
+        .map((item) => item.slug),
+    ).toEqual(["luth", "unilag"]);
+    const system = grantsFromRoles([{ scope: {} }]);
+    expect(items.filter((item) => item.scope && visibleToGrants(item.scope, system))).toHaveLength(
+      4,
+    );
   });
 });
 
