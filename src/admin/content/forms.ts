@@ -141,6 +141,11 @@ const RESOURCE_COLUMNS: FormFieldColumn[] = [
   { name: "description", label: "Description", kind: "text" },
 ];
 
+const STAT_COLUMNS: FormFieldColumn[] = [
+  { name: "value", label: "Value", kind: "text", placeholder: "e.g. 120" },
+  { name: "label", label: "Label", kind: "text", placeholder: "Membership strength" },
+];
+
 const ACTIVE_HELP =
   "Turn off to hide this unit from the public site — its content stays in the CMS.";
 const LIST_HELP =
@@ -170,6 +175,14 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "description", label: "Description", kind: "rich", rows: 5, help: RICH_HELP },
     { name: "mission", label: "Mission / objectives", kind: "textarea", rows: 3 },
     { name: "history", label: "History", kind: "rich", rows: 6, help: RICH_HELP },
+    {
+      name: "membership",
+      label: "Statistics",
+      kind: "list",
+      addLabel: "Add statistic",
+      columns: STAT_COLUMNS,
+      help: "Value + label pairs shown on the chapter page (e.g. “120” / “Membership strength”). Leave empty to show the default placeholder rows.",
+    },
     { name: "contactInfo", label: "Contact details", kind: "object", columns: CONTACT_COLUMNS },
     { name: "socialLinks", label: "Social links", kind: "object", columns: SOCIAL_COLUMNS },
     {

@@ -108,6 +108,7 @@ describe("validateFields", () => {
         contactInfo: { email: "luth@cmda.org", phone: null, address: "Lagos" },
         socialLinks: { instagram: "https://instagram.com/cmda" },
         resources: [{ title: "Handbook", url: "", kind: "document" }],
+        membership: [{ value: "120", label: "Membership strength" }],
         active: false,
       },
       { partial: true },
@@ -122,6 +123,7 @@ describe("validateFields", () => {
     expect(ok["resources"]).toEqual([
       { title: "Handbook", description: "", url: "", kind: "document" },
     ]);
+    expect(ok["membership"]).toEqual([{ value: "120", label: "Membership strength" }]);
     expect(ok["active"]).toBe(false);
 
     // A cleared object unsets the field; an emptied list stays a list.
@@ -139,6 +141,9 @@ describe("validateFields", () => {
     ).toThrow(ContentInputError);
     expect(() =>
       validateFields(chapters, { resources: [{ title: "ok" }, "row"] }, { partial: true }),
+    ).toThrow(ContentInputError);
+    expect(() =>
+      validateFields(chapters, { membership: [{ count: 3 }] }, { partial: true }),
     ).toThrow(ContentInputError);
   });
 

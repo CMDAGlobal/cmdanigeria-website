@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, CalendarDays } from "lucide-react";
 import { PageHero } from "@/components/site/PageHero";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ChapterDetail } from "@/sanity/types";
 import { EventCard, GalleryGrid, LeaderCard } from "./cards";
+import { chapterStats, upcomingEvents } from "./chapter-stats";
 import {
   CHAPTER_EXECUTIVE_POSITIONS,
   CLASS_EXECUTIVE_POSITIONS,
@@ -86,16 +87,27 @@ function About({ chapter }: { chapter: ChapterDetail }) {
   );
 }
 
+/**
+ * Every chapter carries the strip: values come from the stats the chapter admin
+ * enters in the dashboard, and chapters without rows show the placeholder pair
+ * rather than disappearing.
+ */
 function Stats({ chapter }: { chapter: ChapterDetail }) {
-  if (!chapter.membership?.length) return null;
+  const stats = chapterStats(chapter.membership);
   return (
-    <Section className="paper">
-      <div className="mx-auto grid max-w-5xl grid-cols-2 gap-8 lg:grid-cols-4">
-        {chapter.membership.map((stat, index) => (
-          <Reveal key={stat.label ?? index}>
+    <Section className="paper" id="stats">
+      <SectionHead eyebrow="Chapter statistics" title="At a glance" />
+      <div
+        className={cn(
+          "mx-auto mt-16 grid max-w-5xl grid-cols-2 gap-8",
+          stats.length > 2 ? "lg:grid-cols-4" : "lg:grid-cols-2",
+        )}
+      >
+        {stats.map((stat, index) => (
+          <Reveal key={`${stat.label ?? index}`}>
             <div className="text-center">
               <p className="font-display text-3xl font-extrabold tracking-tight text-cmda-green lg:text-4xl">
-                {stat.value}
+                {stat.value || "—"}
               </p>
               <p className="mt-1 text-xs tracking-wide uppercase text-muted-foreground">
                 {stat.label}
@@ -160,16 +172,42 @@ function StudentsExecutives({ chapter }: { chapter: ChapterDetail }) {
   );
 }
 
+/** Always shown: the chapter's upcoming events, or a check-back-later panel. */
 function Events({ chapter }: { chapter: ChapterDetail }) {
-  if (!chapter.events?.length) return null;
+  const upcoming = upcomingEvents(chapter.events);
   return (
     <Section className="bg-muted" id="events">
-      <SectionHead eyebrow="Chapter events" title="Events at this chapter" />
-      <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {chapter.events.map((event) => (
-          <EventCard key={event._id} event={event} />
-        ))}
-      </div>
+      <SectionHead
+        eyebrow="Events & activities"
+        title="Upcoming events at this chapter"
+        intro="Fellowship meetings, outreaches and trainings scheduled for this chapter."
+      />
+      {upcoming.length ? (
+        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {upcoming.map((event) => (
+            <EventCard key={event._id} event={event} />
+          ))}
+        </div>
+      ) : (
+        <Reveal className="mt-16">
+          <div className="mx-auto max-w-2xl border border-dashed border-border bg-background p-10 text-center">
+            <CalendarDays className="mx-auto size-8 text-cmda-green" aria-hidden="true" />
+            <h3 className="mt-4 font-display text-xl font-bold text-foreground">
+              No upcoming events yet
+            </h3>
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground">
+              Events and activities for this chapter will be listed here as soon as they are
+              scheduled.
+            </p>
+            <Link
+              to="/events"
+              className="mt-5 inline-flex font-display text-sm font-semibold text-cmda-green hover:text-cmda-green-deep"
+            >
+              Browse all CMDA Nigeria events →
+            </Link>
+          </div>
+        </Reveal>
+      )}
     </Section>
   );
 }

@@ -113,7 +113,10 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       contactInfo: ["email", "phone", "address"],
       socialLinks: ["instagram", "x", "facebook", "whatsapp"],
     },
-    arrayFields: { resources: ["title", "description", "url", "kind"] },
+    arrayFields: {
+      resources: ["title", "description", "url", "kind"],
+      membership: ["value", "label"],
+    },
     // Chapters are organisation units — their visibility is their publication.
     publication: false,
     selfUnit: true,
