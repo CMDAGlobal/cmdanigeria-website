@@ -168,6 +168,13 @@ export const MEDIA_QUERY = `{
   }
 }`;
 
+export const MY_CHAPTER_QUERY = `*[_type == "chapter" && slug.current == $slug && !(_id in path("drafts.**"))][0]{
+  "slug": slug.current,
+  name,
+  arm,
+  membership
+}`;
+
 export const DOCUMENT_COUNT_QUERY = `{
   "person": count(*[_type == "person"]),
   "region": count(*[_type == "region"]),

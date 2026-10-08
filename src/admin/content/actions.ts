@@ -14,7 +14,13 @@ import type { CurrentActorResult } from "../auth/actions";
 import { grantsFromRoles, visibleToGrants, buildScopeMeta } from "./scope";
 import { getOrgOptions } from "./org";
 import { assignableScopeOptions } from "./forms";
-import { CONTENT_QUERIES, DOCUMENT_COUNT_QUERY, MEDIA_QUERY, PAGE_SECTIONS_QUERY } from "./queries";
+import {
+  CONTENT_QUERIES,
+  DOCUMENT_COUNT_QUERY,
+  MEDIA_QUERY,
+  MY_CHAPTER_QUERY,
+  PAGE_SECTIONS_QUERY,
+} from "./queries";
 import { MODULE_MUTATIONS, parseModuleConfig } from "./validate";
 import type { ModuleMutationConfig } from "./validate";
 import {
@@ -23,6 +29,7 @@ import {
   eventStats,
   mapAnnouncements,
   mapChapters,
+  mapChapterMembership,
   mapEvents,
   mapNews,
   mapOutreaches,
@@ -46,6 +53,7 @@ import type {
   ContentStat,
   MediaAsset,
   MediaPayload,
+  MyChapterPayload,
   PageSectionRow,
   PageSectionsPayload,
   ScopeGrant,
@@ -161,6 +169,50 @@ export async function getContentModule(module: ContentModuleKey): Promise<Conten
     stats: config.stats(items),
     items,
   };
+}
+
+/**
+ * The acting chapter admin's own chapter: display name, arm and the
+ * statistics rows they type in the dashboard. The slug comes from the
+ * actor's own grant, so the row returned is always their chapter.
+ */
+export async function getMyChapter(): Promise<MyChapterPayload> {
+  const empty: MyChapterPayload = {
+    ok: false,
+    slug: null,
+    name: null,
+    arm: null,
+    membership: [],
+  };
+  try {
+    const session = await requireActor();
+    assertPermission(session, "chapters.read");
+    const grant = grantsFromRoles(session.roles).find((entry) => entry.chapterSlug);
+    if (!grant?.chapterSlug) return empty;
+
+    const client = getClient();
+    if (!client) return empty;
+
+    const row = await client.fetch<{
+      slug?: unknown;
+      name?: unknown;
+      arm?: unknown;
+      membership?: unknown;
+    } | null>(MY_CHAPTER_QUERY, { slug: grant.chapterSlug });
+    if (!row || typeof row.slug !== "string" || !row.slug) return empty;
+
+    return {
+      ok: true,
+      slug: row.slug,
+      name: typeof row.name === "string" && row.name.trim() ? row.name.trim() : null,
+      arm: typeof row.arm === "string" && row.arm ? row.arm : (grant.arm ?? null),
+      membership: mapChapterMembership(row.membership),
+    };
+  } catch (error) {
+    if (isAuthorizationError(error)) return empty;
+    console.error("[admin:content] getMyChapter failed", error);
+    return empty;
+  }
 }
 
 interface RawAssetRef {

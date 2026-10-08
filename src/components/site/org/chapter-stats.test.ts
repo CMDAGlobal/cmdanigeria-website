@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { EventRecord, StatEntry } from "@/sanity/types";
 import {
-  PLACEHOLDER_STATS,
   UPCOMING_EVENTS_LIMIT,
   chapterStats,
+  placeholderStats,
   upcomingEvents,
 } from "./chapter-stats";
 
@@ -17,9 +17,15 @@ describe("chapterStats", () => {
   it("falls back to the placeholder pair when nothing is entered", () => {
     for (const input of [null, undefined, [], [{ value: "120" }]]) {
       const rows = chapterStats(input);
-      expect(rows).toEqual(PLACEHOLDER_STATS);
+      expect(rows).toEqual(placeholderStats());
       expect(rows).toHaveLength(2);
     }
+  });
+
+  it("names the membership total after the chapter's arm in the placeholder", () => {
+    expect(chapterStats([], "students")[0]).toEqual({ label: "Total students", value: "—" });
+    expect(chapterStats(null, "doctors")[0]).toEqual({ label: "Total doctors", value: "—" });
+    expect(chapterStats(undefined)[0]).toEqual({ label: "Total students", value: "—" });
   });
 
   it("uses the admin's rows, filling blank values with a dash", () => {
@@ -37,7 +43,7 @@ describe("chapterStats", () => {
 
   it("drops rows that have no label to render", () => {
     expect(chapterStats([{ value: "120" }, { label: "  ", value: "5" }])).toEqual(
-      PLACEHOLDER_STATS,
+      placeholderStats(),
     );
   });
 });

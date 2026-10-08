@@ -10,6 +10,7 @@ import {
   getContentScopeOptionsAction,
   getMediaLibraryAction,
   getPageSectionsAction,
+  getMyChapterAction,
   listSanityAssetsAction,
   setPublicationAction,
   setPageSectionsAction,
@@ -41,10 +42,21 @@ export function useContentModule(module: ContentModuleKey) {
   });
 }
 
+export function useMyChapter(enabled: boolean) {
+  return useQuery({
+    queryKey: ["admin-my-chapter"] as const,
+    queryFn: () => getMyChapterAction(),
+    staleTime: 60_000,
+    retry: false,
+    enabled,
+  });
+}
+
 function useInvalidateContent(module: ContentModuleKey) {
   const queryClient = useQueryClient();
   return () => {
     void queryClient.invalidateQueries({ queryKey: ["admin-content", module] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-my-chapter"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-media"] });
   };

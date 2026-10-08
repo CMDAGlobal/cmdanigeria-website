@@ -2,10 +2,12 @@ import { parseISO } from "date-fns";
 import type { EventRecord, StatEntry } from "@/sanity/types";
 
 /** Shown on chapters where no admin has entered statistics yet. */
-export const PLACEHOLDER_STATS: readonly Required<StatEntry>[] = [
-  { label: "Membership strength", value: "—" },
-  { label: "Outreaches held this year", value: "—" },
-];
+export function placeholderStats(arm?: string | null): Required<StatEntry>[] {
+  return [
+    { label: arm === "doctors" ? "Total doctors" : "Total students", value: "—" },
+    { label: "Outreaches held this year", value: "—" },
+  ];
+}
 
 /**
  * Statistics are typed by the chapter admin in the dashboard — never computed.
@@ -13,9 +15,9 @@ export const PLACEHOLDER_STATS: readonly Required<StatEntry>[] = [
  * label but no value shows the dash. Chapters with no rows fall back to the
  * placeholder pair so every chapter page carries the strip.
  */
-export function chapterStats(membership?: StatEntry[] | null): StatEntry[] {
+export function chapterStats(membership?: StatEntry[] | null, arm?: string | null): StatEntry[] {
   const rows = (membership ?? []).filter((row) => !!row?.label?.trim());
-  if (!rows.length) return PLACEHOLDER_STATS.map((row) => ({ ...row }));
+  if (!rows.length) return placeholderStats(arm);
   return rows.map((row) => ({
     label: row.label?.trim() ?? "",
     value: row.value?.trim() || "—",

@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSession, scopeLabel } from "@/components/admin/admin-session";
 import { isChapterDashboard } from "@/components/admin/nav-items";
 import { useAdminOverview } from "@/components/admin/admin-data";
+import { useMyChapter } from "@/components/admin/admin-content";
 
 export const Route = createFileRoute("/admin/_layout/")({
   component: AdminDashboardPage,
@@ -25,7 +26,7 @@ function StatCard({
   loading,
 }: {
   label: string;
-  value?: number | null | undefined;
+  value?: number | string | null | undefined;
   hint: string;
   icon: React.ComponentType<{ className?: string }>;
   loading: boolean;
@@ -44,7 +45,11 @@ function StatCard({
           <Skeleton className="h-8 w-16" />
         ) : (
           <p className="font-display text-3xl font-bold tracking-tight">
-            {typeof value === "number" ? value.toLocaleString() : "—"}
+            {value === null || value === undefined || value === ""
+              ? "—"
+              : typeof value === "number"
+                ? value.toLocaleString()
+                : value}
           </p>
         )}
         <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
@@ -129,6 +134,7 @@ function AdminDashboardPage() {
   const session = useAdminSession();
   const overview = useAdminOverview();
   const chapterOnly = isChapterDashboard(session.data);
+  const chapter = useMyChapter(chapterOnly);
   const canViewUsers = session.data?.permissions.includes("users.read") === true;
   const canViewAudit = session.data?.permissions.includes("audit_logs.view") === true;
   const firstName = session.data?.user?.name?.split(/\s+/)[0] ?? "Admin";
@@ -142,15 +148,20 @@ function AdminDashboardPage() {
 
   if (chapterOnly) {
     const arm = roles.find((role) => role.key === "chapter_admin")?.scope.arm;
+    const membership = chapter.data?.membership ?? [];
+    const statRows = membership.length
+      ? membership
+      : [{ label: arm === "doctors" ? "Total doctors" : "Total students", value: "" }];
     const chapterLinks = [
       {
         to: arm === "doctors" ? "/admin/doctors" : "/admin/students",
         label: "Manage your chapter",
       },
-      { to: "/admin/events", label: "Events" },
+      { to: "/admin/events", label: "Events and Activities" },
       { to: "/admin/news", label: "News" },
       { to: "/admin/announcements", label: "Announcements" },
       { to: "/admin/outreaches", label: "Outreaches" },
+      { to: "/admin/newsletter", label: "Newsletter" },
       { to: "/admin/media", label: "Media Library" },
       { to: "/", label: "Open public site" },
     ] as const;
@@ -162,11 +173,28 @@ function AdminDashboardPage() {
             {scopeBadge}
           </Badge>
           <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
-            Welcome back, {firstName}
+            {chapter.data?.name ? `Welcome to ${chapter.data.name}` : `Welcome back, ${firstName}`}
           </h2>
           <p className="mt-1.5 text-sm text-muted-foreground">
             Your chapter workspace — manage its content, events and outreach from here.
           </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {statRows.map((row, index) => (
+            <StatCard
+              key={`${row.label}-${index}`}
+              label={row.label}
+              value={row.value}
+              hint={
+                membership.length
+                  ? "From your chapter statistics"
+                  : "Add statistics from Manage your chapter"
+              }
+              icon={Activity}
+              loading={chapter.isLoading}
+            />
+          ))}
         </div>
 
         <div className="grid gap-4 lg:grid-cols-3">

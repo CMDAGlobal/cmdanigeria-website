@@ -1,5 +1,5 @@
 import { buildScopeMeta } from "./scope";
-import type { ContentItem, ContentStat, ContentStatus, StatusTone } from "./types";
+import type { ContentItem, ContentStat, ContentStatus, MyChapterStat, StatusTone } from "./types";
 
 export interface RawContentRow {
   id?: unknown;
@@ -103,6 +103,20 @@ function armCount(items: ContentItem[], arm: string): number {
 
 function countBy(items: ContentItem[], predicate: (item: ContentItem) => boolean): number {
   return items.filter(predicate).length;
+}
+
+export function mapChapterMembership(raw: unknown): MyChapterStat[] {
+  if (!Array.isArray(raw)) return [];
+  const rows: MyChapterStat[] = [];
+  for (const entry of raw) {
+    if (!entry || typeof entry !== "object") continue;
+    const record = entry as { label?: unknown; value?: unknown };
+    const label = typeof record.label === "string" ? record.label.trim() : "";
+    if (!label) continue;
+    const value = typeof record.value === "string" ? record.value.trim() : "";
+    rows.push({ label, value });
+  }
+  return rows;
 }
 
 export function mapChapters(rows: RawContentRow[]): ContentItem[] {

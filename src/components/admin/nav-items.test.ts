@@ -2,10 +2,17 @@ import { describe, expect, it } from "vitest";
 
 import { PERMISSION_KEYS } from "../../admin/rbac/permissions";
 import type { AdminSession } from "./admin-session";
-import { isChapterDashboard, NAV_ITEMS, visibleNavItems } from "./nav-items";
+import type { NavItem } from "./nav-items";
+import { isChapterDashboard, navLabel, NAV_ITEMS, visibleNavItems } from "./nav-items";
 
 function makeSession(partial: Partial<AdminSession>): AdminSession {
   return { user: null, permissions: [], roles: [], ...partial };
+}
+
+function navItem(href: string): NavItem {
+  const item = NAV_ITEMS.find((entry) => entry.href === href);
+  if (!item) throw new Error(`missing nav item ${href}`);
+  return item;
 }
 
 const CHAPTER_PERMS = [
@@ -99,6 +106,7 @@ describe("visibleNavItems", () => {
       "/admin/news",
       "/admin/announcements",
       "/admin/outreaches",
+      "/admin/newsletter",
       "/admin/students",
       "/admin/events",
       "/admin/media",
@@ -108,7 +116,7 @@ describe("visibleNavItems", () => {
   it("hides main-admin modules even when the chapter admin holds the permission", () => {
     const visible = hrefs(studentsChapterAdmin);
     expect(visible).not.toContain("/admin/pages");
-    expect(visible).not.toContain("/admin/newsletter");
+    expect(visible).toContain("/admin/newsletter");
     expect(visible).not.toContain("/admin/users");
     expect(visible).not.toContain("/admin/blog");
     expect(visible).not.toContain("/admin/global-network");
@@ -156,5 +164,21 @@ describe("visibleNavItems", () => {
       ],
     });
     expect(hrefs(mixed)).toEqual(NAV_ITEMS.map((item) => item.href));
+  });
+});
+
+describe("navLabel", () => {
+  it("renames Events and Newsletter on the chapter dashboard only", () => {
+    const events = navItem("/admin/events");
+    const newsletter = navItem("/admin/newsletter");
+    expect(navLabel(events, true)).toBe("Events and Activities");
+    expect(navLabel(events, false)).toBe("Events");
+    expect(navLabel(newsletter, true)).toBe("Newsletter");
+    expect(navLabel(newsletter, false)).toBe("Prescription");
+  });
+
+  it("keeps every other label untouched for chapters", () => {
+    expect(navLabel(navItem("/admin/news"), true)).toBe("News");
+    expect(navLabel(navItem("/admin/students"), true)).toBe("Students' Arm");
   });
 });

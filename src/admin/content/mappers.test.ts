@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { mapChapters, mapPublications, mapRegions, publicationStats, regionStats } from "./mappers";
+import {
+  mapChapterMembership,
+  mapChapters,
+  mapPublications,
+  mapRegions,
+  publicationStats,
+  regionStats,
+} from "./mappers";
 import { grantsFromRoles, visibleToGrants } from "./scope";
 
 const ROWS = [
@@ -115,6 +122,31 @@ describe("mapChapters", () => {
     expect(items.filter((item) => item.scope && visibleToGrants(item.scope, system))).toHaveLength(
       4,
     );
+  });
+});
+
+describe("mapChapterMembership", () => {
+  it("keeps labelled rows, trimming blank labels and values", () => {
+    expect(
+      mapChapterMembership([
+        { label: " Total students ", value: " 120 " },
+        { label: "", value: "5" },
+        { value: "9" },
+        "junk",
+        null,
+        { label: "Fellowship meetings" },
+      ]),
+    ).toEqual([
+      { label: "Total students", value: "120" },
+      { label: "Fellowship meetings", value: "" },
+    ]);
+  });
+
+  it("returns nothing for a missing or malformed list", () => {
+    expect(mapChapterMembership(undefined)).toEqual([]);
+    expect(mapChapterMembership(null)).toEqual([]);
+    expect(mapChapterMembership("nope")).toEqual([]);
+    expect(mapChapterMembership({})).toEqual([]);
   });
 });
 

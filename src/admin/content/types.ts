@@ -52,6 +52,19 @@ export interface ContentModulePayload {
   items: ContentItem[];
 }
 
+export interface MyChapterStat {
+  label: string;
+  value: string;
+}
+
+export interface MyChapterPayload {
+  ok: boolean;
+  slug: string | null;
+  name: string | null;
+  arm: string | null;
+  membership: MyChapterStat[];
+}
+
 export interface MediaAsset {
   id: string;
   url: string;

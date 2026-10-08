@@ -21,7 +21,8 @@ import { logoutAction } from "@/admin/auth/server";
 import { cn } from "@/lib/utils";
 import { scopeLabel } from "./admin-session";
 import type { AdminSession } from "./admin-session";
-import { visibleNavItems } from "./nav-items";
+import { isChapterDashboard, navLabel, visibleNavItems } from "./nav-items";
+import { useMyChapter } from "./admin-content";
 
 function initials(name: string): string {
   return name
@@ -40,6 +41,7 @@ function SidebarContent({
   onNavigate?: () => void;
 }) {
   const location = useLocation();
+  const chapterOnly = isChapterDashboard(session);
   const visibleItems = visibleNavItems(session);
   const groups = [...new Set(visibleItems.map((item) => item.group))];
 
@@ -88,7 +90,7 @@ function SidebarContent({
                           active ? "text-gold-foreground" : "text-gold/80 group-hover:text-gold",
                         )}
                       />
-                      {item.label}
+                      {navLabel(item, chapterOnly)}
                     </Link>
                   );
                 })}
@@ -122,6 +124,8 @@ function AdminTopbar({
 }) {
   const queryClient = useQueryClient();
   const location = useLocation();
+  const chapterOnly = isChapterDashboard(session);
+  const chapter = useMyChapter(chapterOnly);
   const current = visibleNavItems(session).find((item) => item.href === location.pathname);
 
   async function handleLogout() {
@@ -149,10 +153,12 @@ function AdminTopbar({
         </Button>
         <div>
           <h1 className="font-display text-base font-bold tracking-tight sm:text-lg">
-            {current?.label ?? "Admin"}
+            {current ? navLabel(current, chapterOnly) : "Admin"}
           </h1>
           <p className="hidden text-xs text-muted-foreground sm:block sm:text-sm">
-            CMDA Nigeria administration
+            {chapterOnly && chapter.data?.name
+              ? `Welcome to ${chapter.data.name}`
+              : "CMDA Nigeria administration"}
           </p>
         </div>
       </div>

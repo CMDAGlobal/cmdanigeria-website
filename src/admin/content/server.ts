@@ -9,6 +9,7 @@ import type {
   ContentScopeOptionsPayload,
   CreateContentInput,
   MediaPayload,
+  MyChapterPayload,
   PageSectionsPayload,
   SetPageSectionsInput,
   SetPublicationInput,
@@ -34,6 +35,8 @@ export type {
   CreateContentInput,
   MediaAsset,
   MediaPayload,
+  MyChapterPayload,
+  MyChapterStat,
   PageSectionOrder,
   PageSectionRow,
   PageSectionsPayload,
@@ -58,6 +61,13 @@ export const getMediaLibraryAction = createServerFn({ method: "GET", strict: fal
   async (): Promise<MediaPayload> => {
     const { getMediaLibrary } = await import("./actions");
     return getMediaLibrary();
+  },
+);
+
+export const getMyChapterAction = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<MyChapterPayload> => {
+    const { getMyChapter } = await import("./actions");
+    return getMyChapter();
   },
 );
 

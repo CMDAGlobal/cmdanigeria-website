@@ -93,7 +93,7 @@ function About({ chapter }: { chapter: ChapterDetail }) {
  * rather than disappearing.
  */
 function Stats({ chapter }: { chapter: ChapterDetail }) {
-  const stats = chapterStats(chapter.membership);
+  const stats = chapterStats(chapter.membership, chapter.arm);
   return (
     <Section className="paper" id="stats">
       <SectionHead eyebrow="Chapter statistics" title="At a glance" />

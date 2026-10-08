@@ -27,6 +27,7 @@ export interface NavItem {
   permission?: string;
   group: string;
   chapterScoped?: boolean;
+  chapterLabel?: string;
   arm?: "students" | "doctors";
 }
 
@@ -72,9 +73,11 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/admin/newsletter",
     label: "Prescription",
+    chapterLabel: "Newsletter",
     icon: Mail,
     permission: "publications.read",
     group: "Website Content",
+    chapterScoped: true,
   },
   {
     href: "/admin/students",
@@ -104,6 +107,7 @@ export const NAV_ITEMS: NavItem[] = [
   {
     href: "/admin/events",
     label: "Events",
+    chapterLabel: "Events and Activities",
     icon: CalendarDays,
     permission: "events.read",
     group: "Publishing",
@@ -158,6 +162,10 @@ function chapterArms(session: AdminSession): Set<string> {
     if (role.key === "chapter_admin" && role.scope.arm) arms.add(role.scope.arm);
   }
   return arms;
+}
+
+export function navLabel(item: NavItem, chapterOnly: boolean): string {
+  return chapterOnly && item.chapterLabel ? item.chapterLabel : item.label;
 }
 
 export function visibleNavItems(session: AdminSession, items: NavItem[] = NAV_ITEMS): NavItem[] {
