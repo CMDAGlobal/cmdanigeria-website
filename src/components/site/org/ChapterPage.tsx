@@ -6,6 +6,12 @@ import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ChapterDetail } from "@/sanity/types";
 import { EventCard, GalleryGrid, LeaderCard } from "./cards";
+import {
+  CHAPTER_EXECUTIVE_POSITIONS,
+  CLASS_EXECUTIVE_POSITIONS,
+  matchExecutives,
+} from "./executive-positions";
+import { ExecutiveBlock } from "./executives";
 import { ContactSection, NewsSection, ResourcesSection } from "./UnitSections";
 
 const armLabels: Record<string, string> = {
@@ -120,6 +126,40 @@ function Exco({ chapter }: { chapter: ChapterDetail }) {
   );
 }
 
+/**
+ * Student chapters show the two lower tiers of the Students' Executive
+ * Committee: every listed office is rendered in order, filled from the
+ * chapter's CMS leaders where they exist and as photo/name placeholders where
+ * they do not. Leaders matching neither list are appended to the chapter block
+ * so nobody attached to the chapter is hidden.
+ */
+function StudentsExecutives({ chapter }: { chapter: ChapterDetail }) {
+  const result = matchExecutives(
+    [{ positions: CHAPTER_EXECUTIVE_POSITIONS }, { positions: CLASS_EXECUTIVE_POSITIONS }],
+    chapter.exco,
+  );
+  const chapterSlots = [...(result.groups[0]?.slots ?? []), ...result.extras];
+  return (
+    <>
+      <ExecutiveBlock
+        id="exco"
+        tone="muted"
+        eyebrow="Executive committee"
+        title="Chapter executive committee"
+        intro="The officers steering fellowship, missions and excellence at this chapter."
+        slots={chapterSlots}
+      />
+      <ExecutiveBlock
+        tone="paper"
+        eyebrow="Class executives"
+        title="Class executive committee"
+        intro="Class officers coordinating academics, missions and prayer for each class."
+        slots={result.groups[1]?.slots ?? []}
+      />
+    </>
+  );
+}
+
 function Events({ chapter }: { chapter: ChapterDetail }) {
   if (!chapter.events?.length) return null;
   return (
@@ -181,7 +221,11 @@ export function ChapterPage({ chapter }: { chapter: ChapterDetail | null | undef
       <BackLink chapter={chapter} />
       <About chapter={chapter} />
       <Stats chapter={chapter} />
-      <Exco chapter={chapter} />
+      {chapter.arm === "students" ? (
+        <StudentsExecutives chapter={chapter} />
+      ) : (
+        <Exco chapter={chapter} />
+      )}
       <Events chapter={chapter} />
       <NewsSection news={chapter.news} title={`${chapter.name} news`} />
       <Gallery chapter={chapter} />

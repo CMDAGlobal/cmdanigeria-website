@@ -1,7 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
-import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
+import { ArmAnnouncements, ArmEvents, ArmZones } from "@/components/site/org/arm-sections";
+import {
+  NATIONAL_EXECUTIVE_POSITIONS,
+  matchExecutives,
+} from "@/components/site/org/executive-positions";
+import { ExecutiveBlock } from "@/components/site/org/executives";
 import { fetchArmOverview, fetchArmStats, fetchPageBySlug } from "@/sanity/data";
 import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
@@ -85,6 +90,8 @@ const newsletters = [
 
 function StudentsArmPage() {
   const { data, stats: liveStats, page } = Route.useLoaderData();
+  const nec = matchExecutives([{ positions: NATIONAL_EXECUTIVE_POSITIONS }], data.nec);
+  const necSlots = [...(nec.groups[0]?.slots ?? []), ...nec.extras];
   // Counts come from the CMS so they cannot drift from what admins manage.
   const stats = [
     { value: `${ORG_TOTALS.studentMembers.toLocaleString("en-NG")}+`, label: "Student members" },
@@ -189,7 +196,13 @@ function StudentsArmPage() {
         </div>
       </Section>
 
-      <ArmNec nec={data.nec} title="Students' national leadership" />
+      <ExecutiveBlock
+        id="nec"
+        eyebrow="Students' Executive Committee"
+        title="National Executive Committee"
+        intro="The officers and zonal coordinators leading CMDA Nigeria's Students' Arm. Names and photos are published from the CMS."
+        slots={necSlots}
+      />
       <ArmZones
         zones={data.zones}
         title={
