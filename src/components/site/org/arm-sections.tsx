@@ -1,13 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowUpRight, CalendarDays } from "lucide-react";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
-import type {
-  AnnouncementRecord,
-  EventRecord,
-  LeaderRecord,
-  ZoneRecord,
-} from "@/sanity/types";
+import type { AnnouncementRecord, EventRecord, LeaderRecord, ZoneRecord } from "@/sanity/types";
 import { AnnouncementCard, EventCard, LeaderCard } from "./cards";
+import { remainingChapters } from "./zone-more";
 
 export function ArmNec({
   nec,
@@ -51,48 +47,65 @@ export function ArmZones({
     <Section className="paper">
       <SectionHead eyebrow="Our chapters" title={title} intro={intro} />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {zones.map((zone) => (
-          <Reveal key={zone._id}>
-            <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
-              <div className="flex items-center justify-between gap-4">
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
-                  <Link
-                    to="/zones/$slug"
-                    params={{ slug: zone.slug?.current ?? zone._id }}
-                    className="transition-colors hover:text-cmda-green"
-                  >
-                    {zone.name}
-                  </Link>
-                </h3>
-                <span className="font-display text-2xl font-extrabold text-cmda-green">
-                  {zone.chapterCount ?? 0}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">chapters</p>
-              {zone.intro ? <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{zone.intro}</p> : null}
-              {zone.sampleChapters?.length ? (
-                <div className="mt-5 flex flex-wrap gap-2">
-                  {zone.sampleChapters.map((chapter) => (
+        {zones.map((zone) => {
+          const remaining = remainingChapters(zone.chapterCount, zone.sampleChapters?.length);
+          return (
+            <Reveal key={zone._id}>
+              <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
                     <Link
-                      key={chapter._id}
-                      to="/chapters/$slug"
-                      params={{ slug: chapter.slug?.current ?? chapter._id }}
-                      className="group inline-flex items-center gap-1 border border-border bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:border-cmda-green hover:text-cmda-green"
+                      to="/zones/$slug"
+                      params={{ slug: zone.slug?.current ?? zone._id }}
+                      className="transition-colors hover:text-cmda-green"
                     >
-                      {chapter.name}
-                      <ArrowUpRight className="size-3 opacity-0 transition-opacity group-hover:opacity-100" aria-hidden="true" />
+                      {zone.name}
                     </Link>
-                  ))}
-                  {(zone.chapterCount ?? 0) > 8 ? (
-                    <span className="rounded-none border border-border bg-muted px-2 py-0.5 text-[0.7rem] text-muted-foreground">
-                      +{(zone.chapterCount ?? 0) - 8} more
-                    </span>
-                  ) : null}
+                  </h3>
+                  <span className="font-display text-2xl font-extrabold text-cmda-green">
+                    {zone.chapterCount ?? 0}
+                  </span>
                 </div>
-              ) : null}
-            </div>
-          </Reveal>
-        ))}
+                <p className="mt-1 text-xs text-muted-foreground">chapters</p>
+                {zone.intro ? (
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{zone.intro}</p>
+                ) : null}
+                {zone.sampleChapters?.length ? (
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {zone.sampleChapters.map((chapter) => (
+                      <Link
+                        key={chapter._id}
+                        to="/chapters/$slug"
+                        params={{ slug: chapter.slug?.current ?? chapter._id }}
+                        className="group inline-flex items-center gap-1 border border-border bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:border-cmda-green hover:text-cmda-green"
+                      >
+                        {chapter.name}
+                        <ArrowUpRight
+                          className="size-3 opacity-0 transition-opacity group-hover:opacity-100"
+                          aria-hidden="true"
+                        />
+                      </Link>
+                    ))}
+                    {remaining > 0 ? (
+                      <Link
+                        to="/zones/$slug"
+                        params={{ slug: zone.slug?.current ?? zone._id }}
+                        aria-label={`View all chapters in ${zone.name}`}
+                        className="group inline-flex items-center gap-1 border border-border bg-muted px-2 py-0.5 text-[0.7rem] font-medium text-muted-foreground transition-colors hover:border-cmda-green hover:text-cmda-green"
+                      >
+                        +{remaining} more
+                        <ArrowUpRight
+                          className="size-3 opacity-0 transition-opacity group-hover:opacity-100"
+                          aria-hidden="true"
+                        />
+                      </Link>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            </Reveal>
+          );
+        })}
       </div>
     </Section>
   );
