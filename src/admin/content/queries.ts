@@ -114,6 +114,21 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
   }`,
+  leadership: `*[_type == "person" && !(_id in path("drafts.**"))] | order(order asc, name asc) {
+    "id": _id,
+    "title": name,
+    "slug": slug.current,
+    arm,
+    "subtitle": position,
+    institution,
+    chapter,
+    country,
+    isNational,
+    leadershipTeam,
+    "region": region->slug.current,
+    "zone": zone->slug.current,
+    "chapterRef": memberOfChapter->slug.current
+  }`,
 };
 
 const ASSET_PROJECTION = `{"id": _id, "url": url}`;
@@ -165,6 +180,11 @@ export const MEDIA_QUERY = `{
     "regions": regions[]->slug.current, "zones": zones[]->slug.current, "chapters": chapters[]->slug.current,
     "cover": coverImage.asset->${ASSET_PROJECTION},
     ${GALLERY_PROJECTION}
+  },
+  "leadership": *[_type == "person"]{
+    "owner": name, "ownerId": _id, arm,
+    "region": region->slug.current, "zone": zone->slug.current, "chapterRef": memberOfChapter->slug.current,
+    "cover": headshot.asset->${ASSET_PROJECTION}
   }
 }`;
 
@@ -198,6 +218,7 @@ export const STUDIO_TYPE_BY_MODULE: Record<ContentModuleKey, string> = {
   announcements: "announcement",
   outreaches: "outreach",
   pages: "page",
+  leadership: "person",
 };
 
 /**

@@ -38,12 +38,25 @@ export interface ModuleMutationConfig {
   /** Alt-text companion of an image asset field, keyed by that field. */
   altFields?: Record<string, string>;
   /**
+   * Arrays of gallery images (`galleryImage` objects whose `image` is an asset
+   * ref). The form submits rows of `{image: assetId, alt, caption}`; empty
+   * rows are dropped rather than stored without a photo.
+   */
+  galleryFields?: Record<string, AssetKind>;
+  /**
    * Nested plain-object fields (contact details, social links) and the sub-keys
    * the dashboard may write. Anything outside the whitelist is rejected.
    */
   objectFields?: Record<string, readonly string[]>;
   /** Arrays of plain objects (resources), whitelisted the same way. */
   arrayFields?: Record<string, readonly string[]>;
+  /**
+   * Where a scope slug is stored as a single reference instead of a ref array
+   * (person: `memberOfChapter`/`zone`/`region`). Create/update write the first
+   * slug of each scope list into the named field and null it when absent; the
+   * read paths project the same fields back out as scope aliases.
+   */
+  singleRefs?: { chapter?: string; zone?: string; region?: string };
 }
 
 export type AssetKind = "image" | "file";
@@ -103,6 +116,8 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       "description",
       "mission",
       "history",
+      "logo",
+      "gallery",
       "contactInfo",
       "socialLinks",
       "resources",
@@ -117,6 +132,8 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       resources: ["title", "description", "url", "kind"],
       membership: ["value", "label"],
     },
+    assetFields: { logo: "image" },
+    galleryFields: { gallery: "image" },
     // Chapters are organisation units — their visibility is their publication.
     publication: false,
     selfUnit: true,
@@ -295,6 +312,41 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     ],
     publication: true,
   },
+  leadership: {
+    type: "person",
+    writePermission: "leaders.write",
+    deletePermission: "leaders.delete",
+    auditPrefix: "leader",
+    titleField: "name",
+    required: ["name"],
+    // `chapter` here is the person's own display string ("LUTH Chapter"),
+    // distinct from the scope ref stored in `memberOfChapter`.
+    allowed: [
+      "name",
+      "slug",
+      "position",
+      "chapterRole",
+      "headshot",
+      "institution",
+      "chapter",
+      "country",
+      "bio",
+      "isNational",
+      "leadershipTeam",
+      "order",
+      "contactInfo",
+      "socialLinks",
+      ...SCOPE_FIELDS,
+    ],
+    objectFields: {
+      contactInfo: ["email", "phone", "address"],
+      socialLinks: ["instagram", "x", "facebook", "whatsapp"],
+    },
+    assetFields: { headshot: "image" },
+    singleRefs: { chapter: "memberOfChapter", zone: "zone", region: "region" },
+    // Leaders carry no publication lifecycle — the public queries read them live.
+    publication: false,
+  },
 };
 
 export class ContentInputError extends Error {
@@ -424,6 +476,46 @@ function normalizeStructArray(
   return value.map((entry) => normalizeStructRow(entry, keys));
 }
 
+/** Upper bound on a chapter gallery, tighter than the generic list limit. */
+export const MAX_GALLERY_IMAGES = 30;
+const GALLERY_ROW_KEYS = ["image", "alt", "caption"] as const;
+
+/**
+ * Normalizes dashboard gallery rows into the `galleryImage` objects the
+ * chapter/gallery schema stores. Rows without a valid image asset id are
+ * dropped (novices add the photo per row); alt/caption ride along as optional
+ * strings, mirroring `normalizeAssetField`'s alt handling.
+ */
+export function normalizeGalleryField(value: unknown): Array<Record<string, unknown>> {
+  if (value === null || value === undefined || value === "") return [];
+  if (!Array.isArray(value) || value.length > MAX_GALLERY_IMAGES) {
+    throw new ContentInputError("invalid_input");
+  }
+  const rows: Array<Record<string, unknown>> = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const input = entry as Record<string, unknown>;
+    for (const key of Object.keys(input)) {
+      if (!(GALLERY_ROW_KEYS as readonly string[]).includes(key)) {
+        throw new ContentInputError("invalid_input");
+      }
+    }
+    const image = normalizeAssetField(input["image"] ?? null, "image");
+    if (!image) continue;
+    const row: Record<string, unknown> = { _type: "galleryImage", image };
+    const alt = typeof input["alt"] === "string" ? input["alt"].trim() : "";
+    if (alt.length > MAX_STRING_CHARS) throw new ContentInputError("invalid_input");
+    if (alt) row["alt"] = alt;
+    const caption = typeof input["caption"] === "string" ? input["caption"].trim() : "";
+    if (caption.length > MAX_STRING_CHARS) throw new ContentInputError("invalid_input");
+    if (caption) row["caption"] = caption;
+    rows.push(row);
+  }
+  return rows;
+}
+
 /**
  * Validates an untrusted field map against the module allowlist and required
  * fields. Returns a copy containing only allowed keys. Scope arrays come back
@@ -451,6 +543,8 @@ export function validateFields(
     if ((SCOPE_FIELDS as readonly string[]).includes(key)) continue;
     // Asset fields accept a bare asset id, validated by `normalizeAssetField`.
     if (config.assetFields && key in config.assetFields) continue;
+    // Gallery fields accept rows of bare asset ids, validated below.
+    if (config.galleryFields && key in config.galleryFields) continue;
     // Nested objects and row arrays are checked against their column whitelist.
     if (key in objectFields || key in arrayFields) continue;
     // Alt text is written with its image, after the image resolves.
@@ -490,6 +584,10 @@ export function validateFields(
       // Alt text rides along with the image so the form needs no nested object.
       const altKey = altFields[key];
       output[key] = normalizeAssetField(value, assetKind, altKey ? input[altKey] : undefined);
+      continue;
+    }
+    if (config.galleryFields && key in config.galleryFields) {
+      output[key] = normalizeGalleryField(value);
       continue;
     }
     if (key in objectFields) {
@@ -532,6 +630,49 @@ export function validateFields(
   }
 
   return output;
+}
+
+function toRef(id: string): { _type: "reference"; _ref: string } {
+  return { _type: "reference", _ref: id };
+}
+
+/**
+ * Writes a scope list into the document's storage shape: ref arrays for most
+ * types, a single optional ref (or null) where the schema keeps one reference
+ * (`config.singleRefs`). Self-unit documents are handled by the caller.
+ */
+export function writeScopeRefs(
+  payload: Record<string, unknown>,
+  config: ModuleMutationConfig,
+  meta: ContentScopeMeta,
+  refs: { chapters: Map<string, string>; zones: Map<string, string>; regions: Map<string, string> },
+  keys: { regions?: boolean; zones?: boolean; chapters?: boolean },
+): void {
+  const single = config.singleRefs;
+  if (keys.regions) {
+    if (single?.region) {
+      const slug = meta.regions[0];
+      payload[single.region] = slug ? toRef(refs.regions.get(slug) as string) : null;
+    } else {
+      payload["regions"] = meta.regions.map((entry) => toRef(refs.regions.get(entry) as string));
+    }
+  }
+  if (keys.zones) {
+    if (single?.zone) {
+      const slug = meta.zones[0];
+      payload[single.zone] = slug ? toRef(refs.zones.get(slug) as string) : null;
+    } else {
+      payload["zones"] = meta.zones.map((entry) => toRef(refs.zones.get(entry) as string));
+    }
+  }
+  if (keys.chapters) {
+    if (single?.chapter) {
+      const slug = meta.chapters[0];
+      payload[single.chapter] = slug ? toRef(refs.chapters.get(slug) as string) : null;
+    } else {
+      payload["chapters"] = meta.chapters.map((entry) => toRef(refs.chapters.get(entry) as string));
+    }
+  }
 }
 
 /** Validates create-time publication — only draft/published are creatable. */

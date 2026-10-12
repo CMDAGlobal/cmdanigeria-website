@@ -30,6 +30,7 @@ const MODULES: ContentModuleKey[] = [
   "outreaches",
   "pages",
   "publications",
+  "leadership",
 ];
 
 const ORG = {
@@ -97,6 +98,24 @@ describe("form config integrity", () => {
         }
       }
     }
+  });
+
+  it("leadership scope is stored as single references", () => {
+    expect(MODULE_MUTATIONS.leadership.singleRefs).toEqual({
+      chapter: "memberOfChapter",
+      zone: "zone",
+      region: "region",
+    });
+    expect(MODULE_MUTATIONS.leadership.publication).toBe(false);
+    expect(MODULE_MUTATIONS.leadership.assetFields).toEqual({ headshot: "image" });
+  });
+
+  it("chapters expose the logo and gallery media fields", () => {
+    expect(MODULE_MUTATIONS.chapters.assetFields).toEqual({ logo: "image" });
+    expect(MODULE_MUTATIONS.chapters.galleryFields).toEqual({ gallery: "image" });
+    const names = MODULE_FORM_FIELDS.chapters.map((field) => [field.name, field.kind]);
+    expect(names).toContainEqual(["logo", "image"]);
+    expect(names).toContainEqual(["gallery", "gallery"]);
   });
 });
 

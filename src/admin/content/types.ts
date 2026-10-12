@@ -6,7 +6,8 @@ export type ContentModuleKey =
   | "publications"
   | "announcements"
   | "outreaches"
-  | "pages";
+  | "pages"
+  | "leadership";
 
 export type StatusTone = "default" | "secondary" | "outline" | "destructive";
 

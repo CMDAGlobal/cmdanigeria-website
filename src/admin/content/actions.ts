@@ -27,10 +27,12 @@ import {
   announcementStats,
   chapterStats,
   eventStats,
+  leadershipStats,
   mapAnnouncements,
   mapChapters,
   mapChapterMembership,
   mapEvents,
+  mapLeadership,
   mapNews,
   mapOutreaches,
   mapPages,
@@ -87,6 +89,7 @@ const MODULE_CONFIG: Record<
   },
   outreaches: { permission: "outreaches.read", map: mapOutreaches, stats: outreachStats },
   pages: { permission: "pages.read", map: mapPages, stats: pageStats },
+  leadership: { permission: "leaders.read", map: mapLeadership, stats: leadershipStats },
 };
 
 const MEDIA_BUCKETS: { key: string; label: string }[] = [
@@ -98,6 +101,7 @@ const MEDIA_BUCKETS: { key: string; label: string }[] = [
   { key: "publications", label: "Publication" },
   { key: "outreaches", label: "Outreach" },
   { key: "pages", label: "Page" },
+  { key: "leadership", label: "Leader" },
 ];
 
 const DOCUMENT_LABELS: Record<string, string> = {
@@ -235,6 +239,7 @@ interface RawMediaDoc {
   zone?: unknown;
   zones?: unknown;
   chapters?: unknown;
+  chapterRef?: unknown;
   cover?: RawAssetRef | null;
   gallery?: RawGalleryEntry[];
 }
@@ -273,7 +278,7 @@ export async function getMediaLibrary(): Promise<MediaPayload> {
         arm: doc.arm,
         regions: doc.regions ?? doc.region,
         zones: doc.zones ?? doc.zone,
-        chapters: doc.chapters,
+        chapters: doc.chapters ?? doc.chapterRef,
       });
       if (!visibleToGrants(meta, grants)) continue;
 
@@ -394,14 +399,34 @@ function docDetailQuery(config: ModuleMutationConfig): string {
     parts.push(expr);
   };
   const assetFields = config.assetFields ?? {};
+  const galleryFields = config.galleryFields ?? {};
+  const singleScopeKey = (key: string): string | undefined => {
+    if (key === "regions") return config.singleRefs?.region;
+    if (key === "zones") return config.singleRefs?.zone;
+    if (key === "chapters") return config.singleRefs?.chapter;
+    return undefined;
+  };
   for (const key of config.allowed) {
     if (key === "slug") {
       add(`"slug": slug.current`, key);
     } else if ((SCOPE_REF_KEYS as readonly string[]).includes(key)) {
-      add(`"${key}": ${key}[]->slug.current`, key);
+      // Single-ref schemas (person) keep one optional ref where most types
+      // keep a ref array — project either shape back into the same key.
+      const single = singleScopeKey(key);
+      if (single) {
+        add(`"${key}": ${single}->slug.current`, key);
+      } else {
+        add(`"${key}": ${key}[]->slug.current`, key);
+      }
     } else if (key in assetFields) {
       // Asset fields are stored as references — the form edits a bare asset id.
       add(`"${key}": ${key}{ "assetId": asset._ref, "url": asset->url, alt }`, key);
+    } else if (key in galleryFields) {
+      // Gallery rows flatten to bare asset ids plus their alt/caption.
+      add(
+        `"${key}": ${key}[]{ "assetId": image.asset._ref, "url": image.asset->url, alt, caption }`,
+        key,
+      );
     } else {
       add(key, key);
     }
@@ -444,6 +469,7 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
     const fields: Record<string, unknown> = {};
     const assets: ContentDocPayload["assets"] = {};
     const assetFields = config.assetFields ?? {};
+    const galleryFields = config.galleryFields ?? {};
     for (const key of config.allowed) {
       if (key === "arm" || (SCOPE_REF_KEYS as readonly string[]).includes(key)) continue;
       const raw = doc[key];
@@ -462,6 +488,30 @@ export async function getContentDoc(input: ContentDocInput): Promise<ContentDocP
         };
         const altKey = config.altFields?.[key];
         if (altKey && typeof ref?.alt === "string") fields[altKey] = ref.alt;
+        continue;
+      }
+      if (key in galleryFields) {
+        // Flatten gallery rows into `{image: assetId, alt, caption}` for the
+        // form; rows without a resolvable asset are dropped rather than shown.
+        const rows = Array.isArray(raw) ? raw : [];
+        const gallery: Array<{ image: string; alt: string; caption: string; url: string }> = [];
+        for (const entry of rows) {
+          const ref = entry as {
+            assetId?: unknown;
+            url?: unknown;
+            alt?: unknown;
+            caption?: unknown;
+          } | null;
+          const imageId = typeof ref?.assetId === "string" ? ref.assetId : "";
+          if (!imageId) continue;
+          gallery.push({
+            image: imageId,
+            alt: typeof ref?.alt === "string" ? ref.alt : "",
+            caption: typeof ref?.caption === "string" ? ref.caption : "",
+            url: typeof ref?.url === "string" ? ref.url : "",
+          });
+        }
+        fields[key] = gallery;
         continue;
       }
       fields[key] = raw;

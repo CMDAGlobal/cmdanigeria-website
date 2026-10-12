@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
+  leadershipStats,
   mapChapterMembership,
   mapChapters,
+  mapLeadership,
   mapPublications,
   mapRegions,
   publicationStats,
@@ -224,5 +226,79 @@ describe("mapPublications", () => {
     const withLink = mapPublications([{ id: "p5", title: "Touch", url: "https://example.org/t" }]);
     expect(publicationStats(withLink).at(-1)).toEqual({ label: "With reading link", value: 1 });
     expect(publicationStats([]).every((stat) => stat.value === 0)).toBe(true);
+  });
+});
+
+const LEADER_ROWS = [
+  {
+    id: "person-1",
+    title: "Dr. Ada Okonkwo",
+    slug: "ada-okonkwo",
+    arm: "students",
+    subtitle: "National President",
+    institution: "LUTH",
+    chapter: "CMDA LUTH Chapter",
+    country: "Nigeria",
+    isNational: true,
+    chapterRef: "luth",
+    zone: "lagos-zone",
+    region: null,
+  },
+  {
+    id: "person-2",
+    title: "Dr. Bola Adeyemi",
+    slug: "bola-adeyemi",
+    arm: "doctors",
+    subtitle: "Chairman",
+    institution: null,
+    chapter: null,
+    country: null,
+    isNational: false,
+    leadershipTeam: "board-of-trustees",
+    chapterRef: null,
+    zone: null,
+    region: "south-west",
+  },
+];
+
+describe("mapLeadership", () => {
+  it("maps names, positions and single-ref scope aliases", () => {
+    const items = mapLeadership(LEADER_ROWS);
+    expect(items[0]?.title).toBe("Dr. Ada Okonkwo");
+    expect(items[0]?.subtitle).toBe("National President");
+    expect(items[0]?.status).toEqual({ label: "National", tone: "secondary" });
+    expect(items[0]?.draft).toBe(false);
+    expect(items[0]?.date).toBeNull();
+    expect(items[0]?.detail).toBe("LUTH · CMDA LUTH Chapter · Nigeria");
+    expect(items[0]?.scope).toEqual({
+      arm: "students",
+      regions: [],
+      zones: ["lagos-zone"],
+      chapters: ["luth"],
+    });
+    // The region single-ref comes back under the same scope key.
+    expect(items[1]?.scope).toEqual({
+      arm: "doctors",
+      regions: ["south-west"],
+      zones: [],
+      chapters: [],
+    });
+    expect(items[1]?.detail).toBe("Board of Trustees");
+  });
+
+  it("is only visible to grants that cover the leader's scope", () => {
+    const items = mapLeadership(LEADER_ROWS);
+    const chapterGrant = grantsFromRoles([{ scope: { arm: "students", chapterSlug: "luth" } }]);
+    expect(visibleToGrants(items[0]!.scope, chapterGrant)).toBe(true);
+    expect(visibleToGrants(items[1]!.scope, chapterGrant)).toBe(false);
+  });
+
+  it("counts totals, NEC members and students-arm leaders", () => {
+    expect(leadershipStats(mapLeadership(LEADER_ROWS))).toEqual([
+      { label: "Total leaders", value: 2 },
+      { label: "National (NEC)", value: 1 },
+      { label: "With position", value: 2 },
+      { label: "Students' arm", value: 1 },
+    ]);
   });
 });

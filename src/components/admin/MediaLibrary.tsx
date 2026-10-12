@@ -107,7 +107,7 @@ export function MediaLibrary() {
           <CardTitle>Assets in use</CardTitle>
           <CardDescription>
             {configured
-              ? "Read-only index. Replace or add images in the Studio."
+              ? "Read-only index. Images are edited where they are used — for example a chapter photo or gallery in Manage your chapter."
               : "The content store is not configured for this environment."}
           </CardDescription>
         </CardHeader>

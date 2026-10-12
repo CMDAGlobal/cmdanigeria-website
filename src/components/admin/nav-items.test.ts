@@ -32,6 +32,9 @@ const CHAPTER_PERMS = [
   "media.read",
   "media.write",
   "pages.read",
+  "leaders.read",
+  "leaders.write",
+  "leaders.delete",
 ];
 
 const studentsChapterAdmin = makeSession({
@@ -92,7 +95,7 @@ describe("visibleNavItems", () => {
       roles: [{ key: "super_admin", name: "Super Admin", scope: {} }],
     });
     expect(hrefs(superAdmin)).toEqual(NAV_ITEMS.map((item) => item.href));
-    expect(hrefs(superAdmin)).toHaveLength(15);
+    expect(hrefs(superAdmin)).toHaveLength(16);
   });
 
   it("filters by permission only when no chapter role is held", () => {
@@ -108,6 +111,7 @@ describe("visibleNavItems", () => {
       "/admin/outreaches",
       "/admin/newsletter",
       "/admin/students",
+      "/admin/leadership",
       "/admin/events",
       "/admin/media",
     ]);
@@ -168,13 +172,16 @@ describe("visibleNavItems", () => {
 });
 
 describe("navLabel", () => {
-  it("renames Events and Newsletter on the chapter dashboard only", () => {
+  it("renames Events, Newsletter and Leadership on the chapter dashboard only", () => {
     const events = navItem("/admin/events");
     const newsletter = navItem("/admin/newsletter");
+    const leadership = navItem("/admin/leadership");
     expect(navLabel(events, true)).toBe("Events and Activities");
     expect(navLabel(events, false)).toBe("Events");
     expect(navLabel(newsletter, true)).toBe("Newsletter");
     expect(navLabel(newsletter, false)).toBe("Prescription");
+    expect(navLabel(leadership, true)).toBe("Our leaders");
+    expect(navLabel(leadership, false)).toBe("Leadership");
   });
 
   it("keeps every other label untouched for chapters", () => {

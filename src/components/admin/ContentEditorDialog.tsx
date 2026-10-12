@@ -44,6 +44,8 @@ import {
   textToBlocks,
   textToTags,
   type FormField,
+  type FormFieldColumn,
+  type ScopeUnitOption,
 } from "@/admin/content/forms";
 import { MODULE_MUTATIONS, assertSlug } from "@/admin/content/validate";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
@@ -70,6 +72,30 @@ type Flags = Record<string, boolean>;
 type UnitKey = "regions" | "zones" | "chapters";
 /** Preview metadata for attached assets — the form itself stores bare ids. */
 type Previews = Record<string, { url: string | null; name: string | null }>;
+
+/**
+ * Gallery rows round-trip through the string values as JSON, like `list`
+ * fields. `url` only carries the preview between load and re-upload — the
+ * submit paths strip it, since the server accepts image/alt/caption only.
+ */
+const GALLERY_COLUMNS: FormFieldColumn[] = [
+  { name: "image", label: "Photo" },
+  { name: "alt", label: "Alt text" },
+  { name: "caption", label: "Caption" },
+  { name: "url", label: "Preview URL" },
+];
+const MAX_GALLERY_ROWS = 30;
+const NO_UNIT = "__none";
+
+function gallerySubmitRows(json: string): Array<{ image: string; alt: string; caption: string }> {
+  return jsonToRows(GALLERY_COLUMNS, json)
+    .filter((row) => (row["image"] ?? "").trim() !== "")
+    .map((row) => ({
+      image: (row["image"] ?? "").trim(),
+      alt: (row["alt"] ?? "").trim(),
+      caption: (row["caption"] ?? "").trim(),
+    }));
+}
 
 interface ScopeState {
   arm: string;
@@ -140,6 +166,8 @@ export function ContentEditorDialog({
         nextValues[field.name] = objectToJson(field.columns ?? [], null);
       } else if (field.kind === "list") {
         nextValues[field.name] = rowsToJson(field.columns ?? [], null);
+      } else if (field.kind === "gallery") {
+        nextValues[field.name] = rowsToJson(GALLERY_COLUMNS, null);
       } else {
         const fallback = FORM_DEFAULTS[field.name];
         const candidate = typeof fallback === "string" ? fallback : "";
@@ -183,6 +211,8 @@ export function ContentEditorDialog({
         nextValues[field.name] = objectToJson(field.columns ?? [], raw);
       } else if (field.kind === "list") {
         nextValues[field.name] = rowsToJson(field.columns ?? [], raw);
+      } else if (field.kind === "gallery") {
+        nextValues[field.name] = rowsToJson(GALLERY_COLUMNS, raw);
       } else {
         nextValues[field.name] = typeof raw === "string" ? raw : "";
       }
@@ -288,7 +318,7 @@ export function ContentEditorDialog({
       if (field.kind === "number" && Number.isNaN(Number(raw))) {
         return `${field.label} must be a number.`;
       }
-      if (field.kind === "object" || field.kind === "list") {
+      if (field.kind === "object" || field.kind === "list" || field.kind === "gallery") {
         let parsed: unknown = null;
         try {
           parsed = JSON.parse(raw);
@@ -296,9 +326,9 @@ export function ContentEditorDialog({
           parsed = null;
         }
         const shapeOk =
-          field.kind === "list"
-            ? Array.isArray(parsed)
-            : typeof parsed === "object" && parsed !== null && !Array.isArray(parsed);
+          field.kind === "object"
+            ? typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)
+            : Array.isArray(parsed);
         if (!shapeOk) return `${field.label} could not be read. Close the editor and try again.`;
       }
     }
@@ -337,6 +367,11 @@ export function ContentEditorDialog({
         }
         case "list": {
           const rows = compactRows(jsonToRows(field.columns ?? [], raw));
+          if (rows.length > 0) out[field.name] = rows;
+          break;
+        }
+        case "gallery": {
+          const rows = gallerySubmitRows(raw);
           if (rows.length > 0) out[field.name] = rows;
           break;
         }
@@ -394,6 +429,9 @@ export function ContentEditorDialog({
         }
         case "list":
           out[field.name] = compactRows(jsonToRows(field.columns ?? [], now));
+          break;
+        case "gallery":
+          out[field.name] = gallerySubmitRows(now);
           break;
         case "tags":
           out[field.name] = textToTags(now);
@@ -711,6 +749,109 @@ export function ContentEditorDialog({
       );
     }
 
+    if (field.kind === "gallery") {
+      const rows = jsonToRows(GALLERY_COLUMNS, values[field.name] ?? "");
+      const write = (next: Array<Record<string, string>>) =>
+        setValues((prev) => ({ ...prev, [field.name]: rowsToJson(GALLERY_COLUMNS, next) }));
+      return (
+        <div key={field.name} className="space-y-3 rounded-lg border p-4 sm:col-span-2">
+          <div className="flex items-start justify-between gap-3">
+            <div className="space-y-2">
+              <Label>
+                {field.label}
+                {required}
+              </Label>
+              {help}
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => write([...rows, { image: "", alt: "", caption: "", url: "" }])}
+              disabled={rows.length >= MAX_GALLERY_ROWS}
+            >
+              {field.addLabel ?? "Add photo"}
+            </Button>
+          </div>
+          {rows.length === 0 ? (
+            <p className="text-xs text-muted-foreground">No photos yet.</p>
+          ) : (
+            <div className="space-y-3">
+              {rows.map((row, index) => (
+                <div key={index} className="space-y-3 rounded-md border p-3">
+                  <MediaField
+                    id={`${id}-${index}`}
+                    label="Photo"
+                    kind="image"
+                    module={module}
+                    value={row["image"] ?? ""}
+                    previewUrl={row["url"] || null}
+                    onChange={(assetId, url) =>
+                      write(
+                        rows.map((entry, rowIndex) =>
+                          rowIndex === index ? { ...entry, image: assetId, url: url ?? "" } : entry,
+                        ),
+                      )
+                    }
+                  />
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`${id}-${index}-alt`} className="text-muted-foreground">
+                        Alt text
+                      </Label>
+                      <Input
+                        id={`${id}-${index}-alt`}
+                        type="text"
+                        value={row["alt"] ?? ""}
+                        onChange={(event) =>
+                          write(
+                            rows.map((entry, rowIndex) =>
+                              rowIndex === index ? { ...entry, alt: event.target.value } : entry,
+                            ),
+                          )
+                        }
+                        placeholder="Briefly describes the photo"
+                      />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`${id}-${index}-caption`} className="text-muted-foreground">
+                        Caption
+                      </Label>
+                      <Input
+                        id={`${id}-${index}-caption`}
+                        type="text"
+                        value={row["caption"] ?? ""}
+                        onChange={(event) =>
+                          write(
+                            rows.map((entry, rowIndex) =>
+                              rowIndex === index
+                                ? { ...entry, caption: event.target.value }
+                                : entry,
+                            ),
+                          )
+                        }
+                        placeholder="Optional caption"
+                      />
+                    </div>
+                  </div>
+                  <div className="flex justify-end">
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => write(rows.filter((_, rowIndex) => rowIndex !== index))}
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (field.kind === "textarea" || field.kind === "rich" || field.kind === "tags") {
       return (
         <div key={field.name} className="space-y-2 sm:col-span-2">
@@ -762,6 +903,37 @@ export function ContentEditorDialog({
     ? `New ${noun}`
     : `Edit “${item?.title ?? docQuery.data?.title ?? "item"}”`;
 
+  /** One optional unit picker for schemas that store a single reference. */
+  function renderSingleUnit(
+    label: string,
+    idSuffix: string,
+    options: ScopeUnitOption[],
+    selected: string[],
+    key: UnitKey,
+  ) {
+    return (
+      <div className="space-y-2">
+        <Label htmlFor={`editor-scope-${idSuffix}`}>{label}</Label>
+        <Select
+          value={selected[0] ?? NO_UNIT}
+          onValueChange={(next) => changeUnits(key, next === NO_UNIT ? [] : [next])}
+        >
+          <SelectTrigger id={`editor-scope-${idSuffix}`} aria-label={label}>
+            <SelectValue placeholder="None" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={NO_UNIT}>None</SelectItem>
+            {options.map((option) => (
+              <SelectItem key={option.slug} value={option.slug}>
+                {option.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
   return (
     <Dialog
       open={open}
@@ -808,7 +980,9 @@ export function ContentEditorDialog({
                   <p className="text-xs text-muted-foreground">
                     {module === "chapters"
                       ? "Which arm this chapter belongs to."
-                      : "Who sees this item. Keep Global Network for network-wide content."}
+                      : module === "leadership"
+                        ? "Where this leader belongs. Chapter admins: your chapter is already selected."
+                        : "Who sees this item. Keep Global Network for network-wide content."}
                   </p>
                 </div>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -827,7 +1001,20 @@ export function ContentEditorDialog({
                       </SelectContent>
                     </Select>
                   </div>
-                  {module !== "chapters" && assignableRegions.length > 0 ? (
+                  {module !== "chapters" &&
+                  config.singleRefs?.region &&
+                  assignableRegions.length > 0
+                    ? renderSingleUnit(
+                        "Region",
+                        "region",
+                        assignableRegions,
+                        scope.regions,
+                        "regions",
+                      )
+                    : null}
+                  {module !== "chapters" &&
+                  !config.singleRefs?.region &&
+                  assignableRegions.length > 0 ? (
                     <UnitMultiSelect
                       label="Regions"
                       options={assignableRegions}
@@ -835,7 +1022,12 @@ export function ContentEditorDialog({
                       onChange={(next) => changeUnits("regions", next)}
                     />
                   ) : null}
-                  {module !== "chapters" && assignableZones.length > 0 ? (
+                  {module !== "chapters" && config.singleRefs?.zone && assignableZones.length > 0
+                    ? renderSingleUnit("Zone", "zone", assignableZones, scope.zones, "zones")
+                    : null}
+                  {module !== "chapters" &&
+                  !config.singleRefs?.zone &&
+                  assignableZones.length > 0 ? (
                     <UnitMultiSelect
                       label="Zones"
                       options={assignableZones}
@@ -843,7 +1035,20 @@ export function ContentEditorDialog({
                       onChange={(next) => changeUnits("zones", next)}
                     />
                   ) : null}
-                  {module !== "chapters" && assignableChapters.length > 0 ? (
+                  {module !== "chapters" &&
+                  config.singleRefs?.chapter &&
+                  assignableChapters.length > 0
+                    ? renderSingleUnit(
+                        "Chapter",
+                        "chapter",
+                        assignableChapters,
+                        scope.chapters,
+                        "chapters",
+                      )
+                    : null}
+                  {module !== "chapters" &&
+                  !config.singleRefs?.chapter &&
+                  assignableChapters.length > 0 ? (
                     <UnitMultiSelect
                       label="Chapters"
                       options={assignableChapters}

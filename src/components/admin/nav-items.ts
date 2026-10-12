@@ -15,6 +15,7 @@ import {
   Settings2,
   Stethoscope,
   Users,
+  UsersRound,
   type LucideIcon,
 } from "lucide-react";
 
@@ -103,6 +104,15 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Globe2,
     permission: "regions.read",
     group: "CMDA Nigeria",
+  },
+  {
+    href: "/admin/leadership",
+    label: "Leadership",
+    chapterLabel: "Our leaders",
+    icon: UsersRound,
+    permission: "leaders.read",
+    group: "CMDA Nigeria",
+    chapterScoped: true,
   },
   {
     href: "/admin/events",

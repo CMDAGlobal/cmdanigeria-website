@@ -20,6 +20,7 @@ import {
   validateCreatePublication,
   validateFields,
   validatePublicationTransition,
+  writeScopeRefs,
   type ModuleMutationConfig,
 } from "./validate";
 import type {
@@ -161,9 +162,9 @@ const DOC_QUERY = `*[_type == $type && _id == $id][0]{
   _id,
   "slug": slug.current,
   arm,
-  "regions": regions[]->slug.current,
-  "zones": zones[]->slug.current,
-  "chapters": chapters[]->slug.current
+  "regions": coalesce(regions[]->slug.current, region->slug.current),
+  "zones": coalesce(zones[]->slug.current, zone->slug.current),
+  "chapters": coalesce(chapters[]->slug.current, memberOfChapter->slug.current)
 }`;
 
 async function loadDoc(
@@ -226,6 +227,18 @@ async function resolveUnitRefs(
 
 function toRef(id: string): { _type: "reference"; _ref: string } {
   return { _type: "reference", _ref: id };
+}
+
+/** Display name of a chapter, used to auto-fill a person's chapter text. */
+async function resolveChapterDisplayName(
+  client: SanityClient,
+  slug: string,
+): Promise<string | null> {
+  const name = await client.fetch<unknown>(
+    `*[_type == "chapter" && slug.current == $slug][0].name`,
+    { slug },
+  );
+  return typeof name === "string" && name.trim() ? name.trim() : null;
 }
 
 async function slugTaken(
@@ -323,9 +336,28 @@ export async function createContent(input: CreateContentInput): Promise<ContentM
     payload["slug"] = { _type: "slug", current: slug };
     if (config.allowed.includes("arm")) payload["arm"] = meta.arm;
     if (!selfUnit) {
-      payload["regions"] = meta.regions.map((value) => toRef(regionRefs.get(value) as string));
-      payload["zones"] = meta.zones.map((value) => toRef(zoneRefs.get(value) as string));
-      payload["chapters"] = meta.chapters.map((value) => toRef(chapterRefs.get(value) as string));
+      writeScopeRefs(
+        payload,
+        config,
+        meta,
+        { chapters: chapterRefs, zones: zoneRefs, regions: regionRefs },
+        {
+          regions: true,
+          zones: true,
+          chapters: true,
+        },
+      );
+    }
+    if (config.singleRefs?.chapter && meta.chapters.length > 0) {
+      const chapterSlug = meta.chapters[0] as string;
+      const supplied =
+        typeof fields["chapter"] === "string" && fields["chapter"].trim()
+          ? fields["chapter"].trim()
+          : "";
+      if (!supplied) {
+        const name = await resolveChapterDisplayName(client, chapterSlug);
+        if (name) payload["chapter"] = name;
+      }
     }
     if (config.publication) {
       payload["publication"] = publication;
@@ -439,19 +471,27 @@ export async function updateContent(input: UpdateContentInput): Promise<ContentM
         set["arm"] = meta.arm;
         continue;
       }
-      if (key === "regions") {
-        set["regions"] = meta.regions.map((entry) => toRef(regionRefs.get(entry) as string));
-        continue;
-      }
-      if (key === "zones") {
-        set["zones"] = meta.zones.map((entry) => toRef(zoneRefs.get(entry) as string));
-        continue;
-      }
-      if (key === "chapters") {
-        set["chapters"] = meta.chapters.map((entry) => toRef(chapterRefs.get(entry) as string));
+      if (key === "regions" || key === "zones" || key === "chapters") {
+        writeScopeRefs(
+          set,
+          config,
+          meta,
+          { chapters: chapterRefs, zones: zoneRefs, regions: regionRefs },
+          {
+            regions: key === "regions",
+            zones: key === "zones",
+            chapters: key === "chapters",
+          },
+        );
         continue;
       }
       set[key] = value;
+    }
+    if (config.singleRefs?.chapter && "chapters" in fields && meta.chapters.length > 0) {
+      if (!("chapter" in fields)) {
+        const name = await resolveChapterDisplayName(client, meta.chapters[0] as string);
+        if (name) set["chapter"] = name;
+      }
     }
     if (Object.keys(set).length === 0) {
       return { ok: true, id: current.id };

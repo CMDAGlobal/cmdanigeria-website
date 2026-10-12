@@ -17,6 +17,7 @@ export interface RawContentRow {
   url?: unknown;
   location?: unknown;
   date?: unknown;
+  subtitle?: unknown;
   region?: unknown;
   zone?: unknown;
   regions?: unknown;
@@ -39,6 +40,11 @@ export interface RawContentRow {
   section?: unknown;
   publication?: unknown;
   publishAt?: unknown;
+  chapter?: unknown;
+  chapterRef?: unknown;
+  country?: unknown;
+  isNational?: unknown;
+  leadershipTeam?: unknown;
 }
 
 export type PublicationKey = "draft" | "published" | "scheduled" | "archived";
@@ -349,6 +355,48 @@ export function mapPages(rows: RawContentRow[]): ContentItem[] {
   });
 }
 
+const LEADERSHIP_TEAM_LABELS: Record<string, string> = {
+  "board-of-trustees": "Board of Trustees",
+  "governing-board": "Governing Board",
+  "management-team": "Management Team",
+};
+
+export function mapLeadership(rows: RawContentRow[]): ContentItem[] {
+  return rows.map((row) => {
+    const position = text(row.subtitle);
+    const detail = [text(row.institution), text(row.chapter), text(row.country)]
+      .filter(Boolean)
+      .join(" · ");
+    const team = text(row.leadershipTeam);
+    return {
+      id: String(row.id ?? ""),
+      title: text(row.title) ?? "Untitled leader",
+      slug: text(row.slug),
+      arm: text(row.arm),
+      subtitle: position,
+      date: null,
+      // People carry no publication lifecycle — they are live once saved. The
+      // badge doubles as the national/NEC flag the stats count, so it survives
+      // even when a detail string (institution, chapter, team) is also present.
+      status: status(row.isNational === true ? "National" : "Active", "secondary"),
+      detail:
+        detail ||
+        (row.isNational === true
+          ? "National"
+          : team
+            ? (LEADERSHIP_TEAM_LABELS[team] ?? team)
+            : null),
+      draft: false,
+      scope: buildScopeMeta({
+        arm: row.arm,
+        regions: row.region,
+        zones: row.zone,
+        chapters: row.chapterRef,
+      }),
+    };
+  });
+}
+
 export function chapterStats(items: ContentItem[]): ContentStat[] {
   return [
     { label: "Total chapters", value: items.length },
@@ -427,5 +475,14 @@ export function pageStats(items: ContentItem[]): ContentStat[] {
     { label: "Total pages", value: items.length },
     { label: "Published", value: countBy(items, (item) => item.status?.label === "Published") },
     { label: "Drafts", value: countBy(items, (item) => item.status?.label === "Draft") },
+  ];
+}
+
+export function leadershipStats(items: ContentItem[]): ContentStat[] {
+  return [
+    { label: "Total leaders", value: items.length },
+    { label: "National (NEC)", value: countBy(items, (item) => item.status?.label === "National") },
+    { label: "With position", value: countBy(items, (item) => Boolean(item.subtitle)) },
+    { label: "Students' arm", value: armCount(items, "students") },
   ];
 }

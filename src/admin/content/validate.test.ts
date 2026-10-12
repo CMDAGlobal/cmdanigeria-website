@@ -6,12 +6,14 @@ import {
   effectiveCreateScope,
   MODULE_MUTATIONS,
   normalizeArm,
+  normalizeGalleryField,
   normalizeScopeInput,
   parseModuleConfig,
   slugify,
   validateCreatePublication,
   validateFields,
   validatePublicationTransition,
+  writeScopeRefs,
 } from "./validate";
 
 const chapters = MODULE_MUTATIONS.chapters;
@@ -425,5 +427,122 @@ describe("applySectionOrder", () => {
     expect(applySectionOrder([], []).changed).toBe(false);
     expect(applySectionOrder(null, []).changed).toBe(false);
     expect(() => applySectionOrder(null, [{ key: "a", visible: true }])).toThrow(ContentInputError);
+  });
+});
+
+const IMAGE_ID = "image-abc123def456-800x600-png";
+
+describe("normalizeGalleryField", () => {
+  it("normalizes rows into galleryImage objects", () => {
+    const rows = normalizeGalleryField([
+      { image: IMAGE_ID, alt: "Students at camp", caption: "Camp 2026" },
+      { image: ` ${IMAGE_ID} `, alt: "  ", caption: null },
+    ]);
+    expect(rows).toEqual([
+      {
+        _type: "galleryImage",
+        image: { _type: "image", asset: { _type: "reference", _ref: IMAGE_ID } },
+        alt: "Students at camp",
+        caption: "Camp 2026",
+      },
+      {
+        _type: "galleryImage",
+        image: { _type: "image", asset: { _type: "reference", _ref: IMAGE_ID } },
+      },
+    ]);
+  });
+
+  it("drops rows without a valid image and treats empty as no gallery", () => {
+    expect(normalizeGalleryField([])).toEqual([]);
+    expect(normalizeGalleryField(null)).toEqual([]);
+    expect(normalizeGalleryField(undefined)).toEqual([]);
+    expect(normalizeGalleryField("")).toEqual([]);
+    expect(normalizeGalleryField([{ alt: "photoless" }])).toEqual([]);
+    expect(normalizeGalleryField([{ image: "" }])).toEqual([]);
+  });
+
+  it("rejects unknown row keys, non-arrays and oversized galleries", () => {
+    expect(() => normalizeGalleryField([{ image: IMAGE_ID, url: "x" }])).toThrow(ContentInputError);
+    expect(() => normalizeGalleryField("nope")).toThrow(ContentInputError);
+    // A malformed asset id is rejected outright rather than dropped — the row
+    // was explicitly populated, so silence would hide the mistake.
+    expect(() => normalizeGalleryField([{ image: "not-an-asset" }])).toThrow(ContentInputError);
+    expect(() =>
+      normalizeGalleryField(Array.from({ length: 31 }, () => ({ image: IMAGE_ID }))),
+    ).toThrow(ContentInputError);
+    expect(
+      normalizeGalleryField(Array.from({ length: 30 }, () => ({ image: IMAGE_ID }))),
+    ).toHaveLength(30);
+  });
+
+  it("validateFields routes the chapters gallery through normalizeGalleryField", () => {
+    const ok = validateFields(
+      chapters,
+      { name: "CMDA LUTH", gallery: [{ image: IMAGE_ID, alt: "Hall" }] },
+      { partial: false },
+    );
+    expect(ok["gallery"]).toEqual([
+      {
+        _type: "galleryImage",
+        image: { _type: "image", asset: { _type: "reference", _ref: IMAGE_ID } },
+        alt: "Hall",
+      },
+    ]);
+  });
+});
+
+describe("writeScopeRefs", () => {
+  const leadership = MODULE_MUTATIONS.leadership;
+  const refs = {
+    chapters: new Map([["luth", "chapter-luth"]]),
+    zones: new Map([["lagos", "zone-lagos"]]),
+    regions: new Map([["south-west", "region-sw"]]),
+  };
+  const allKeys = { regions: true, zones: true, chapters: true };
+
+  it("writes single refs for leadership and nulls them when the scope is empty", () => {
+    const payload: Record<string, unknown> = {};
+    writeScopeRefs(
+      payload,
+      leadership,
+      { arm: "students", regions: [], zones: ["lagos"], chapters: ["luth"] },
+      refs,
+      allKeys,
+    );
+    expect(payload).toEqual({
+      memberOfChapter: { _type: "reference", _ref: "chapter-luth" },
+      zone: { _type: "reference", _ref: "zone-lagos" },
+      region: null,
+    });
+  });
+
+  it("keeps ref arrays for modules without singleRefs", () => {
+    const payload: Record<string, unknown> = {};
+    writeScopeRefs(
+      payload,
+      events,
+      { arm: "students", regions: [], zones: ["lagos"], chapters: ["luth"] },
+      refs,
+      allKeys,
+    );
+    expect(payload).toEqual({
+      regions: [],
+      zones: [{ _type: "reference", _ref: "zone-lagos" }],
+      chapters: [{ _type: "reference", _ref: "chapter-luth" }],
+    });
+  });
+
+  it("only writes the keys it is asked to", () => {
+    const payload: Record<string, unknown> = {};
+    writeScopeRefs(
+      payload,
+      leadership,
+      { arm: "students", regions: [], zones: [], chapters: ["luth"] },
+      refs,
+      { chapters: true },
+    );
+    expect(payload).toEqual({
+      memberOfChapter: { _type: "reference", _ref: "chapter-luth" },
+    });
   });
 });

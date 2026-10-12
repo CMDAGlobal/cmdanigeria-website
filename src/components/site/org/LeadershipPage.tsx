@@ -34,7 +34,7 @@ function LeadershipSection({
               {title}
             </h3>
             <p className="mx-auto mt-2 max-w-xl text-sm text-muted-foreground">
-              Members of this team are listed here once they are added in the CMS (Studio).
+              Members of this team are listed here once they are added in the admin dashboard.
             </p>
           </div>
         </Reveal>

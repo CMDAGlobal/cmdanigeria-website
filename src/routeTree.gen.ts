@@ -49,6 +49,7 @@ import { Route as AdminLayoutChaptersRouteImport } from './routes/admin/_layout/
 import { Route as AdminLayoutDoctorsRouteImport } from './routes/admin/_layout/doctors'
 import { Route as AdminLayoutEventsRouteImport } from './routes/admin/_layout/events'
 import { Route as AdminLayoutGlobalNetworkRouteImport } from './routes/admin/_layout/global-network'
+import { Route as AdminLayoutLeadershipRouteImport } from './routes/admin/_layout/leadership'
 import { Route as AdminLayoutMediaRouteImport } from './routes/admin/_layout/media'
 import { Route as AdminLayoutNewsRouteImport } from './routes/admin/_layout/news'
 import { Route as AdminLayoutNewsletterRouteImport } from './routes/admin/_layout/newsletter'
@@ -262,6 +263,11 @@ const AdminLayoutGlobalNetworkRoute =
     path: '/global-network',
     getParentRoute: () => AdminLayoutRoute,
   } as any)
+const AdminLayoutLeadershipRoute = AdminLayoutLeadershipRouteImport.update({
+  id: '/leadership',
+  path: '/leadership',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutMediaRoute = AdminLayoutMediaRouteImport.update({
   id: '/media',
   path: '/media',
@@ -343,6 +349,7 @@ export interface FileRoutesByFullPath {
   '/admin/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/events': typeof AdminLayoutEventsRoute
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
+  '/admin/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/newsletter': typeof AdminLayoutNewsletterRoute
@@ -392,6 +399,7 @@ export interface FileRoutesByTo {
   '/admin/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/events': typeof AdminLayoutEventsRoute
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
+  '/admin/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/media': typeof AdminLayoutMediaRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/newsletter': typeof AdminLayoutNewsletterRoute
@@ -443,6 +451,7 @@ export interface FileRoutesById {
   '/admin/_layout/doctors': typeof AdminLayoutDoctorsRoute
   '/admin/_layout/events': typeof AdminLayoutEventsRoute
   '/admin/_layout/global-network': typeof AdminLayoutGlobalNetworkRoute
+  '/admin/_layout/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/_layout/media': typeof AdminLayoutMediaRoute
   '/admin/_layout/news': typeof AdminLayoutNewsRoute
   '/admin/_layout/newsletter': typeof AdminLayoutNewsletterRoute
@@ -495,6 +504,7 @@ export interface FileRouteTypes {
     | '/admin/doctors'
     | '/admin/events'
     | '/admin/global-network'
+    | '/admin/leadership'
     | '/admin/media'
     | '/admin/news'
     | '/admin/newsletter'
@@ -544,6 +554,7 @@ export interface FileRouteTypes {
     | '/admin/doctors'
     | '/admin/events'
     | '/admin/global-network'
+    | '/admin/leadership'
     | '/admin/media'
     | '/admin/news'
     | '/admin/newsletter'
@@ -594,6 +605,7 @@ export interface FileRouteTypes {
     | '/admin/_layout/doctors'
     | '/admin/_layout/events'
     | '/admin/_layout/global-network'
+    | '/admin/_layout/leadership'
     | '/admin/_layout/media'
     | '/admin/_layout/news'
     | '/admin/_layout/newsletter'
@@ -915,6 +927,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutGlobalNetworkRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/leadership': {
+      id: '/admin/_layout/leadership'
+      path: '/leadership'
+      fullPath: '/admin/leadership'
+      preLoaderRoute: typeof AdminLayoutLeadershipRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/admin/_layout/media': {
       id: '/admin/_layout/media'
       path: '/media'
@@ -1016,6 +1035,7 @@ interface AdminLayoutRouteChildren {
   AdminLayoutDoctorsRoute: typeof AdminLayoutDoctorsRoute
   AdminLayoutEventsRoute: typeof AdminLayoutEventsRoute
   AdminLayoutGlobalNetworkRoute: typeof AdminLayoutGlobalNetworkRoute
+  AdminLayoutLeadershipRoute: typeof AdminLayoutLeadershipRoute
   AdminLayoutMediaRoute: typeof AdminLayoutMediaRoute
   AdminLayoutNewsRoute: typeof AdminLayoutNewsRoute
   AdminLayoutNewsletterRoute: typeof AdminLayoutNewsletterRoute
@@ -1035,6 +1055,7 @@ const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
   AdminLayoutDoctorsRoute: AdminLayoutDoctorsRoute,
   AdminLayoutEventsRoute: AdminLayoutEventsRoute,
   AdminLayoutGlobalNetworkRoute: AdminLayoutGlobalNetworkRoute,
+  AdminLayoutLeadershipRoute: AdminLayoutLeadershipRoute,
   AdminLayoutMediaRoute: AdminLayoutMediaRoute,
   AdminLayoutNewsRoute: AdminLayoutNewsRoute,
   AdminLayoutNewsletterRoute: AdminLayoutNewsletterRoute,

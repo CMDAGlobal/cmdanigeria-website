@@ -152,11 +152,12 @@ function AdminDashboardPage() {
     const statRows = membership.length
       ? membership
       : [{ label: arm === "doctors" ? "Total doctors" : "Total students", value: "" }];
-    const chapterLinks = [
+    const chapterLinks: Array<{ to: string; label: string }> = [
       {
         to: arm === "doctors" ? "/admin/doctors" : "/admin/students",
         label: "Manage your chapter",
       },
+      { to: "/admin/leadership", label: "Our leaders" },
       { to: "/admin/events", label: "Events and Activities" },
       { to: "/admin/news", label: "News" },
       { to: "/admin/announcements", label: "Announcements" },
@@ -164,7 +165,8 @@ function AdminDashboardPage() {
       { to: "/admin/newsletter", label: "Newsletter" },
       { to: "/admin/media", label: "Media Library" },
       { to: "/", label: "Open public site" },
-    ] as const;
+    ];
+    const publicChapterHref = chapter.data?.slug ? `/chapters/${chapter.data.slug}` : null;
 
     return (
       <div className="space-y-8">
@@ -217,6 +219,15 @@ function AdminDashboardPage() {
                   <ArrowRight className="h-4 w-4 text-muted-foreground" />
                 </Link>
               ))}
+              {publicChapterHref ? (
+                <a
+                  href={publicChapterHref}
+                  className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  View your public page
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </a>
+              ) : null}
             </CardContent>
           </Card>
 

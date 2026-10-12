@@ -19,7 +19,9 @@ export type FormFieldKind =
   /** Nested object edited as one labelled input per column (contact details). */
   | "object"
   /** Repeating rows of columns, each row one entry (resources). */
-  | "list";
+  | "list"
+  /** Repeating rows of photo + alt + caption (chapter gallery). */
+  | "gallery";
 
 export interface FormFieldOption {
   value: string;
@@ -176,6 +178,19 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "mission", label: "Mission / objectives", kind: "textarea", rows: 3 },
     { name: "history", label: "History", kind: "rich", rows: 6, help: RICH_HELP },
     {
+      name: "logo",
+      label: "Chapter photo / logo",
+      kind: "image",
+      help: "Shown at the top of the chapter page.",
+    },
+    {
+      name: "gallery",
+      label: "Photo gallery",
+      kind: "gallery",
+      addLabel: "Add photo",
+      help: "Photos shown in the chapter page gallery. Alt text briefly describes each photo for people using screen readers.",
+    },
+    {
       name: "membership",
       label: "Statistics",
       kind: "list",
@@ -306,6 +321,77 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "seoTitle", label: "SEO title", kind: "text" },
     { name: "seoDescription", label: "SEO description", kind: "textarea", rows: 2 },
     { name: "body", label: "Body", kind: "rich", rows: 7, help: RICH_HELP },
+  ],
+  leadership: [
+    { name: "name", label: "Full name", kind: "text", placeholder: "e.g. Dr. Ada Okonkwo" },
+    {
+      name: "slug",
+      label: "Slug",
+      kind: "text",
+      placeholder: "ada-okonkwo",
+      help: SLUG_HELP,
+    },
+    {
+      name: "position",
+      label: "Position / title",
+      kind: "text",
+      placeholder: "e.g. National President",
+      help: "The title shown under their photo on the website.",
+    },
+    {
+      name: "chapterRole",
+      label: "Chapter role (optional)",
+      kind: "text",
+      placeholder: "e.g. Chapter President",
+      help: "A chapter-specific title, when it differs from the national position.",
+    },
+    {
+      name: "headshot",
+      label: "Photo",
+      kind: "image",
+      help: "Photo shown on the website.",
+    },
+    {
+      name: "institution",
+      label: "Institution / hospital",
+      kind: "text",
+      placeholder: "e.g. LUTH",
+      help: "Where they study or work.",
+    },
+    {
+      name: "chapter",
+      label: "Chapter (display name)",
+      kind: "text",
+      placeholder: "e.g. CMDA LUTH Chapter",
+      help: "Shown next to their name. Filled in automatically when you pick a chapter below.",
+    },
+    { name: "country", label: "Country", kind: "text" },
+    { name: "bio", label: "Short bio", kind: "textarea", rows: 4 },
+    {
+      name: "isNational",
+      label: "National executive (NEC)",
+      kind: "boolean",
+      help: "Tick if this person sits on the national executive.",
+    },
+    {
+      name: "leadershipTeam",
+      label: "Leadership team",
+      kind: "select",
+      options: [
+        { value: "management-team", title: "Management team" },
+        { value: "governing-board", title: "Governing board" },
+        { value: "board-of-trustees", title: "Board of trustees" },
+      ],
+      help: "Also shown on the national Leadership page.",
+    },
+    {
+      name: "order",
+      label: "Display order",
+      kind: "number",
+      help: "Lower numbers appear first.",
+    },
+    { name: "contactInfo", label: "Contact details", kind: "object", columns: CONTACT_COLUMNS },
+    { name: "socialLinks", label: "Social links", kind: "object", columns: SOCIAL_COLUMNS },
   ],
 };
 

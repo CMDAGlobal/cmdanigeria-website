@@ -258,6 +258,9 @@ export function ContentModule({
   const configured = query.data?.configured !== false;
   const canCreate =
     canWrite && configured && !(isChapterDashboard(session.data) && module === "chapters");
+  // Chapter admins never see Studio — everything they need lives in the
+  // dashboard, and pointing at Studio only confuses them.
+  const chapterOnly = isChapterDashboard(session.data);
 
   return (
     <div className="space-y-6">
@@ -273,12 +276,14 @@ export function ContentModule({
               New {noun}
             </Button>
           ) : null}
-          <Button variant="outline" asChild>
-            <a href={`/studio/${studioType}`} target="_blank" rel="noreferrer">
-              <ExternalLink className="h-4 w-4" />
-              Open in Studio
-            </a>
-          </Button>
+          {chapterOnly ? null : (
+            <Button variant="outline" asChild>
+              <a href={`/studio/${studioType}`} target="_blank" rel="noreferrer">
+                <ExternalLink className="h-4 w-4" />
+                Open in Studio
+              </a>
+            </Button>
+          )}
         </div>
       </div>
 
@@ -306,7 +311,11 @@ export function ContentModule({
             {configured
               ? `Scoped to your role.${
                   initialArm ? ` Showing ${armLabel(initialArm)} only.` : ""
-                }${kindFilter ? ` Showing ${kindLabel(kindFilter)} only.` : ""} Create and edit in the dashboard, use the row menu for publication and deletion, or open Studio for full editing.`
+                }${kindFilter ? ` Showing ${kindLabel(kindFilter)} only.` : ""}${
+                  chapterOnly
+                    ? " Create and edit everything from here."
+                    : " Create and edit in the dashboard, use the row menu for publication and deletion, or open Studio for full editing."
+                }`
               : "The content store is not configured for this environment."}
           </CardDescription>
         </CardHeader>
@@ -419,15 +428,17 @@ export function ContentModule({
                       ) : null}
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                          <a
-                            href={studioUrl(studioType, item.id)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="text-muted-foreground transition-colors hover:text-primary"
-                            aria-label={`Edit ${item.title} in Studio`}
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
+                          {chapterOnly ? null : (
+                            <a
+                              href={studioUrl(studioType, item.id)}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-muted-foreground transition-colors hover:text-primary"
+                              aria-label={`Edit ${item.title} in Studio`}
+                            >
+                              <ExternalLink className="h-4 w-4" />
+                            </a>
+                          )}
                           {canWrite || canDelete ? (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
