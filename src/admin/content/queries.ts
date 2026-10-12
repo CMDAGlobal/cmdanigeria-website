@@ -22,7 +22,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     intro,
     active
   }`,
-  events: `*[_type == "event" && !(_id in path("drafts.**"))] | order(startDate desc) {
+  events: `*[_type == "event" && !(_id in path("drafts.**"))] | order(featured desc, startDate desc) {
     "id": _id,
     title,
     "slug": slug.current,
@@ -31,9 +31,12 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     publishAt,
     type,
     startDate,
+    endDate,
     mode,
     venue,
     location,
+    organizer,
+    featured,
     "regions": regions[]->slug.current,
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current
@@ -65,6 +68,8 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     publishedAt,
     draft,
     featured,
+    seoTitle,
+    seoDescription,
     "regions": regions[]->slug.current,
     "zones": zones[]->slug.current,
     "chapters": chapters[]->slug.current

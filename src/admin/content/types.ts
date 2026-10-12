@@ -31,6 +31,8 @@ export interface ContentItem {
   subtitle: string | null;
   date: string | null;
   status: ContentStatus | null;
+  /** Scheduled go-live time, when the item has one. */
+  publishAt?: string | null;
   /** Secondary signal (pinned/featured/campaign state) used by stats. */
   detail?: string | null;
   /** Document kind where the type has one (news). */
@@ -193,21 +195,48 @@ export interface AssetListEntry {
   name: string;
   mimeType: string | null;
   size: number | null;
+  createdAt: string | null;
+  kind: "image" | "file";
 }
 
 export interface AssetListPayload {
   configured: boolean;
-  kind: "image" | "file";
+  kind: "image" | "file" | "all";
   assets: AssetListEntry[];
+  total: number;
+}
+
+export interface LibraryAssetsInput {
+  kind?: "image" | "file" | "all";
+  search?: string;
 }
 
 export interface UploadAssetInput {
-  module: string;
+  /** Target module; omit for library-level uploads (still requires media.write). */
+  module?: string;
   kind: "image" | "file";
   filename: string;
   contentType: string;
   /** Raw file bytes, base64-encoded by the browser. */
   base64: string;
+}
+
+export interface ReplaceAssetInput {
+  id: string;
+  kind: "image" | "file";
+  filename: string;
+  contentType: string;
+  base64: string;
+}
+
+export interface DeleteAssetInput {
+  id: string;
+}
+
+export interface AssetMutationResult {
+  ok: boolean;
+  error?: string;
+  id?: string;
 }
 
 export interface UploadAssetResult {

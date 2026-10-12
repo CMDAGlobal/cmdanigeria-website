@@ -105,6 +105,7 @@ export interface ZoneDetail extends ZoneRecord {
   overview?: PortableTextBlock[] | null;
   chapters?: ChapterRecord[] | null;
   leaders?: LeaderRecord[] | null;
+  events?: EventRecord[] | null;
   gallery?: SanityImage[] | null;
 }
 
@@ -135,6 +136,9 @@ export interface EventRecord {
   mode?: string | null;
   registrationUrl?: string | null;
   report?: string | null;
+  organizer?: string | null;
+  featured?: boolean | null;
+  cover?: SanityImage | null;
   description?: PortableTextBlock[] | null;
 }
 
@@ -175,6 +179,8 @@ export interface PostRecord {
   hasBody?: boolean | null;
   cover?: SanityImage | null;
   author?: { name?: string | null } | null;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
 }
 
 export interface PostDetail extends PostRecord {

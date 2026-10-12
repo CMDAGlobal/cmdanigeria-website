@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import {
   CalendarClock,
   ExternalLink,
+  Eye,
   ListOrdered,
   MoreHorizontal,
   Pencil,
@@ -60,6 +61,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { armLabel, kindLabel } from "@/admin/content/mappers";
+import { publicHref } from "@/admin/content/public-href";
 import { MODULE_MUTATIONS } from "@/admin/content/validate";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
 import {
@@ -472,6 +474,19 @@ export function ContentModule({
                                     Change status…
                                   </DropdownMenuItem>
                                 ) : null}
+                                {item.status?.label === "Published" &&
+                                publicHref(module, item.slug) ? (
+                                  <DropdownMenuItem asChild>
+                                    <a
+                                      href={publicHref(module, item.slug) as string}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      <Eye className="mr-2 h-4 w-4" />
+                                      View live page
+                                    </a>
+                                  </DropdownMenuItem>
+                                ) : null}
                                 {canDelete ? (
                                   <DropdownMenuItem
                                     className="text-destructive focus:text-destructive"
@@ -528,6 +543,11 @@ export function ContentModule({
             <DialogDescription>{statusItem?.title}</DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {statusItem?.publishAt ? (
+              <p className="text-xs text-muted-foreground">
+                Currently scheduled to go live {new Date(statusItem.publishAt).toLocaleString()}.
+              </p>
+            ) : null}
             <div className="space-y-2">
               <Label htmlFor="publication-status">Status</Label>
               <Select

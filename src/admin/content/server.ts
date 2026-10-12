@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import type {
   AssetListPayload,
+  AssetMutationResult,
   ContentDocInput,
   ContentDocPayload,
   ContentModuleKey,
@@ -8,9 +9,12 @@ import type {
   ContentMutationResult,
   ContentScopeOptionsPayload,
   CreateContentInput,
+  DeleteAssetInput,
+  LibraryAssetsInput,
   MediaPayload,
   MyChapterPayload,
   PageSectionsPayload,
+  ReplaceAssetInput,
   SetPageSectionsInput,
   SetPublicationInput,
   SettingsPayload,
@@ -22,6 +26,7 @@ import type {
 export type {
   AssetListEntry,
   AssetListPayload,
+  AssetMutationResult,
   ContentDocAsset,
   ContentDocInput,
   ContentDocPayload,
@@ -33,6 +38,8 @@ export type {
   ContentStat,
   ContentStatus,
   CreateContentInput,
+  DeleteAssetInput,
+  LibraryAssetsInput,
   MediaAsset,
   MediaPayload,
   MyChapterPayload,
@@ -40,6 +47,7 @@ export type {
   PageSectionOrder,
   PageSectionRow,
   PageSectionsPayload,
+  ReplaceAssetInput,
   ScopeUnitOptionPayload,
   SetPageSectionsInput,
   SetPublicationInput,
@@ -136,10 +144,17 @@ export const setPageSectionsAction = createServerFn({ method: "POST", strict: fa
   });
 
 export const listSanityAssetsAction = createServerFn({ method: "GET", strict: false })
-  .validator((kind: "image" | "file") => kind)
+  .validator((data: { kind: "image" | "file"; search?: string; limit?: number }) => data)
   .handler(async ({ data }): Promise<AssetListPayload> => {
     const { listSanityAssets } = await import("./assets");
-    return listSanityAssets(data);
+    return listSanityAssets(data.kind, data.search, data.limit);
+  });
+
+export const listLibraryAssetsAction = createServerFn({ method: "GET", strict: false })
+  .validator((data: LibraryAssetsInput) => data)
+  .handler(async ({ data }): Promise<AssetListPayload> => {
+    const { listLibraryAssets } = await import("./assets");
+    return listLibraryAssets(data);
   });
 
 export const uploadSanityAssetAction = createServerFn({ method: "POST", strict: false })
@@ -147,4 +162,18 @@ export const uploadSanityAssetAction = createServerFn({ method: "POST", strict: 
   .handler(async ({ data }): Promise<UploadAssetResult> => {
     const { uploadSanityAsset } = await import("./assets");
     return uploadSanityAsset(data);
+  });
+
+export const replaceSanityAssetAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: ReplaceAssetInput) => data)
+  .handler(async ({ data }): Promise<UploadAssetResult> => {
+    const { replaceSanityAsset } = await import("./assets");
+    return replaceSanityAsset(data);
+  });
+
+export const deleteSanityAssetAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: DeleteAssetInput) => data)
+  .handler(async ({ data }): Promise<AssetMutationResult> => {
+    const { deleteSanityAsset } = await import("./assets");
+    return deleteSanityAsset(data);
   });

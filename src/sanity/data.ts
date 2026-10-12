@@ -14,6 +14,7 @@ import {
   armEventsQuery,
   chapterCountsQuery,
   chapterQuery,
+  eventDetailQuery,
   eventListQuery,
   leadershipQuery,
   necQuery,
@@ -263,6 +264,19 @@ export const fetchEvents = createServerFn({ method: "GET", strict: false }).hand
     }
   },
 );
+
+export const fetchEvent = createServerFn({ method: "GET", strict: false })
+  .validator((slug: string) => slug)
+  .handler(async ({ data }): Promise<EventRecord | null> => {
+    const client = getClient();
+    if (!client) return null;
+    try {
+      return (await client.fetch<EventRecord | null>(eventDetailQuery, { slug: data })) ?? null;
+    } catch (error) {
+      console.error("[sanity] fetchEvent failed", error);
+      return null;
+    }
+  });
 
 export const fetchChapterCounts = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<ChapterCounts | null> => {

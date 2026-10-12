@@ -50,4 +50,34 @@ describe("public GROQ", () => {
     expect(queries.chapterQuery).toContain('coalesce(publication, "published")');
     expect(queries.regionQuery).toContain("coalesce(active, true)");
   });
+
+  it("hides unit-scoped events and posts from the national listings", () => {
+    // National /events and /news show only items with no chapter, zone or
+    // region references — unit-scoped items surface on their own pages.
+    const national = "count(chapters) == 0 && count(zones) == 0 && count(regions) == 0";
+    expect(queries.eventListQuery).toContain(national);
+    expect(queries.postListQuery).toContain(national);
+  });
+
+  it("lists featured events first", () => {
+    expect(queries.eventListQuery).toContain("order(featured desc, startDate asc)");
+  });
+
+  it("exposes event cover, organizer and featured in the public projection", () => {
+    expect(queries.eventProjection).toContain("organizer");
+    expect(queries.eventProjection).toContain("featured");
+    expect(queries.eventProjection).toContain("coverImage");
+  });
+
+  it("exposes SEO fields on public posts", () => {
+    // postFields is embedded in postListQuery, postDetailQuery and section queries.
+    expect(queries.postListQuery).toContain("seoTitle");
+    expect(queries.postListQuery).toContain("seoDescription");
+    expect(queries.postDetailQuery).toContain("seoTitle");
+  });
+
+  it("includes zone events in the zone detail query", () => {
+    expect(queries.zoneQuery).toContain('"events"');
+    expect(queries.zoneQuery).toContain('_type == "event"');
+  });
 });

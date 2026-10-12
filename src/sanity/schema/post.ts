@@ -18,6 +18,7 @@ export const post = defineType({
     { name: "content", title: "Content", default: true },
     { name: "distribution", title: "Distribution" },
     { name: "media", title: "Media" },
+    { name: "seo", title: "SEO" },
   ],
   fields: [
     defineField({ name: "title", title: "Title", type: "string", validation: (r) => r.required() }),
@@ -112,6 +113,14 @@ export const post = defineType({
       type: "array",
       of: [defineArrayMember({ type: galleryImage.name })],
       group: "media",
+    }),
+    defineField({ name: "seoTitle", title: "SEO title", type: "string", group: "seo" }),
+    defineField({
+      name: "seoDescription",
+      title: "SEO description",
+      type: "text",
+      rows: 2,
+      group: "seo",
     }),
   ],
   preview: {

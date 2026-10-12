@@ -5,7 +5,8 @@ import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/
 import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ZoneDetail } from "@/sanity/types";
-import { ChapterCard, GalleryGrid, LeaderCard } from "./cards";
+import { ChapterCard, EventCard, GalleryGrid, LeaderCard } from "./cards";
+import { upcomingEvents } from "@/components/site/Events";
 
 function zoneArm(zone: ZoneDetail): "students" | "doctors" {
   if (zone.arm === "students" || zone.arm === "doctors") return zone.arm;
@@ -133,6 +134,21 @@ function Gallery({ zone }: { zone: ZoneDetail }) {
   );
 }
 
+function Events({ zone }: { zone: ZoneDetail }) {
+  if (!zone.events?.length) return null;
+  const shown = upcomingEvents(zone.events, 8);
+  return (
+    <Section className="bg-muted" id="events">
+      <SectionHead eyebrow="Events" title="Upcoming & recent events in this zone" />
+      <div className="mt-16 grid gap-6 lg:grid-cols-2">
+        {shown.map((event) => (
+          <EventCard key={event._id} event={event} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
   if (!zone) {
     return (
@@ -166,6 +182,7 @@ export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
       <Stats zone={zone} />
       <Leaders zone={zone} />
       <Chapters zone={zone} />
+      <Events zone={zone} />
       <Gallery zone={zone} />
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">

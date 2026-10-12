@@ -16,8 +16,8 @@ export const Route = createFileRoute("/news/$slug")({
   component: NewsDetailPage,
   head: ({ loaderData }) => {
     const post = loaderData?.post;
-    const title = post ? `${post.title} | CMDA Nigeria News` : siteTitle;
-    const description = post?.excerpt ?? siteDescription;
+    const title = post ? post.seoTitle || `${post.title} | CMDA Nigeria News` : siteTitle;
+    const description = post?.seoDescription || post?.excerpt || siteDescription;
     return {
       meta: [
         { title },

@@ -12,6 +12,7 @@ export const imageProjection = `{
 /** Summary fields for public post/news cards. Declared early: section queries embed it. */
 const postFields = `_id, title, "slug": slug.current, kind, arm, category, tags,
   publishedAt, featured, excerpt, link, "hasBody": defined(body),
+  seoTitle, seoDescription,
   "cover": coverImage ${imageProjection}, "author": author->{ name }`;
 
 /** Exclude Sanity's system drafts (unpublished Studio copies). */
@@ -80,8 +81,14 @@ export const personProjection = `{
 
 export const eventProjection = `{
   _id, title, slug, type, arm, startDate, endDate, venue, location, mode, registrationUrl, report,
+  organizer, featured,
+  "cover": coverImage ${imageProjection},
   "description": coalesce(description[]{ ${portableTextProjection} }, [])
 }`;
+
+export const eventDetailQuery = `
+*[_type == "event" && ${VISIBLE} && slug.current == $slug][0] ${eventProjection}
+`;
 
 export const chapterListProjection = `{
   _id, name, slug, institution, location, country, arm, establishedAt, order,
@@ -171,8 +178,14 @@ export const armAnnouncementsQuery = `
 }
 `;
 
+/**
+ * National listings only: an item with no chapter, zone or region references is
+ * national. Unit-scoped events and posts surface on their own pages instead.
+ */
+const NATIONAL_ONLY = `count(chapters) == 0 && count(zones) == 0 && count(regions) == 0`;
+
 export const postListQuery = `
-*[_type == "post" && ${VISIBLE}] | order(featured desc, publishedAt desc) {
+*[_type == "post" && ${VISIBLE} && ${NATIONAL_ONLY}] | order(featured desc, publishedAt desc) {
   ${postFields}
 }
 `;
@@ -185,7 +198,7 @@ export const postDetailQuery = `
 `;
 
 export const eventListQuery = `
-*[_type == "event" && ${VISIBLE}] | order(startDate asc) ${eventProjection}
+*[_type == "event" && ${VISIBLE} && ${NATIONAL_ONLY}] | order(featured desc, startDate asc) ${eventProjection}
 `;
 
 const prescriptionFields = `_id, title, "slug": slug.current, kind, arm, issueNumber, issueDate,
@@ -233,6 +246,7 @@ export const zoneQuery = `
   "overview": coalesce(overview[]{ ${portableTextProjection} }, []),
   "chapters": *[_type == "chapter" && ${LIVE_UNIT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
   "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
+  "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(featured desc, startDate desc) ${eventProjection},
   "gallery": coalesce(gallery[]${imageProjection}, [])
 }
 `;

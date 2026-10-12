@@ -25,6 +25,8 @@ export interface RawContentRow {
   chapters?: unknown;
   type?: unknown;
   startDate?: unknown;
+  endDate?: unknown;
+  organizer?: unknown;
   venue?: unknown;
   mode?: unknown;
   category?: unknown;
@@ -176,9 +178,13 @@ export function mapEvents(rows: RawContentRow[]): ContentItem[] {
       title: text(row.title) ?? "Untitled event",
       slug: text(row.slug),
       arm: text(row.arm),
-      subtitle: text(row.venue) ?? text(row.location),
+      subtitle: [text(row.organizer), text(row.venue) ?? text(row.location)]
+        .filter(Boolean)
+        .join(" — "),
       date: start,
+      detail: row.featured === true ? "Featured" : null,
       status: publicationStatus(row),
+      publishAt: isoDate(row.publishAt),
       draft: publicationKey(row) === "draft",
       scope: buildScopeMeta({
         arm: row.arm,
@@ -199,6 +205,7 @@ export function mapAnnouncements(rows: RawContentRow[]): ContentItem[] {
     subtitle: text(row.category),
     date: isoDate(row.publishedAt),
     status: publicationStatus(row),
+    publishAt: isoDate(row.publishAt),
     detail: row.pinned === true ? "Pinned" : null,
     draft: publicationKey(row) === "draft",
     scope: buildScopeMeta({
@@ -234,6 +241,7 @@ export function mapNews(rows: RawContentRow[]): ContentItem[] {
       subtitle: category ? `${kindLabel(kind)} · ${category}` : kindLabel(kind),
       date: isoDate(row.publishedAt),
       status: publicationStatus(row),
+      publishAt: isoDate(row.publishAt),
       detail: row.featured === true ? "Featured" : null,
       kind,
       draft: publicationKey(row) === "draft",
@@ -272,6 +280,7 @@ export function mapPublications(rows: RawContentRow[]): ContentItem[] {
       subtitle: publicationKindLabel(kind),
       date: isoDate(row.issueDate),
       status: publicationStatus(row),
+      publishAt: isoDate(row.publishAt),
       detail: details.length > 0 ? details.join(" · ") : text(row.url) ? "Has reading link" : null,
       kind,
       draft: publicationKey(row) === "draft",
@@ -310,6 +319,7 @@ export function mapOutreaches(rows: RawContentRow[]): ContentItem[] {
       subtitle: partner ? `${mapped.label} · ${partner}` : mapped.label,
       date: isoDate(row.startsAt),
       status: publicationStatus(row),
+      publishAt: isoDate(row.publishAt),
       detail: mapped.label,
       draft: publicationKey(row) === "draft",
       scope: buildScopeMeta({
@@ -343,6 +353,7 @@ export function mapPages(rows: RawContentRow[]): ContentItem[] {
       subtitle: row.slug ? `/${row.slug}` : null,
       date: null,
       status: publicationStatus(row),
+      publishAt: isoDate(row.publishAt),
       detail: PAGE_SECTION_LABELS[section] ?? section,
       draft: publicationKey(row) === "draft",
       scope: buildScopeMeta({
@@ -423,6 +434,7 @@ export function eventStats(items: ContentItem[]): ContentStat[] {
     { label: "Upcoming", value: upcoming },
     { label: "Past", value: items.length - upcoming },
     { label: "Published", value: countBy(items, (item) => item.status?.label === "Published") },
+    { label: "Featured", value: countBy(items, (item) => item.detail === "Featured") },
   ];
 }
 

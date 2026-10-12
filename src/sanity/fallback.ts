@@ -493,7 +493,10 @@ interface FallbackZone {
 }
 
 function chapter(name: string, institution: string): FallbackChapter {
-  const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+  const slug = name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
   return { slug, name, institution };
 }
 
@@ -825,7 +828,7 @@ const doctorEvents: EventRecord[] = [
     arm: "doctors",
     startDate: null,
     location: "Online",
-    mode: "online",
+    mode: "virtual",
     description: pt(
       "A monthly devotional series connecting Scripture to the daily realities of healthcare practice.",
     ),

@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContentAction,
   deleteContentAction,
+  deleteSanityAssetAction,
   getAdminSettingsAction,
   getContentDocAction,
   getContentModuleAction,
@@ -11,7 +12,9 @@ import {
   getMediaLibraryAction,
   getPageSectionsAction,
   getMyChapterAction,
+  listLibraryAssetsAction,
   listSanityAssetsAction,
+  replaceSanityAssetAction,
   setPublicationAction,
   setPageSectionsAction,
   updateContentAction,
@@ -19,13 +22,16 @@ import {
 } from "@/admin/content/server";
 import type {
   AssetListPayload,
+  AssetMutationResult,
   ContentDocInput,
   ContentDocPayload,
   ContentModuleKey,
   ContentMutationResult,
   ContentScopeOptionsPayload,
   CreateContentInput,
+  LibraryAssetsInput,
   PageSectionsPayload,
+  ReplaceAssetInput,
   SetPageSectionsInput,
   SetPublicationInput,
   UpdateContentInput,
@@ -147,21 +153,53 @@ export function useMediaLibrary() {
 export function useSanityAssets(kind: "image" | "file", enabled: boolean) {
   return useQuery<AssetListPayload>({
     queryKey: ["admin-assets", kind] as const,
-    queryFn: () => listSanityAssetsAction({ data: kind }),
+    queryFn: () => listSanityAssetsAction({ data: { kind } }),
     enabled,
     staleTime: 60_000,
     retry: false,
   });
 }
 
-export function useUploadSanityAsset(module: ContentModuleKey) {
+export function useLibraryAssets(input: LibraryAssetsInput, enabled: boolean) {
+  return useQuery<AssetListPayload>({
+    queryKey: ["admin-library-assets", input.kind ?? "all", input.search ?? ""] as const,
+    queryFn: () => listLibraryAssetsAction({ data: input }),
+    enabled,
+    staleTime: 30_000,
+    retry: false,
+  });
+}
+
+function useInvalidateAssets() {
   const queryClient = useQueryClient();
+  return () => {
+    void queryClient.invalidateQueries({ queryKey: ["admin-assets"] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-library-assets"] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-media"] });
+  };
+}
+
+export function useUploadSanityAsset(module: ContentModuleKey | null) {
+  const invalidate = useInvalidateAssets();
   return useMutation<UploadAssetResult, Error, UploadAssetInput>({
-    mutationFn: (input) => uploadSanityAssetAction({ data: input }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["admin-assets"] });
-      void queryClient.invalidateQueries({ queryKey: ["admin-media"] });
-    },
+    mutationFn: (input) => uploadSanityAssetAction({ data: module ? { ...input, module } : input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useReplaceSanityAsset() {
+  const invalidate = useInvalidateAssets();
+  return useMutation<UploadAssetResult, Error, ReplaceAssetInput>({
+    mutationFn: (input) => replaceSanityAssetAction({ data: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useDeleteSanityAsset() {
+  const invalidate = useInvalidateAssets();
+  return useMutation<AssetMutationResult, Error, { id: string }>({
+    mutationFn: (input) => deleteSanityAssetAction({ data: input }),
+    onSuccess: invalidate,
   });
 }
 

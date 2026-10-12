@@ -8,7 +8,12 @@ export const event = defineType({
   type: "document",
   groups: [{ name: "content", title: "Content", default: true }],
   fields: [
-    defineField({ name: "title", title: "Event title", type: "string", validation: (r) => r.required() }),
+    defineField({
+      name: "title",
+      title: "Event title",
+      type: "string",
+      validation: (r) => r.required(),
+    }),
     defineField({
       name: "slug",
       title: "Slug",
@@ -36,7 +41,12 @@ export const event = defineType({
     }),
     defineField(armField),
     ...publicationFields.map((field) => defineField(field)),
-    defineField({ name: "startDate", title: "Start date & time", type: "datetime", validation: (r) => r.required() }),
+    defineField({
+      name: "startDate",
+      title: "Start date & time",
+      type: "datetime",
+      validation: (r) => r.required(),
+    }),
     defineField({ name: "endDate", title: "End date & time", type: "datetime" }),
     defineField({ name: "venue", title: "Venue", type: "string" }),
     defineField({ name: "location", title: "Location (city/state/country)", type: "string" }),
@@ -54,7 +64,22 @@ export const event = defineType({
       },
     }),
     defineField({ name: "registrationUrl", title: "Registration link", type: "url" }),
+    defineField({ name: "organizer", title: "Organizer", type: "string" }),
+    defineField({
+      name: "featured",
+      title: "Featured event",
+      description: "Show this event ahead of others in listings.",
+      type: "boolean",
+      initialValue: false,
+    }),
     defineField({ name: "report", title: "Event report / recap", type: "text" }),
+    defineField({
+      name: "coverImage",
+      title: "Cover image",
+      type: "image",
+      options: { hotspot: true },
+    }),
+    defineField({ name: "coverAlt", title: "Cover image alt text", type: "string" }),
     defineField({
       name: "regions",
       title: "Related region(s)",
@@ -93,7 +118,7 @@ export const event = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", subtitle: "startDate" },
+    select: { title: "title", subtitle: "startDate", media: "coverImage" },
   },
 });
 

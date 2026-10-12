@@ -29,6 +29,7 @@ import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ChaptersIndexRouteImport } from './routes/chapters/index'
 import { Route as ChaptersSlugRouteImport } from './routes/chapters/$slug'
+import { Route as EventsSlugRouteImport } from './routes/events/$slug'
 import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
 import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
@@ -158,6 +159,11 @@ const ChaptersSlugRoute = ChaptersSlugRouteImport.update({
   id: '/chapters/$slug',
   path: '/chapters/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const EventsSlugRoute = EventsSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => EventsRoute,
 } as any)
 const GlobalNetworkSlugRoute = GlobalNetworkSlugRouteImport.update({
   id: '/$slug',
@@ -313,7 +319,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
   '/give': typeof GiveRoute
   '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
@@ -328,6 +334,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -364,7 +371,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
   '/give': typeof GiveRoute
   '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
@@ -378,6 +385,7 @@ export interface FileRoutesByTo {
   '/about/leadership': typeof AboutLeadershipRoute
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -415,7 +423,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRoute
+  '/events': typeof EventsRouteWithChildren
   '/give': typeof GiveRoute
   '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/admin/_layout': typeof AdminLayoutRouteWithChildren
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
+  '/events/$slug': typeof EventsSlugRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -483,6 +492,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/login'
     | '/chapters/$slug'
+    | '/events/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -533,6 +543,7 @@ export interface FileRouteTypes {
     | '/about/leadership'
     | '/admin/login'
     | '/chapters/$slug'
+    | '/events/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -584,6 +595,7 @@ export interface FileRouteTypes {
     | '/admin/_layout'
     | '/admin/login'
     | '/chapters/$slug'
+    | '/events/$slug'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -621,7 +633,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ContactRoute: typeof ContactRoute
   DoctorsArmRoute: typeof DoctorsArmRoute
-  EventsRoute: typeof EventsRoute
+  EventsRoute: typeof EventsRouteWithChildren
   GiveRoute: typeof GiveRoute
   GlobalNetworkRoute: typeof GlobalNetworkRouteWithChildren
   ImpactRoute: typeof ImpactRoute
@@ -786,6 +798,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/chapters/$slug'
       preLoaderRoute: typeof ChaptersSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/events/$slug': {
+      id: '/events/$slug'
+      path: '/$slug'
+      fullPath: '/events/$slug'
+      preLoaderRoute: typeof EventsSlugRouteImport
+      parentRoute: typeof EventsRoute
     }
     '/global-network/$slug': {
       id: '/global-network/$slug'
@@ -993,6 +1012,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface EventsRouteChildren {
+  EventsSlugRoute: typeof EventsSlugRoute
+}
+
+const EventsRouteChildren: EventsRouteChildren = {
+  EventsSlugRoute: EventsSlugRoute,
+}
+
+const EventsRouteWithChildren =
+  EventsRoute._addFileChildren(EventsRouteChildren)
+
 interface GlobalNetworkRouteChildren {
   GlobalNetworkSlugRoute: typeof GlobalNetworkSlugRoute
 }
@@ -1075,7 +1105,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ContactRoute: ContactRoute,
   DoctorsArmRoute: DoctorsArmRoute,
-  EventsRoute: EventsRoute,
+  EventsRoute: EventsRouteWithChildren,
   GiveRoute: GiveRoute,
   GlobalNetworkRoute: GlobalNetworkRouteWithChildren,
   ImpactRoute: ImpactRoute,

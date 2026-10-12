@@ -1,7 +1,8 @@
-import { CalendarDays, MapPin } from "lucide-react";
+import { CalendarDays, MapPin, Users, Video } from "lucide-react";
 import { format, parseISO } from "date-fns";
+import { Link } from "@tanstack/react-router";
 import { buttonVariants, Reveal, Section, SectionHead } from "./primitives";
-import { typeLabel } from "@/components/site/org/cards";
+import { modeLabel, typeLabel } from "@/components/site/org/cards";
 import type { EventRecord } from "@/sanity/types";
 import { cn } from "@/lib/utils";
 
@@ -89,12 +90,34 @@ export function Events({ events }: { events?: EventRecord[] | null }) {
                     <div className="flex-1">
                       <span className="eyebrow text-secondary">{typeLabel(event.type)}</span>
                       <h3 className="mt-2 font-display text-lg leading-snug font-bold">
-                        {event.title}
+                        {event.slug?.current ? (
+                          <Link
+                            to="/events/$slug"
+                            params={{ slug: event.slug.current }}
+                            className="hover:text-cmda-green-deep"
+                          >
+                            {event.title}
+                          </Link>
+                        ) : (
+                          event.title
+                        )}
                       </h3>
                       <p className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="size-4" aria-hidden="true" />
                         {eventPlace(event)}
                       </p>
+                      {event.mode ? (
+                        <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                          <Video className="size-4" aria-hidden="true" />
+                          {modeLabel(event.mode)}
+                        </p>
+                      ) : null}
+                      {event.organizer ? (
+                        <p className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="size-4" aria-hidden="true" />
+                          {event.organizer}
+                        </p>
+                      ) : null}
                     </div>
                     {event.registrationUrl ? (
                       <a

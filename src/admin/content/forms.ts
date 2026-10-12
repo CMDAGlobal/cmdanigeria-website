@@ -64,6 +64,8 @@ const ISSUE_NUMBER_HELP = "Shown as “#65” in the archive.";
 const URL_HELP = "Optional. Only if the issue lives somewhere else.";
 const BODY_NOTE =
   "The full issue is written in Sanity Studio so headings, links, quotes and inline photos keep their formatting. Edit the body there; edit the issue details here.";
+const SEO_TITLE_HELP = "Optional. Overrides the browser tab / search result title.";
+const SEO_DESC_HELP = "Optional. Shown under the title in search results.";
 
 const EVENT_TYPES: FormFieldOption[] = [
   { value: "conference", title: "Conference" },
@@ -250,7 +252,16 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "venue", label: "Venue", kind: "text" },
     { name: "location", label: "Location (city/state/country)", kind: "text" },
     { name: "registrationUrl", label: "Registration link", kind: "url", placeholder: "https://" },
+    { name: "organizer", label: "Organizer", kind: "text", placeholder: "e.g. CMDA LUTH Chapter" },
+    {
+      name: "featured",
+      label: "Featured event",
+      kind: "boolean",
+      help: "Featured events appear first in listings.",
+    },
     { name: "report", label: "Event report / recap", kind: "textarea", rows: 4 },
+    { name: "coverImage", label: "Cover image", kind: "image" },
+    { name: "coverAlt", label: "Cover alt text", kind: "text" },
     { name: "description", label: "Description", kind: "rich", rows: 6, help: RICH_HELP },
   ],
   announcements: [
@@ -278,6 +289,16 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "excerpt", label: "Excerpt", kind: "textarea", rows: 3 },
     { name: "link", label: "External link", kind: "url", placeholder: "https://" },
     { name: "body", label: "Body", kind: "rich", rows: 7, help: RICH_HELP },
+    { name: "coverImage", label: "Cover image", kind: "image" },
+    { name: "coverAlt", label: "Cover alt text", kind: "text" },
+    { name: "seoTitle", label: "SEO title", kind: "text", help: SEO_TITLE_HELP },
+    {
+      name: "seoDescription",
+      label: "SEO description",
+      kind: "textarea",
+      rows: 2,
+      help: SEO_DESC_HELP,
+    },
   ],
   publications: [
     { name: "title", label: "Issue title", kind: "text", placeholder: "Prescription — March 2026" },

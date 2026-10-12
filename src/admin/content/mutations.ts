@@ -156,12 +156,16 @@ interface LoadedDoc {
   id: string;
   slug: string | null;
   meta: ContentScopeMeta;
+  publication: string | null;
+  publishAt: string | null;
 }
 
 const DOC_QUERY = `*[_type == $type && _id == $id][0]{
   _id,
   "slug": slug.current,
   arm,
+  publication,
+  publishAt,
   "regions": coalesce(regions[]->slug.current, region->slug.current),
   "zones": coalesce(zones[]->slug.current, zone->slug.current),
   "chapters": coalesce(chapters[]->slug.current, memberOfChapter->slug.current)
@@ -177,6 +181,8 @@ async function loadDoc(
     _id?: unknown;
     slug?: unknown;
     arm?: unknown;
+    publication?: unknown;
+    publishAt?: unknown;
     regions?: unknown;
     zones?: unknown;
     chapters?: unknown;
@@ -200,7 +206,13 @@ async function loadDoc(
       meta.chapters = slug ? [slug] : [];
     }
   }
-  return { id: doc._id, slug, meta };
+  return {
+    id: doc._id,
+    slug,
+    meta,
+    publication: typeof doc.publication === "string" ? doc.publication : null,
+    publishAt: typeof doc.publishAt === "string" ? doc.publishAt : null,
+  };
 }
 
 async function resolveUnitRefs(
@@ -555,12 +567,20 @@ export async function deleteContent(input: ContentDocInput): Promise<ContentMuta
   }
 }
 
+/** Distinct verbs per publication transition, so the audit trail reads clearly. */
+const PUBLICATION_VERBS: Record<string, string> = {
+  published: "publish",
+  scheduled: "schedule",
+  draft: "unpublish",
+  archived: "archive",
+};
+
 export async function setPublicationStatus(
   input: SetPublicationInput,
 ): Promise<ContentMutationResult> {
   const config = parseModuleConfig(input?.module);
   if (!config) return { ok: false, error: messageFor("invalid_module") };
-  const action = `${config.auditPrefix}.update`;
+  let action = `${config.auditPrefix}.update`;
   let session: SessionLike = null;
   let scope: Scope | null = null;
   let targetId: string | null = null;
@@ -571,6 +591,8 @@ export async function setPublicationStatus(
     if (!config.publication) throw new ContentMutationError("publication_unsupported");
 
     const transition = validatePublicationTransition(input?.publication, input?.publishAt);
+    const verb = PUBLICATION_VERBS[transition.publication] ?? "update";
+    action = `${config.auditPrefix}.${verb}`;
 
     const client = requireClient();
     const current = await loadDoc(client, config, input?.id);
@@ -592,6 +614,7 @@ export async function setPublicationStatus(
       })
       .commit();
 
+    const from = current.publication ?? "draft";
     await recordAudit({
       actorUserId: authorized.user.id,
       action,
@@ -599,7 +622,7 @@ export async function setPublicationStatus(
       targetId: current.id,
       scope,
       outcome: "success",
-      reason: `publication:${transition.publication}`,
+      reason: `publication:${from}->${transition.publication}`,
     });
     return { ok: true, id: current.id };
   } catch (error) {

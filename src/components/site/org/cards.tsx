@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { format, parseISO } from "date-fns";
-import { ArrowUpRight, CalendarDays, MapPin, Newspaper } from "lucide-react";
+import { ArrowUpRight, CalendarDays, MapPin, Newspaper, Users, Video } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PortableContent } from "@/components/site/portable";
 import { Reveal } from "@/components/site/primitives";
@@ -112,9 +112,31 @@ export function LeaderCard({ leader }: { leader: LeaderRecord }) {
   );
 }
 
+export function modeLabel(mode?: string | null): string {
+  const labels: Record<string, string> = {
+    inperson: "In-person",
+    virtual: "Virtual",
+    hybrid: "Hybrid",
+  };
+  return mode ? (labels[mode] ?? mode) : "";
+}
+
+function formatTime(value?: string | null): string | null {
+  if (!value) return null;
+  try {
+    return format(parseISO(value), "h:mm a");
+  } catch {
+    return null;
+  }
+}
+
 export function EventCard({ event }: { event: EventRecord }) {
   const date = formatDate(event.startDate);
+  const startTime = formatTime(event.startDate);
+  const endTime = formatTime(event.endDate);
   const location = [event.venue, event.location].filter(Boolean).join(" · ");
+  const slug = event.slug?.current;
+  const coverUrl = event.cover?.asset?.url;
   const upcoming = !event.startDate
     ? true
     : (() => {
@@ -124,9 +146,17 @@ export function EventCard({ event }: { event: EventRecord }) {
           return true;
         }
       })();
-  return (
-    <Reveal className="h-full">
-      <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
+  const card = (
+    <div className="flex h-full flex-col border border-border bg-background transition-shadow hover:shadow-card">
+      {coverUrl ? (
+        <img
+          src={coverUrl}
+          alt={event.cover?.alt ?? ""}
+          loading="lazy"
+          className="aspect-video w-full border-b border-border object-cover"
+        />
+      ) : null}
+      <div className="flex flex-1 flex-col p-6">
         <div className="flex items-center justify-between gap-4">
           <span className="eyebrow text-cmda-green">{typeLabel(event.type)}</span>
           <span
@@ -141,17 +171,27 @@ export function EventCard({ event }: { event: EventRecord }) {
         <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
           {event.title}
         </h3>
+        {event.featured ? (
+          <span className="mt-1 text-[0.65rem] font-bold uppercase tracking-wide text-gold">
+            Featured
+          </span>
+        ) : null}
         {event.description?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={event.description} />
           </div>
-        ) : null}
+        ) : (
+          <div className="flex-1" />
+        )}
         <div className="mt-5 space-y-1.5 text-sm text-muted-foreground">
           {date ? (
             <p className="flex items-center gap-2">
               <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
               {date}
-              {event.endDate ? ` – ${formatDate(event.endDate)}` : ""}
+              {event.endDate && formatDate(event.endDate) !== date
+                ? ` – ${formatDate(event.endDate)}`
+                : ""}
+              {startTime ? ` · ${startTime}${endTime ? `–${endTime}` : ""}` : ""}
             </p>
           ) : null}
           {location ? (
@@ -160,29 +200,49 @@ export function EventCard({ event }: { event: EventRecord }) {
               {location}
             </p>
           ) : null}
+          {event.mode ? (
+            <p className="flex items-center gap-2">
+              <Video className="size-4 shrink-0" aria-hidden="true" />
+              {modeLabel(event.mode)}
+            </p>
+          ) : null}
+          {event.organizer ? (
+            <p className="flex items-center gap-2">
+              <Users className="size-4 shrink-0" aria-hidden="true" />
+              {event.organizer}
+            </p>
+          ) : null}
         </div>
-        {(event.registrationUrl || event.report) && (
-          <div className="mt-5 flex items-center gap-4 border-t border-border pt-4">
-            {event.registrationUrl ? (
-              <a
-                href={event.registrationUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-display text-sm font-semibold text-cmda-green hover:text-cmda-green-deep"
-              >
-                Register ↗
-              </a>
-            ) : null}
-            {event.report ? (
-              <span className="text-xs text-muted-foreground" title="Event report">
-                Report available
-              </span>
-            ) : null}
-          </div>
-        )}
+        <div className="mt-5 flex items-center gap-4 border-t border-border pt-4">
+          {slug ? (
+            <Link
+              to="/events/$slug"
+              params={{ slug }}
+              className="font-display text-sm font-semibold text-cmda-green hover:text-cmda-green-deep"
+            >
+              Details →
+            </Link>
+          ) : null}
+          {event.registrationUrl ? (
+            <a
+              href={event.registrationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-display text-sm font-semibold text-cmda-green hover:text-cmda-green-deep"
+            >
+              Register ↗
+            </a>
+          ) : null}
+          {event.report ? (
+            <span className="text-xs text-muted-foreground" title="Event report">
+              Report available
+            </span>
+          ) : null}
+        </div>
       </div>
-    </Reveal>
+    </div>
   );
+  return <Reveal className="h-full">{card}</Reveal>;
 }
 
 export function ActivityCard({ activity }: { activity: ActivityRecord }) {
