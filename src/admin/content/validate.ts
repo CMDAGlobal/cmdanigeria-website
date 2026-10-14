@@ -257,8 +257,8 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     auditPrefix: "publication",
     titleField: "title",
     required: ["title", "issueDate", "kind"],
-    // `body` is deliberately absent: the issue is written in Studio, so the
-    // dashboard can never flatten its headings, links or inline images.
+    // `body` is markdown-lite editable (bold/links/headings round-trip);
+    // inline Studio photos are preserved only while the body is untouched.
     allowed: [
       "title",
       "slug",
@@ -268,6 +268,7 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
       "issueDate",
       "author",
       "summary",
+      "body",
       "url",
       "coverImage",
       "coverAlt",

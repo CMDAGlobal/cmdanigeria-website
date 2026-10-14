@@ -49,6 +49,7 @@ export const AUDIT_ACTIONS = [
   "publication.schedule",
   "publication.unpublish",
   "publication.archive",
+  "publication.send",
   "page.publish",
   "page.schedule",
   "page.unpublish",

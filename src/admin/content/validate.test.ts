@@ -208,10 +208,8 @@ describe("validateFields", () => {
     expect(ok["kind"]).toBe("prescription");
     expect(ok["regions"]).toEqual(["west-africa"]);
     expect(ok["url"]).toBe("https://example.org/issue.pdf");
-    // `gallery`, `publication` and `body` stay Studio-only. The body in
-    // particular must be unreachable here, or the dashboard's plain-paragraph
-    // editor would flatten an issue's headings, links and inline images.
-    for (const key of ["gallery", "publication", "body"]) {
+    // `gallery` and `publication` stay Studio-only.
+    for (const key of ["gallery", "publication"]) {
       expect(() =>
         validateFields(
           publications,
@@ -220,7 +218,30 @@ describe("validateFields", () => {
         ),
       ).toThrow(ContentInputError);
     }
-    expect(publications.allowed).not.toContain("body");
+    expect(publications.allowed).toContain("body");
+    // The dashboard body is markdown-lite Portable Text: accept block arrays,
+    // reject non-block garbage like every other rich field.
+    const bodyBlocks = [
+      {
+        _type: "block",
+        style: "normal",
+        markDefs: [],
+        children: [{ _type: "span", text: "Hi", marks: [] }],
+      },
+    ];
+    const withBody = validateFields(
+      publications,
+      { title: "x", issueDate: "2026-03-01", kind: "prescription", body: bodyBlocks },
+      { partial: false },
+    );
+    expect(withBody["body"]).toEqual(bodyBlocks);
+    expect(() =>
+      validateFields(
+        publications,
+        { title: "x", issueDate: "2026-03-01", kind: "prescription", body: ["a", { b: 1 }] },
+        { partial: false },
+      ),
+    ).toThrow(ContentInputError);
     // Issue metadata the dashboard does own.
     const meta = validateFields(
       publications,

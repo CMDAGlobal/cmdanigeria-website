@@ -85,12 +85,27 @@ export const prescription = defineType({
       of: [defineArrayMember({ type: "reference", to: [{ type: "chapter" }] })],
       group: "distribution",
     }),
-    defineField({ name: "summary", title: "Summary", type: "text", rows: 3, group: "content" }),
+    defineField({
+      name: "summary",
+      title: "Summary",
+      type: "text",
+      rows: 3,
+      group: "content",
+    }),
+    defineField({
+      name: "lastSentAt",
+      title: "Last marked sent",
+      description:
+        "Set from the dashboard's “Mark as sent” action. Record-only — no email is dispatched yet.",
+      type: "datetime",
+      readOnly: true,
+      group: "distribution",
+    }),
     defineField({
       name: "body",
       title: "Body",
       description:
-        "The full issue, written here in Studio. The dashboard edits the issue details only, so headings, links and inline images are never overwritten.",
+        "The full issue. The dashboard edits this as markdown-lite (**bold**, [links], ## headings); inline photos are only safe to add here in Studio.",
       type: "array",
       of: [
         defineArrayMember({ type: "block" }),
@@ -135,7 +150,8 @@ export const prescription = defineType({
     defineField({
       name: "url",
       title: "Reading link",
-      description: "Link to the issue hosted elsewhere. Optional — most issues are read on this site.",
+      description:
+        "Link to the issue hosted elsewhere. Optional — most issues are read on this site.",
       type: "url",
       group: "downloads",
     }),
@@ -150,7 +166,12 @@ export const prescription = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", issueNumber: "issueNumber", issueDate: "issueDate", media: "coverImage" },
+    select: {
+      title: "title",
+      issueNumber: "issueNumber",
+      issueDate: "issueDate",
+      media: "coverImage",
+    },
     prepare({ title, issueNumber, issueDate, media }) {
       const month = issueDate
         ? new Date(issueDate).toLocaleDateString("en-NG", { month: "short", year: "numeric" })

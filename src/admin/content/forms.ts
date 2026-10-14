@@ -57,13 +57,13 @@ export interface FormField {
 
 const SLUG_HELP = "Lowercase letters, numbers and dashes. Generated from the title when blank.";
 const RICH_HELP =
-  "Plain paragraphs — one per line. Bold, links and headings stay editable in Studio.";
+  "One paragraph per line. **Bold**, [link text](https://…) and ## headings are kept; other Studio formatting is not.";
 const FILE_HELP =
   "Optional. For downloadable issues such as the Wholeness Journal abstracts. Most issues are read on the site instead.";
 const ISSUE_NUMBER_HELP = "Shown as “#65” in the archive.";
 const URL_HELP = "Optional. Only if the issue lives somewhere else.";
-const BODY_NOTE =
-  "The full issue is written in Sanity Studio so headings, links, quotes and inline photos keep their formatting. Edit the body there; edit the issue details here.";
+const BODY_HELP =
+  "One paragraph per line. **Bold**, [link text](https://…) and ## headings round-trip. Inline photos are dropped if you save the body here — for issues with photos, edit in Studio.";
 const SEO_TITLE_HELP = "Optional. Overrides the browser tab / search result title.";
 const SEO_DESC_HELP = "Optional. Shown under the title in search results.";
 
@@ -308,7 +308,7 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "issueDate", label: "Issue date", kind: "date" },
     { name: "author", label: "Author", kind: "text", placeholder: "CMDA Nigeria" },
     { name: "summary", label: "Summary", kind: "textarea", rows: 3 },
-    { name: "bodyNote", label: "Issue body", kind: "note", note: BODY_NOTE },
+    { name: "body", label: "Issue body", kind: "rich", rows: 10, help: BODY_HELP },
     { name: "coverImage", label: "Cover image", kind: "image" },
     { name: "coverAlt", label: "Cover alt text", kind: "text" },
     { name: "url", label: "Reading link", kind: "url", placeholder: "https://", help: URL_HELP },
@@ -460,39 +460,158 @@ interface PortableBlock {
   children?: unknown;
 }
 
-/** Portable Text → plain text (one paragraph per line). */
+interface RichSpan {
+  _type: "span";
+  text: string;
+  marks: string[];
+}
+
+interface RichMarkDef {
+  _type: "link";
+  _key: string;
+  href: string;
+}
+
+interface RichBlock {
+  _type: "block";
+  style: string;
+  markDefs: RichMarkDef[];
+  children: RichSpan[];
+}
+
+const HEADING_PREFIX: Record<string, string> = { h2: "## ", h3: "### ", h4: "#### " };
+
+/**
+ * Portable Text → markdown-lite (one paragraph per line). Bold spans become
+ * `**text**` and link spans become `[text](url)`; every other style and mark
+ * degrades to plain text, never worse than the old flat conversion.
+ */
 export function flattenPortableText(value: unknown): string {
   if (!Array.isArray(value)) return "";
   const lines: string[] = [];
   for (const entry of value) {
     if (!entry || typeof entry !== "object") continue;
-    const block = entry as PortableBlock;
+    const block = entry as PortableBlock & { style?: unknown; markDefs?: unknown };
     if (block._type !== "block" || !Array.isArray(block.children)) continue;
-    let text = "";
-    for (const child of block.children) {
-      if (child && typeof child === "object") {
-        const childText = (child as { text?: unknown }).text;
-        if (typeof childText === "string") text += childText;
+    const hrefs = new Map<string, string>();
+    if (Array.isArray(block.markDefs)) {
+      for (const def of block.markDefs) {
+        if (!def || typeof def !== "object") continue;
+        const d = def as { _type?: unknown; _key?: unknown; href?: unknown };
+        if (d._type === "link" && typeof d._key === "string" && typeof d.href === "string") {
+          hrefs.set(d._key, d.href);
+        }
       }
     }
-    lines.push(text);
+    let text = "";
+    const spans: RichSpan[] = [];
+    for (const child of block.children) {
+      if (!child || typeof child !== "object") continue;
+      const span = child as { text?: unknown; marks?: unknown };
+      if (typeof span.text !== "string") continue;
+      const marks = (Array.isArray(span.marks) ? span.marks : []).filter(
+        (mark): mark is string => typeof mark === "string",
+      );
+      const prev = spans[spans.length - 1];
+      // Studio splits runs at every mark boundary; merge equals so one bold
+      // phrase stays one `**…**` run instead of fragmenting per span.
+      if (prev && prev.marks.join("\u0000") === marks.join("\u0000")) {
+        prev.text += span.text;
+      } else {
+        spans.push({ _type: "span", text: span.text, marks });
+      }
+    }
+    for (const span of spans) {
+      let piece = span.text;
+      if (span.marks.includes("strong")) piece = `**${piece}**`;
+      for (const mark of span.marks) {
+        const href = hrefs.get(mark);
+        if (href !== undefined) piece = `[${piece}](${href})`;
+      }
+      text += piece;
+    }
+    const style = typeof block.style === "string" ? block.style : "";
+    lines.push((HEADING_PREFIX[style] ?? "") + text);
   }
   while (lines.length > 0 && !lines[lines.length - 1]) lines.pop();
   return lines.join("\n");
 }
 
-/** Plain text → Portable Text blocks (one block per non-empty line). */
-export function textToBlocks(text: string): { _type: "block" }[] {
-  return text
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-    .map((line) => ({
-      _type: "block",
-      style: "normal",
-      markDefs: [],
-      children: [{ _type: "span", text: line, marks: [] }],
-    }));
+function parseInlineInto(text: string, spans: RichSpan[], markDefs: RichMarkDef[]): void {
+  let plain = "";
+  const flush = (): void => {
+    if (plain) {
+      spans.push({ _type: "span", text: plain, marks: [] });
+      plain = "";
+    }
+  };
+  let i = 0;
+  while (i < text.length) {
+    if (text.startsWith("**", i)) {
+      const end = text.indexOf("**", i + 2);
+      if (end !== -1) {
+        flush();
+        const inner: RichSpan[] = [];
+        parseInlineInto(text.slice(i + 2, end), inner, markDefs);
+        for (const span of inner) spans.push({ ...span, marks: [...span.marks, "strong"] });
+        i = end + 2;
+        continue;
+      }
+    }
+    if (text[i] === "[") {
+      const sep = text.indexOf("](", i);
+      if (sep !== -1) {
+        const end = text.indexOf(")", sep + 2);
+        if (end !== -1) {
+          const label = text.slice(i + 1, sep);
+          const href = text.slice(sep + 2, end);
+          if (label && href) {
+            flush();
+            const key = `link-${markDefs.length}`;
+            markDefs.push({ _type: "link", _key: key, href });
+            const inner: RichSpan[] = [];
+            parseInlineInto(label, inner, markDefs);
+            for (const span of inner) spans.push({ ...span, marks: [...span.marks, key] });
+            i = end + 1;
+            continue;
+          }
+        }
+      }
+    }
+    plain += text[i];
+    i += 1;
+  }
+  flush();
+}
+
+/**
+ * Markdown-lite → Portable Text blocks (one block per non-empty line).
+ * `**bold**`, `[text](url)` and `## ` / `### ` / `#### ` headings round-trip;
+ * anything else is a plain paragraph, same as before.
+ */
+export function textToBlocks(text: string): RichBlock[] {
+  const blocks: RichBlock[] = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    let style = "normal";
+    let rest = line;
+    if (rest.startsWith("#### ")) {
+      style = "h4";
+      rest = rest.slice(5);
+    } else if (rest.startsWith("### ")) {
+      style = "h3";
+      rest = rest.slice(4);
+    } else if (rest.startsWith("## ")) {
+      style = "h2";
+      rest = rest.slice(3);
+    }
+    const children: RichSpan[] = [];
+    const markDefs: RichMarkDef[] = [];
+    parseInlineInto(rest, children, markDefs);
+    blocks.push({ _type: "block", style, markDefs, children });
+  }
+  return blocks;
 }
 
 /** ISO string → `datetime-local` input value in the browser's local time. */
