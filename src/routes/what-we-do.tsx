@@ -1,11 +1,12 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PageHero } from "@/components/site/PageHero";
 import { PageSections } from "@/components/site/PageSections";
+import { Outreaches } from "@/components/site/Outreaches";
 import { WhatWeDo } from "@/components/site/About";
 import { shouldRenderBody } from "@/sanity/sections";
 import { PortableContent } from "@/components/site/portable";
 import { Reveal, Section } from "@/components/site/primitives";
-import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
+import { fetchPageBySlug, fetchPageCounters, fetchOutreaches } from "@/sanity/data";
 
 const title = "What We Do | CMDA Nigeria";
 const description =
@@ -18,11 +19,12 @@ const description =
  */
 export const Route = createFileRoute("/what-we-do")({
   loader: async () => {
-    const [page, counters] = await Promise.all([
+    const [page, counters, outreaches] = await Promise.all([
       fetchPageBySlug({ data: "what-we-do" }),
       fetchPageCounters(),
+      fetchOutreaches(),
     ]);
-    return { page, counters };
+    return { page, counters, outreaches };
   },
   component: WhatWeDoPage,
   head: ({ loaderData }) => ({
@@ -38,7 +40,7 @@ export const Route = createFileRoute("/what-we-do")({
 });
 
 function WhatWeDoPage() {
-  const { page, counters } = Route.useLoaderData();
+  const { page, counters, outreaches } = Route.useLoaderData();
   const hasSections = (page?.sections?.length ?? 0) > 0;
   const hasBody = shouldRenderBody(page?.sections, page?.body);
 
@@ -66,6 +68,7 @@ function WhatWeDoPage() {
           </Reveal>
         </Section>
       ) : null}
+      <Outreaches outreaches={outreaches} />
     </>
   );
 }

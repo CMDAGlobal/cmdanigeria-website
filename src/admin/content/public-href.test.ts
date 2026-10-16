@@ -12,11 +12,11 @@ describe("publicHref", () => {
     expect(publicHref("chapters", "luth")).toBe("/chapters/luth");
     expect(publicHref("regions", "west-africa")).toBe("/global-network/west-africa");
     expect(publicHref("pages", "about-us")).toBe("/about-us");
+    expect(publicHref("outreaches", "medical-mission")).toBe("/what-we-do#outreaches");
   });
 
   it("returns null for modules with no standalone public page", () => {
     expect(publicHref("announcements", "circular-1")).toBeNull();
-    expect(publicHref("outreaches", "medical-mission")).toBeNull();
     expect(publicHref("leadership", "ada-okonkwo")).toBeNull();
   });
 

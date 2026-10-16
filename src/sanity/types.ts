@@ -164,6 +164,21 @@ export interface AnnouncementRecord {
   body?: PortableTextBlock[] | null;
 }
 
+export interface OutreachRecord {
+  _id: string;
+  title: string;
+  arm?: Arm | null;
+  status?: string | null;
+  startsAt?: string | null;
+  endsAt?: string | null;
+  location?: string | null;
+  partner?: string | null;
+  goal?: string | null;
+  summary?: string | null;
+  registrationUrl?: string | null;
+  cover?: SanityImage | null;
+}
+
 export interface PostRecord {
   _id: string;
   title: string;

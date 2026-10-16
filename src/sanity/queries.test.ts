@@ -18,7 +18,13 @@ describe("public GROQ", () => {
   it("exports the queries the site depends on", () => {
     const names = publicQueries.map(([name]) => name);
     expect(names).toEqual(
-      expect.arrayContaining(["chapterQuery", "regionQuery", "zoneQuery", "pageCountersQuery"]),
+      expect.arrayContaining([
+        "chapterQuery",
+        "regionQuery",
+        "zoneQuery",
+        "pageCountersQuery",
+        "outreachListQuery",
+      ]),
     );
   });
 
@@ -79,5 +85,13 @@ describe("public GROQ", () => {
   it("includes zone events in the zone detail query", () => {
     expect(queries.zoneQuery).toContain('"events"');
     expect(queries.zoneQuery).toContain('_type == "event"');
+  });
+
+  it("gates the public outreach listing on the publication lifecycle", () => {
+    // Outreaches surface publicly on /what-we-do — drafts and archived
+    // campaigns must never reach that listing.
+    expect(queries.outreachListQuery).toContain('!(_id in path("drafts.**"))');
+    expect(queries.outreachListQuery).toContain('publication == "published"');
+    expect(queries.outreachListQuery).toContain("publishAt <= now()");
   });
 });

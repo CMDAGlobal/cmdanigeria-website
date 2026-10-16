@@ -222,6 +222,14 @@ export const prescriptionDetailQuery = `
 }
 `;
 
+export const outreachListQuery = `
+*[_type == "outreach" && ${VISIBLE}] | order(coalesce(startsAt, _createdAt) desc) {
+  _id, title, arm, status, startsAt, endsAt, location, partner, goal,
+  summary, registrationUrl,
+  "cover": coverImage ${imageProjection}
+}
+`;
+
 export const chapterQuery = `
 *[_type == "chapter" && ${LIVE_UNIT} && slug.current == $slug][0] {
   _id, name, slug, institution, location, country, arm, establishedAt, order,

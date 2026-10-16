@@ -18,6 +18,7 @@ import {
   eventListQuery,
   leadershipQuery,
   necQuery,
+  outreachListQuery,
   pageBySlugQuery,
   pageCountersQuery,
   postDetailQuery,
@@ -38,6 +39,7 @@ import type {
   EventRecord,
   LeaderRecord,
   LeadershipTeams,
+  OutreachRecord,
   PageCounters,
   PageDocument,
   PostDetail,
@@ -277,6 +279,20 @@ export const fetchEvent = createServerFn({ method: "GET", strict: false })
       return null;
     }
   });
+
+export const fetchOutreaches = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<OutreachRecord[]> => {
+    const client = getClient();
+    if (!client) return [];
+    try {
+      const outreaches = await client.fetch<OutreachRecord[] | null>(outreachListQuery);
+      return outreaches ?? [];
+    } catch (error) {
+      console.error("[sanity] fetchOutreaches failed", error);
+      return [];
+    }
+  },
+);
 
 export const fetchChapterCounts = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<ChapterCounts | null> => {
