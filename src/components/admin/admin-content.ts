@@ -9,12 +9,14 @@ import {
   getContentDocAction,
   getContentModuleAction,
   getContentScopeOptionsAction,
+  getDashboardStatsAction,
   getMediaLibraryAction,
   getPageSectionsAction,
   getMyChapterAction,
   listLibraryAssetsAction,
   listSanityAssetsAction,
   replaceSanityAssetAction,
+  sendPublicationAction,
   setPublicationAction,
   setPageSectionsAction,
   updateContentAction,
@@ -29,6 +31,7 @@ import type {
   ContentMutationResult,
   ContentScopeOptionsPayload,
   CreateContentInput,
+  DashboardStatsPayload,
   LibraryAssetsInput,
   PageSectionsPayload,
   ReplaceAssetInput,
@@ -58,6 +61,16 @@ export function useMyChapter(enabled: boolean) {
   });
 }
 
+export function useDashboardStats(enabled: boolean) {
+  return useQuery<DashboardStatsPayload>({
+    queryKey: ["admin-dashboard-stats"] as const,
+    queryFn: () => getDashboardStatsAction(),
+    staleTime: 30_000,
+    retry: false,
+    enabled,
+  });
+}
+
 function useInvalidateContent(module: ContentModuleKey) {
   const queryClient = useQueryClient();
   return () => {
@@ -65,6 +78,7 @@ function useInvalidateContent(module: ContentModuleKey) {
     void queryClient.invalidateQueries({ queryKey: ["admin-my-chapter"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-settings"] });
     void queryClient.invalidateQueries({ queryKey: ["admin-media"] });
+    void queryClient.invalidateQueries({ queryKey: ["admin-dashboard-stats"] });
   };
 }
 
@@ -96,6 +110,14 @@ export function useSetPublication(module: ContentModuleKey) {
   const invalidate = useInvalidateContent(module);
   return useMutation<ContentMutationResult, Error, SetPublicationInput>({
     mutationFn: (input) => setPublicationAction({ data: input }),
+    onSuccess: invalidate,
+  });
+}
+
+export function useSendPublication() {
+  const invalidate = useInvalidateContent("publications");
+  return useMutation<ContentMutationResult, Error, ContentDocInput>({
+    mutationFn: (input) => sendPublicationAction({ data: input }),
     onSuccess: invalidate,
   });
 }

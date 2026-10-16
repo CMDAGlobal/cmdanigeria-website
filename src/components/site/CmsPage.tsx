@@ -30,7 +30,7 @@ export function CmsPage({ page, counters, eyebrow, title, intro, image, children
   return (
     <>
       <PageHero
-        eyebrow={eyebrow}
+        eyebrow={(hasSections && page?.eyebrow) || eyebrow}
         title={hasSections && page?.title ? page.title : title}
         intro={hasSections && page?.summary ? page.summary : intro}
         image={hasSections ? (page?.coverImage ?? image) : image}

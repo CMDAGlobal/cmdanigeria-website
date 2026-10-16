@@ -4,17 +4,25 @@ import { ImpactStats } from "@/components/site/ImpactStats";
 import { WhoWeAre } from "@/components/site/About";
 import { Ministries } from "@/components/site/Ministries";
 import { ReasonsToJoin } from "@/components/site/ReasonsToJoin";
+import { PageSections } from "@/components/site/PageSections";
 
 import { Reveal, Section, buttonVariants } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
-import { fetchChapterCounts } from "@/sanity/data";
+import { fetchChapterCounts, fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 
 const title = "CMDA Nigeria | Christian Medical and Dental Association";
 const description =
   "CMDA Nigeria equips Christian doctors, dentists and medical students for whole-person care — with clinical excellence, compassion and integrity across Nigeria and beyond.";
 
 export const Route = createFileRoute("/")({
-  loader: async () => ({ chapters: await fetchChapterCounts() }),
+  loader: async () => {
+    const [chapters, page, counters] = await Promise.all([
+      fetchChapterCounts(),
+      fetchPageBySlug({ data: "home" }),
+      fetchPageCounters(),
+    ]);
+    return { chapters, page, counters };
+  },
   component: Index,
   head: () => ({
     meta: [
@@ -43,14 +51,21 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { chapters } = Route.useLoaderData();
+  const { chapters, page, counters } = Route.useLoaderData();
+  const hasSections = (page?.sections?.length ?? 0) > 0;
   return (
     <>
       <Hero />
-      <ImpactStats chapters={chapters} />
-      <WhoWeAre />
-      <Ministries />
-      <ReasonsToJoin />
+      {hasSections ? (
+        <PageSections sections={page?.sections} counters={counters} />
+      ) : (
+        <>
+          <ImpactStats chapters={chapters} />
+          <WhoWeAre />
+          <Ministries />
+          <ReasonsToJoin />
+        </>
+      )}
       <Section className="relative overflow-hidden bg-primary-deep text-primary-foreground">
         {/* Background image */}
         <div

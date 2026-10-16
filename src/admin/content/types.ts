@@ -33,6 +33,8 @@ export interface ContentItem {
   status: ContentStatus | null;
   /** Scheduled go-live time, when the item has one. */
   publishAt?: string | null;
+  /** Last recorded "send" time (publications only — record-only stub). */
+  lastSentAt?: string | null;
   /** Secondary signal (pinned/featured/campaign state) used by stats. */
   detail?: string | null;
   /** Document kind where the type has one (news). */
@@ -53,6 +55,33 @@ export interface ContentModulePayload {
   total: number;
   stats: ContentStat[];
   items: ContentItem[];
+}
+
+export interface DashboardContentStats {
+  pages: { total: number; published: number; draft: number } | null;
+  events: { upcoming: number; past: number; draft: number } | null;
+  studentChapters: number | null;
+  doctorChapters: number | null;
+  regions: number | null;
+  posts: number | null;
+  newsletters: number | null;
+  mediaFiles: number | null;
+}
+
+export interface DashboardUserStats {
+  total: number | null;
+  chapterAdmins: number | null;
+  regionAdmins: number | null;
+  armAdmins: number | null;
+  superAdmins: number | null;
+}
+
+export interface DashboardStatsPayload {
+  configured: boolean;
+  content: DashboardContentStats;
+  users: DashboardUserStats;
+  rolesCount: number;
+  auditTodayCount: number | null;
 }
 
 export interface MyChapterStat {

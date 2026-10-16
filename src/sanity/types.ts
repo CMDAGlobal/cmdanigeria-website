@@ -212,9 +212,20 @@ export type PageSectionType =
   | "richTextSection"
   | "imageTextSection"
   | "statsSection"
+  | "cardsSection"
   | "gallerySection"
   | "videoSection"
   | "ctaSection";
+
+/** One card inside a `cardsSection` (values, pillars, ministry summaries, …). */
+export interface SectionCard {
+  icon?: string | null;
+  title?: string | null;
+  desc?: string | null;
+  points?: string[] | null;
+  ctaLabel?: string | null;
+  ctaHref?: string | null;
+}
 
 /** One reorderable, individually hideable block of a page. */
 export interface PageSection {
@@ -233,6 +244,8 @@ export interface PageSection {
   imageCaption?: string | null;
   autoFill?: boolean | null;
   items?: StatEntry[] | null;
+  columns?: "2" | "3" | "4" | null;
+  cards?: SectionCard[] | null;
   images?: SanityImage[] | null;
   provider?: "youtube" | "vimeo" | null;
   videoId?: string | null;
@@ -248,6 +261,7 @@ export interface PageDocument {
   title?: string | null;
   slug?: string | null;
   arm?: Arm | null;
+  eyebrow?: string | null;
   summary?: string | null;
   seoTitle?: string | null;
   seoDescription?: string | null;

@@ -10,6 +10,7 @@ import {
   Pencil,
   Plus,
   Search,
+  Send,
   Trash2,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
@@ -61,6 +62,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { armLabel, kindLabel } from "@/admin/content/mappers";
+import { previewMenuState } from "@/admin/content/preview-menu";
 import { publicHref } from "@/admin/content/public-href";
 import { MODULE_MUTATIONS } from "@/admin/content/validate";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
@@ -69,7 +71,12 @@ import {
   type ContentPublicationStatus,
 } from "@/admin/content/validate";
 import type { PermissionKey } from "@/admin/rbac/permissions";
-import { useContentModule, useDeleteContent, useSetPublication } from "./admin-content";
+import {
+  useContentModule,
+  useDeleteContent,
+  useSendPublication,
+  useSetPublication,
+} from "./admin-content";
 import { hasPermission, useAdminSession } from "./admin-session";
 import { ContentEditorDialog } from "./ContentEditorDialog";
 import { isChapterDashboard } from "./nav-items";
@@ -159,6 +166,7 @@ export function ContentModule({
     item: null,
   });
   const [sectionItem, setSectionItem] = useState<ContentItem | null>(null);
+  const [sendItem, setSendItem] = useState<ContentItem | null>(null);
   const [nextStatus, setNextStatus] = useState<ContentPublicationStatus>("published");
   const [publishAtLocal, setPublishAtLocal] = useState("");
 
@@ -169,8 +177,10 @@ export function ContentModule({
   const supportsPublication = MODULE_MUTATIONS[module].publication;
 
   const setPublication = useSetPublication(module);
+  const sendPublication = useSendPublication();
   const removeItem = useDeleteContent(module);
   const publicationBusy = setPublication.isPending;
+  const sendBusy = sendPublication.isPending;
   const deleteBusy = removeItem.isPending;
 
   function openStatusDialog(item: ContentItem) {
@@ -202,6 +212,21 @@ export function ContentModule({
           `“${statusItem.title}” is now ${PUBLICATION_LABELS[nextStatus].toLowerCase()}.`,
         );
         setStatusItem(null);
+      } else if (result.error) {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Something went wrong. Please try again.");
+    }
+  }
+
+  async function confirmSend() {
+    if (!sendItem) return;
+    try {
+      const result = await sendPublication.mutateAsync({ module: "publications", id: sendItem.id });
+      if (result.ok) {
+        toast.success(`“${sendItem.title}” recorded as sent.`);
+        setSendItem(null);
       } else if (result.error) {
         toast.error(result.error);
       }
@@ -474,19 +499,36 @@ export function ContentModule({
                                     Change status…
                                   </DropdownMenuItem>
                                 ) : null}
-                                {item.status?.label === "Published" &&
-                                publicHref(module, item.slug) ? (
-                                  <DropdownMenuItem asChild>
-                                    <a
-                                      href={publicHref(module, item.slug) as string}
-                                      target="_blank"
-                                      rel="noreferrer"
-                                    >
-                                      <Eye className="mr-2 h-4 w-4" />
-                                      View live page
-                                    </a>
+                                {canWrite &&
+                                module === "publications" &&
+                                item.status?.label === "Published" ? (
+                                  <DropdownMenuItem onSelect={() => setSendItem(item)}>
+                                    <Send className="mr-2 h-4 w-4" />
+                                    Mark as sent…
                                   </DropdownMenuItem>
                                 ) : null}
+                                {(() => {
+                                  const preview = previewMenuState(
+                                    item.status?.label === "Published"
+                                      ? "published"
+                                      : item.status?.label === "Scheduled"
+                                        ? "scheduled"
+                                        : item.status?.label === "Archived"
+                                          ? "archived"
+                                          : "draft",
+                                    publicHref(module, item.slug),
+                                    studioType,
+                                    item.id,
+                                  );
+                                  return preview.show && preview.href ? (
+                                    <DropdownMenuItem asChild>
+                                      <a href={preview.href} target="_blank" rel="noreferrer">
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        {preview.label}
+                                      </a>
+                                    </DropdownMenuItem>
+                                  ) : null;
+                                })()}
                                 {canDelete ? (
                                   <DropdownMenuItem
                                     className="text-destructive focus:text-destructive"
@@ -595,6 +637,29 @@ export function ContentModule({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={sendItem !== null}
+        onOpenChange={(open) => {
+          if (!open) setSendItem(null);
+        }}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Record this issue as sent?</AlertDialogTitle>
+            <AlertDialogDescription>
+              “{sendItem?.title}” will be marked as sent. This records the action in the audit
+              trail; no email is dispatched yet.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={sendBusy}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmSend} disabled={sendBusy}>
+              {sendBusy ? "Recording…" : "Mark as sent"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <AlertDialog
         open={deleteItem !== null}

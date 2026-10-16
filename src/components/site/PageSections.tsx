@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { videoEmbedUrl, visibleSections } from "@/sanity/sections";
+import { sectionCards, videoEmbedUrl, visibleSections } from "@/sanity/sections";
 import type { Arm, PageCounters, PageSection } from "@/sanity/types";
 import { PortableContent } from "./portable";
 import { Button, Reveal, Section, SectionHead } from "./primitives";
@@ -268,6 +268,73 @@ function CtaSection({ section }: { section: PageSection }) {
   );
 }
 
+const COLUMN_CLASS: Record<string, string> = {
+  "2": "sm:grid-cols-2",
+  "3": "sm:grid-cols-2 lg:grid-cols-3",
+  "4": "sm:grid-cols-2 lg:grid-cols-4",
+};
+
+function CardsSection({ section }: { section: PageSection }) {
+  const cards = sectionCards(section);
+  if (cards.length === 0) return null;
+  const grid = COLUMN_CLASS[section.columns ?? "3"] ?? COLUMN_CLASS["3"];
+
+  return (
+    <Section>
+      <SectionHead eyebrow={section.eyebrow ?? ""} title={section.heading ?? ""} />
+      {section.body?.length ? (
+        <div className="mt-4 max-w-2xl text-muted-foreground">
+          <PortableContent value={section.body} />
+        </div>
+      ) : null}
+      <div className={`mt-12 grid gap-8 ${grid}`}>
+        {cards.map((card, index) => (
+          <Reveal key={`${card.title ?? index}`}>
+            <div className="flex h-full flex-col border border-border bg-card p-6">
+              {card.icon ? (
+                <p className="text-2xl" aria-hidden="true">
+                  {card.icon}
+                </p>
+              ) : null}
+              {card.title ? (
+                <h3 className="font-display mt-4 text-lg font-semibold text-foreground">
+                  {card.title}
+                </h3>
+              ) : null}
+              {card.desc ? (
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
+              ) : null}
+              {card.points?.length ? (
+                <ul className="mt-4 space-y-1 text-sm text-muted-foreground">
+                  {card.points.filter(Boolean).map((point) => (
+                    <li key={point} className="flex gap-2">
+                      <span aria-hidden="true">·</span>
+                      <span>{point}</span>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+              {card.ctaLabel && card.ctaHref ? (
+                <div className="mt-auto pt-4">
+                  {card.ctaHref.startsWith("/") ? (
+                    <Link to={card.ctaHref}>
+                      <Button>{card.ctaLabel}</Button>
+                    </Link>
+                  ) : (
+                    <a href={card.ctaHref} target="_blank" rel="noreferrer">
+                      <Button>{card.ctaLabel}</Button>
+                    </a>
+                  )}
+                </div>
+              ) : null}
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 const RENDERERS: Record<
   PageSection["_type"],
   (props: { section: PageSection; counters: CounterMap }) => React.ReactElement | null
@@ -276,6 +343,7 @@ const RENDERERS: Record<
   richTextSection: ({ section }) => <RichTextSection section={section} />,
   imageTextSection: ({ section }) => <ImageTextSection section={section} />,
   statsSection: ({ section, counters }) => <StatsSection section={section} counters={counters} />,
+  cardsSection: ({ section }) => <CardsSection section={section} />,
   gallerySection: ({ section }) => <GallerySection section={section} />,
   videoSection: ({ section }) => <VideoSection section={section} />,
   ctaSection: ({ section }) => <CtaSection section={section} />,

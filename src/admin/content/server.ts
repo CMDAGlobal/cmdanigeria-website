@@ -9,6 +9,7 @@ import type {
   ContentMutationResult,
   ContentScopeOptionsPayload,
   CreateContentInput,
+  DashboardStatsPayload,
   DeleteAssetInput,
   LibraryAssetsInput,
   MediaPayload,
@@ -38,6 +39,9 @@ export type {
   ContentStat,
   ContentStatus,
   CreateContentInput,
+  DashboardContentStats,
+  DashboardStatsPayload,
+  DashboardUserStats,
   DeleteAssetInput,
   LibraryAssetsInput,
   MediaAsset,
@@ -57,6 +61,13 @@ export type {
   UploadAssetInput,
   UploadAssetResult,
 } from "./types";
+
+export const getDashboardStatsAction = createServerFn({ method: "GET", strict: false }).handler(
+  async (): Promise<DashboardStatsPayload> => {
+    const { getDashboardStats } = await import("./actions");
+    return getDashboardStats();
+  },
+);
 
 export const getContentModuleAction = createServerFn({ method: "GET", strict: false })
   .validator((module: ContentModuleKey) => module)
@@ -134,6 +145,13 @@ export const setPublicationAction = createServerFn({ method: "POST", strict: fal
   .handler(async ({ data }): Promise<ContentMutationResult> => {
     const { setPublicationStatus } = await import("./mutations");
     return setPublicationStatus(data);
+  });
+
+export const sendPublicationAction = createServerFn({ method: "POST", strict: false })
+  .validator((data: ContentDocInput) => data)
+  .handler(async ({ data }): Promise<ContentMutationResult> => {
+    const { sendPublication } = await import("./mutations");
+    return sendPublication(data);
   });
 
 export const setPageSectionsAction = createServerFn({ method: "POST", strict: false })

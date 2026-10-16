@@ -81,6 +81,7 @@ export const CONTENT_QUERIES: Record<ContentModuleKey, string> = {
     arm,
     publication,
     publishAt,
+    lastSentAt,
     kind,
     issueNumber,
     issueDate,
@@ -198,6 +199,79 @@ export const MY_CHAPTER_QUERY = `*[_type == "chapter" && slug.current == $slug &
   name,
   arm,
   membership
+}`;
+
+/**
+ * Lean per-document projection used by the dashboard overview: scope fields
+ * for visibleToGrants plus cover/gallery counts for the Media Files stat.
+ * One fetch replaces five module queries on the landing screen.
+ */
+export const DASHBOARD_STATS_QUERY = `{
+  "pages": *[_type == "page" && !(_id in path("drafts.**"))]{
+    arm, publication, draft,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "events": *[_type == "event" && !(_id in path("drafts.**"))]{
+    arm, publication, draft, startDate,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "chapters": *[_type == "chapter" && !(_id in path("drafts.**"))]{
+    arm, "slug": slug.current,
+    "region": region->slug.current, "zone": zone->slug.current,
+    "hasCover": defined(logo.asset),
+    "galleryCount": count(gallery)
+  },
+  "regions": *[_type == "region" && !(_id in path("drafts.**"))]{
+    "slug": slug.current,
+    "hasCover": defined(heroImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "posts": *[_type == "post" && !(_id in path("drafts.**"))]{
+    arm, publication, draft,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "prescriptions": *[_type == "prescription" && !(_id in path("drafts.**"))]{
+    arm, publication, draft,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "announcements": *[_type == "announcement" && !(_id in path("drafts.**"))]{
+    arm, publication, draft,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "outreaches": *[_type == "outreach" && !(_id in path("drafts.**"))]{
+    arm, publication, draft,
+    "regions": regions[]->slug.current,
+    "zones": zones[]->slug.current,
+    "chapters": chapters[]->slug.current,
+    "hasCover": defined(coverImage.asset),
+    "galleryCount": count(gallery)
+  },
+  "leadership": *[_type == "person" && !(_id in path("drafts.**"))]{
+    arm,
+    "region": region->slug.current, "zone": zone->slug.current,
+    "chapterRef": memberOfChapter->slug.current,
+    "hasCover": defined(headshot.asset)
+  }
 }`;
 
 export const DOCUMENT_COUNT_QUERY = `{

@@ -166,6 +166,11 @@ export function isChapterDashboard(session: AdminSession | null | undefined): bo
   return session.roles.every((role) => role.key === "chapter_admin");
 }
 
+export function isRegionDashboard(session: AdminSession | null | undefined): boolean {
+  if (!session?.roles.length) return false;
+  return session.roles.every((role) => role.key === "region_admin");
+}
+
 function chapterArms(session: AdminSession): Set<string> {
   const arms = new Set<string>();
   for (const role of session.roles) {

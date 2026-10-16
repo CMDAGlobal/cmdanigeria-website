@@ -1,15 +1,16 @@
 "use client";
 
 import { Link, createFileRoute } from "@tanstack/react-router";
-import { Users, ScrollText, ShieldCheck, Activity, ArrowRight } from "lucide-react";
+import { ArrowRight, Building2, CalendarDays, FileText, Globe, Users } from "lucide-react";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAdminSession, scopeLabel } from "@/components/admin/admin-session";
-import { isChapterDashboard } from "@/components/admin/nav-items";
+import { isChapterDashboard, isRegionDashboard } from "@/components/admin/nav-items";
 import { useAdminOverview } from "@/components/admin/admin-data";
-import { useMyChapter } from "@/components/admin/admin-content";
+import { useDashboardStats, useMyChapter } from "@/components/admin/admin-content";
+import { describeAuditEntry } from "@/admin/audit/describe";
 
 export const Route = createFileRoute("/admin/_layout/")({
   component: AdminDashboardPage,
@@ -58,6 +59,51 @@ function StatCard({
   );
 }
 
+interface GroupStat {
+  label: string;
+  value: number | null | undefined;
+}
+
+function StatGroupCard({
+  title,
+  icon,
+  stats,
+  loading,
+}: {
+  title: string;
+  icon: React.ComponentType<{ className?: string }>;
+  stats: GroupStat[];
+  loading: boolean;
+}) {
+  const Icon = icon;
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+        <CardTitle className="text-sm font-semibold">{title}</CardTitle>
+        <div className="rounded-lg bg-primary/10 p-2">
+          <Icon className="h-4 w-4 text-primary" />
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {stats.map((stat) => (
+          <div key={stat.label} className="flex items-center justify-between gap-3">
+            <span className="text-xs text-muted-foreground">{stat.label}</span>
+            {loading ? (
+              <Skeleton className="h-5 w-10" />
+            ) : (
+              <span className="font-display text-lg font-bold tabular-nums">
+                {stat.value === null || stat.value === undefined
+                  ? "—"
+                  : stat.value.toLocaleString()}
+              </span>
+            )}
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
+
 function AuditTable() {
   const { data, isLoading, isError } = useAdminOverview();
   const entries = data?.recentAudit ?? [];
@@ -94,12 +140,14 @@ function AuditTable() {
         <div key={entry.id} className="flex items-center justify-between gap-4 py-3">
           <div className="min-w-0">
             <p className="truncate text-sm font-medium">
-              <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-primary">
-                {entry.action}
-              </code>
+              {describeAuditEntry(entry.action, entry.scope)}
             </p>
             <p className="mt-1 truncate text-xs text-muted-foreground">
               {entry.actorName ?? entry.actorEmail ?? "System"}
+              {" · "}
+              <code className="rounded bg-muted px-1 py-0.5 text-[10px] text-primary">
+                {entry.action}
+              </code>
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-3">
@@ -130,11 +178,21 @@ function AuditTable() {
   );
 }
 
+function titleCaseSlug(slug: string): string {
+  return slug
+    .split(/[-_\s]+/)
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 function AdminDashboardPage() {
   const session = useAdminSession();
   const overview = useAdminOverview();
   const chapterOnly = isChapterDashboard(session.data);
+  const regionOnly = !chapterOnly && isRegionDashboard(session.data);
   const chapter = useMyChapter(chapterOnly);
+  const stats = useDashboardStats(!chapterOnly);
   const canViewUsers = session.data?.permissions.includes("users.read") === true;
   const canViewAudit = session.data?.permissions.includes("audit_logs.view") === true;
   const firstName = session.data?.user?.name?.split(/\s+/)[0] ?? "Admin";
@@ -193,7 +251,7 @@ function AdminDashboardPage() {
                   ? "From your chapter statistics"
                   : "Add statistics from Manage your chapter"
               }
-              icon={Activity}
+              icon={Building2}
               loading={chapter.isLoading}
             />
           ))}
@@ -245,6 +303,127 @@ function AdminDashboardPage() {
     );
   }
 
+  if (regionOnly) {
+    const regionSlug = roles.find((role) => role.key === "region_admin")?.scope.regionSlug;
+    const regionName = regionSlug ? titleCaseSlug(regionSlug) : "your region";
+    const regionLinks: Array<{ to: string; label: string }> = [
+      { to: "/admin/global-network", label: "Your region" },
+      { to: "/admin/leadership", label: "Regional leaders" },
+      { to: "/admin/events", label: "Events and Activities" },
+      { to: "/admin/news", label: "News" },
+      { to: "/admin/announcements", label: "Announcements" },
+      { to: "/admin/outreaches", label: "Outreaches" },
+      { to: "/admin/newsletter", label: "Newsletter" },
+      { to: "/admin/media", label: "Media Library" },
+      { to: "/", label: "Open public site" },
+    ];
+
+    const regionContent = stats.data?.content;
+    const regionUsers = stats.data?.users;
+
+    return (
+      <div className="space-y-8">
+        <div>
+          <Badge variant="secondary" className="mb-3">
+            {scopeBadge}
+          </Badge>
+          <h2 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            {regionSlug ? `Welcome, ${regionName} Region` : `Welcome back, ${firstName}`}
+          </h2>
+          <p className="mt-1.5 text-sm text-muted-foreground">
+            Your regional workspace — manage chapters, events and content for {regionName} from
+            here.
+          </p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatGroupCard
+            title="Content"
+            icon={FileText}
+            loading={stats.isLoading}
+            stats={[
+              { label: "Blog posts", value: regionContent?.posts },
+              { label: "Newsletters", value: regionContent?.newsletters },
+              { label: "Media files", value: regionContent?.mediaFiles },
+            ]}
+          />
+          <StatGroupCard
+            title="Events"
+            icon={CalendarDays}
+            loading={stats.isLoading}
+            stats={[
+              { label: "Upcoming", value: regionContent?.events?.upcoming },
+              { label: "Past", value: regionContent?.events?.past },
+              { label: "Draft", value: regionContent?.events?.draft },
+            ]}
+          />
+          <StatGroupCard
+            title="Publishing"
+            icon={Globe}
+            loading={stats.isLoading}
+            stats={[
+              { label: "Published pages", value: regionContent?.pages?.published },
+              { label: "Draft pages", value: regionContent?.pages?.draft },
+            ]}
+          />
+          <StatGroupCard
+            title="Users"
+            icon={Users}
+            loading={stats.isLoading && canViewUsers}
+            stats={[
+              { label: "Total admins", value: canViewUsers ? regionUsers?.total : null },
+              { label: "Region admins", value: canViewUsers ? regionUsers?.regionAdmins : null },
+              {
+                label: "Chapter admins",
+                value: canViewUsers ? regionUsers?.chapterAdmins : null,
+              },
+            ]}
+          />
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-3">
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <CardTitle>Your region</CardTitle>
+              <CardDescription>
+                Jump into {regionName}’s content. Everything you create here is scoped to your
+                region.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-2 sm:grid-cols-2">
+              {regionLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  className="flex items-center justify-between rounded-lg border px-4 py-3 text-sm font-medium transition-colors hover:bg-accent"
+                >
+                  {link.label}
+                  <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+              ))}
+            </CardContent>
+          </Card>
+
+          <Card className="border-primary/20 bg-primary/5">
+            <CardContent className="pt-6">
+              <p className="text-sm font-semibold text-primary">Your access</p>
+              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                You hold {roles.length} role{roles.length === 1 ? "" : "s"} as a regional
+                administrator. Your dashboard, modules and content are limited to {regionName}{" "}
+                Region.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const content = stats.data?.content;
+  const users = stats.data?.users;
+  const statsLoading = stats.isLoading;
+  const auditToday = stats.data?.auditTodayCount;
+
   return (
     <div className="space-y-8">
       <div>
@@ -259,34 +438,56 @@ function AdminDashboardPage() {
         </p>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Administrators"
-          value={overview.data?.usersCount}
-          hint="Users with admin access"
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+        <StatGroupCard
+          title="Website"
+          icon={Globe}
+          loading={statsLoading}
+          stats={[
+            { label: "Total pages", value: content?.pages?.total },
+            { label: "Published", value: content?.pages?.published },
+            { label: "Draft", value: content?.pages?.draft },
+          ]}
+        />
+        <StatGroupCard
+          title="Events"
+          icon={CalendarDays}
+          loading={statsLoading}
+          stats={[
+            { label: "Upcoming", value: content?.events?.upcoming },
+            { label: "Past", value: content?.events?.past },
+            { label: "Draft", value: content?.events?.draft },
+          ]}
+        />
+        <StatGroupCard
+          title="Organization"
+          icon={Building2}
+          loading={statsLoading}
+          stats={[
+            { label: "Student chapters", value: content?.studentChapters },
+            { label: "Doctor chapters", value: content?.doctorChapters },
+            { label: "Regions", value: content?.regions },
+          ]}
+        />
+        <StatGroupCard
+          title="Content"
+          icon={FileText}
+          loading={statsLoading}
+          stats={[
+            { label: "Blog posts", value: content?.posts },
+            { label: "Newsletters", value: content?.newsletters },
+            { label: "Media files", value: content?.mediaFiles },
+          ]}
+        />
+        <StatGroupCard
+          title="Users"
           icon={Users}
-          loading={canViewUsers && overview.isLoading}
-        />
-        <StatCard
-          label="Roles"
-          value={overview.data?.rolesCount}
-          hint="Configured RBAC roles"
-          icon={ShieldCheck}
-          loading={overview.isLoading}
-        />
-        <StatCard
-          label="Permissions"
-          value={overview.data?.permissionsCount}
-          hint="Available grantable permissions"
-          icon={Activity}
-          loading={overview.isLoading}
-        />
-        <StatCard
-          label="Audit events today"
-          value={overview.data?.auditTodayCount}
-          hint="Recorded system activity"
-          icon={ScrollText}
-          loading={canViewAudit && overview.isLoading}
+          loading={statsLoading && canViewUsers}
+          stats={[
+            { label: "Total admins", value: canViewUsers ? users?.total : null },
+            { label: "Chapter admins", value: canViewUsers ? users?.chapterAdmins : null },
+            { label: "Region admins", value: canViewUsers ? users?.regionAdmins : null },
+          ]}
         />
       </div>
 
@@ -295,7 +496,13 @@ function AdminDashboardPage() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
               <CardTitle>Recent activity</CardTitle>
-              <CardDescription>Latest events from the audit log.</CardDescription>
+              <CardDescription>
+                Latest events from the audit log
+                {canViewAudit && typeof auditToday === "number"
+                  ? ` · ${auditToday.toLocaleString()} today`
+                  : ""}
+                .
+              </CardDescription>
             </div>
             {canViewAudit && (
               <Link

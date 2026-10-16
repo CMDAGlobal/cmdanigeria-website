@@ -8,6 +8,12 @@ import { parseModuleConfig, type AssetKind } from "./validate";
 import { parseAssetId } from "./asset-id";
 import { validateUpload } from "./asset-validate";
 import { changedTopLevelKeys, swapAssetRef } from "./asset-relink";
+import {
+  assetUploadScope,
+  canAccessAsset,
+  canMutateAsset,
+  type AssetScopeTag,
+} from "./media-scope";
 import type {
   AssetListEntry,
   AssetListPayload,
@@ -30,14 +36,16 @@ const REFERENCES_QUERY = `count(*[references($id)])`;
 const REFERENCING_DOCS_QUERY = `*[_type != "sanity.imageAsset" && _type != "sanity.fileAsset" && references($id)]`;
 
 const ASSET_QUERY = `*[_type == $type] | order(_createdAt desc)[0...$limit]{
-  _id, originalFilename, mimeType, size, url, _createdAt
+  _id, originalFilename, mimeType, size, url, _createdAt, cmdaScope
 }`;
 
 const LIBRARY_QUERY = `*[_type in ["sanity.imageAsset", "sanity.fileAsset"]
     && (!defined($search) || $search == "" || lower(originalFilename) contains lower($search))]
   | order(_createdAt desc)[0...$limit]{
-  _id, originalFilename, mimeType, size, url, _createdAt
+  _id, originalFilename, mimeType, size, url, _createdAt, cmdaScope
 }`;
+
+const ASSET_SCOPE_QUERY = `*[_id == $id][0]{ cmdaScope }`;
 
 /**
  * Assets live outside the document corpus, so they need the assets
@@ -53,6 +61,22 @@ interface AssetRow {
   size?: unknown;
   url?: unknown;
   _createdAt?: unknown;
+  cmdaScope?: unknown;
+}
+
+/** Reads the `cmdaScope` stamp off an asset row or document. */
+function readScopeTag(value: unknown): AssetScopeTag | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const raw = value as Record<string, unknown>;
+  const tag: AssetScopeTag = {};
+  if (typeof raw["arm"] === "string" && raw["arm"]) tag.arm = raw["arm"];
+  if (typeof raw["regionSlug"] === "string" && raw["regionSlug"]) {
+    tag.regionSlug = raw["regionSlug"];
+  }
+  if (typeof raw["chapterSlug"] === "string" && raw["chapterSlug"]) {
+    tag.chapterSlug = raw["chapterSlug"];
+  }
+  return tag;
 }
 
 async function requireActor(): Promise<CurrentActorResult> {
@@ -132,6 +156,7 @@ export async function listSanityAssets(
   }
 
   const assets = (rows ?? [])
+    .filter((row) => canAccessAsset(session.actor, readScopeTag(row.cmdaScope)))
     .map((row) => toListEntry(row, kind === "all" ? undefined : kind))
     .filter((entry): entry is AssetListEntry => entry !== null);
 
@@ -178,6 +203,21 @@ export async function uploadSanityAsset(input: UploadAssetInput): Promise<Upload
       contentType: checked.contentType,
     });
     if (!asset?._id) return fail("The upload did not return an asset.");
+
+    // Stamp the uploader's shared scope so the library can filter by it.
+    // System-wide roles produce an empty tag (no stamp) — the asset stays
+    // global. The stamp is cosmetic metadata; authorization never trusts it
+    // alone (mutate still requires media.write/delete plus coverage).
+    const tag = assetUploadScope(session.actor.roles.map((pair) => pair.scope));
+    if (tag.arm || tag.regionSlug || tag.chapterSlug) {
+      try {
+        await client.patch(asset._id).set({ cmdaScope: tag }).commit();
+      } catch (error) {
+        // Non-fatal: the asset exists, it just won't be scope-filtered.
+        console.error("[admin] asset scope stamp failed", error);
+      }
+    }
+
     await recordAudit({
       actorUserId: session.user.id,
       action: "media.upload",
@@ -220,6 +260,15 @@ export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<Uplo
     (kind === "file" && !oldId.startsWith("file-"))
   ) {
     return fail("That file could not be found.");
+  }
+
+  const gateClient = getClient();
+  if (!gateClient) return fail("The content store is not configured.");
+  const oldDoc = await gateClient.fetch<{ cmdaScope?: unknown } | null>(ASSET_SCOPE_QUERY, {
+    id: oldId,
+  });
+  if (!canMutateAsset(session.actor, readScopeTag(oldDoc?.cmdaScope))) {
+    return fail("That file is outside your scope.");
   }
 
   const checked = validateUpload(kind, input?.filename, input?.contentType, input?.base64);
@@ -304,9 +353,14 @@ export async function deleteSanityAsset(input: DeleteAssetInput): Promise<AssetM
   if (!client) return fail("The content store is not configured for deletes.");
 
   try {
+    const reader = getClient() ?? client;
+    const oldDoc = await reader.fetch<{ cmdaScope?: unknown } | null>(ASSET_SCOPE_QUERY, { id });
+    if (!canMutateAsset(session.actor, readScopeTag(oldDoc?.cmdaScope))) {
+      return fail("That file is outside your scope.");
+    }
+
     // References live on documents, not on asset docs — query the default
     // (raw) perspective so `references()` sees the whole corpus.
-    const reader = getClient() ?? client;
     const used = await reader.fetch<number | null>(REFERENCES_QUERY, { id });
     if (typeof used === "number" && used > 0) {
       return fail(

@@ -38,6 +38,7 @@ export interface RawContentRow {
   featured?: unknown;
   status?: unknown;
   startsAt?: unknown;
+  lastSentAt?: unknown;
   partner?: unknown;
   section?: unknown;
   publication?: unknown;
@@ -271,7 +272,12 @@ export function mapPublications(rows: RawContentRow[]): ContentItem[] {
     const kind = text(row.kind) ?? "prescription";
     const issueNumber = typeof row.issueNumber === "number" ? row.issueNumber : null;
     const author = text(row.author);
-    const details = [issueNumber ? `#${issueNumber}` : null, author].filter(Boolean);
+    const lastSentAt = text(row.lastSentAt);
+    const details = [
+      issueNumber ? `#${issueNumber}` : null,
+      author,
+      lastSentAt ? `Sent ${isoDate(lastSentAt)}` : null,
+    ].filter(Boolean);
     return {
       id: String(row.id ?? ""),
       title: (text(row.title) ?? "Untitled issue") + (issueNumber ? ` #${issueNumber}` : ""),
@@ -281,6 +287,7 @@ export function mapPublications(rows: RawContentRow[]): ContentItem[] {
       date: isoDate(row.issueDate),
       status: publicationStatus(row),
       publishAt: isoDate(row.publishAt),
+      lastSentAt: isoDate(row.lastSentAt),
       detail: details.length > 0 ? details.join(" · ") : text(row.url) ? "Has reading link" : null,
       kind,
       draft: publicationKey(row) === "draft",

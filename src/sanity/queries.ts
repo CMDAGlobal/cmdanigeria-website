@@ -36,6 +36,8 @@ const sectionProjection = `{
   "image": image ${imageProjection},
   imageSide, imageAlt, imageCaption,
   autoFill, items[]{ value, label },
+  columns,
+  "cards": cards[]{ icon, title, desc, points, ctaLabel, ctaHref },
   "images": images[]{ ..., asset->{ url, _id } },
   provider, videoId,
   "poster": poster ${imageProjection},
@@ -44,7 +46,7 @@ const sectionProjection = `{
 
 export const pageBySlugQuery = `
 *[_type == "page" && ${VISIBLE} && slug.current == $slug][0] {
-  _id, title, "slug": slug.current, arm, summary, seoTitle, seoDescription,
+  _id, title, "slug": slug.current, arm, eyebrow, summary, seoTitle, seoDescription,
   "coverImage": coverImage ${imageProjection},
   "body": coalesce(body[]{ ${portableTextProjection} }, []),
   "sections": sections[] ${sectionProjection}

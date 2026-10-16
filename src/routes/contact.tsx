@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Button, Reveal, Section } from "@/components/site/primitives";
+import { CONTACT } from "@/lib/contact";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 
 const title = "Contact CMDA Nigeria | National Secretariat";
@@ -35,20 +36,12 @@ const details = [
     label: "National Office",
     value: "Wholeness House, Gwagwalada, FCT, Nigeria",
   },
-  {
-    Icon: MapPin,
-    label: "Liaison Office",
-    value: "F104, Hospital Chapel, National Hospital Abuja",
-  },
-  {
-    Icon: MapPin,
-    label: "Global Office",
-    value: "1928 Woodlawn Drive, Woodlawn, Maryland 21207, USA",
-  },
-  { Icon: Phone, label: "CMDA Nigeria", value: "+234 (809) 153 3339" },
-  { Icon: Phone, label: "CMDA Nigeria Global", value: "+1 (443) 527 4199" },
-  { Icon: Clock, label: "Open hours", value: "8:00am – 5:00pm (Mon–Fri)" },
-  { Icon: Mail, label: "Email", value: "info@cmdanigeria.org" },
+  { Icon: MapPin, label: "Liaison Office", value: CONTACT.liaisonOffice },
+  { Icon: MapPin, label: "Global Office", value: CONTACT.globalOffice },
+  { Icon: Phone, label: "CMDA Nigeria", value: CONTACT.phone },
+  { Icon: Phone, label: "CMDA Nigeria Global", value: CONTACT.phoneGlobal },
+  { Icon: Clock, label: "Open hours", value: CONTACT.openHours },
+  { Icon: Mail, label: "Email", value: CONTACT.email },
 ];
 
 function ContactPage() {

@@ -8,14 +8,17 @@ import {
 import { query } from "../db/client";
 import { getCurrentActor } from "../auth/actions";
 import { isAuthorizationError } from "../auth/guard";
-import { AuthorizationError } from "../rbac/engine";
+import { AuthorizationError, isSystemScope, scopeContains, type Actor } from "../rbac/engine";
 import type { PermissionKey } from "../rbac/permissions";
 import type { CurrentActorResult } from "../auth/actions";
 import { grantsFromRoles, visibleToGrants, buildScopeMeta } from "./scope";
 import { getOrgOptions } from "./org";
 import { assignableScopeOptions } from "./forms";
+import { buildDashboardContentStats, maskDashboardContentStats } from "./dashboard-stats";
+import type { DashboardStatsInput } from "./dashboard-stats";
 import {
   CONTENT_QUERIES,
+  DASHBOARD_STATS_QUERY,
   DOCUMENT_COUNT_QUERY,
   MEDIA_QUERY,
   MY_CHAPTER_QUERY,
@@ -53,6 +56,8 @@ import type {
   ContentModulePayload,
   ContentScopeOptionsPayload,
   ContentStat,
+  DashboardStatsPayload,
+  DashboardUserStats,
   MediaAsset,
   MediaPayload,
   MyChapterPayload,
@@ -222,6 +227,100 @@ export async function getMyChapter(): Promise<MyChapterPayload> {
 interface RawAssetRef {
   id?: unknown;
   url?: unknown;
+}
+
+interface UserRoleScopeRow {
+  user_id: string;
+  role_key: string;
+  arm: string | null;
+  region_slug: string | null;
+  chapter_slug: string | null;
+}
+
+function hasSystemGrant(actor: Actor): boolean {
+  return actor.roles.some((pair) => isSystemScope(pair.scope));
+}
+
+function rowScope(row: UserRoleScopeRow): Parameters<typeof scopeContains>[1] {
+  const target: { arm?: string; regionSlug?: string; chapterSlug?: string } = {};
+  if (row.arm) target.arm = row.arm;
+  if (row.region_slug) target.regionSlug = row.region_slug;
+  if (row.chapter_slug) target.chapterSlug = row.chapter_slug;
+  return target as Parameters<typeof scopeContains>[1];
+}
+
+/**
+ * Role-key user counts, scope-filtered to what this actor may see. A
+ * chapter admin sees only their own chapter's admins; a system grant sees
+ * everyone. Chapter-admin counts use the role key (per the agreed default),
+ * not the grant's scope shape.
+ */
+async function scopedUserRoleCounts(actor: Actor): Promise<DashboardUserStats> {
+  const rows = await query<UserRoleScopeRow>(
+    `select ur.user_id, r.key as role_key, ur.arm, ur.region_slug, ur.chapter_slug
+     from admin_user_roles ur
+     join admin_roles r on r.id = ur.role_id
+     join admin_users u on u.id = ur.user_id
+     where u.is_active`,
+  );
+  const visible = hasSystemGrant(actor)
+    ? rows
+    : rows.filter((row) => actor.roles.some((pair) => scopeContains(pair.scope, rowScope(row))));
+  const count = (key: string) => visible.filter((row) => row.role_key === key).length;
+  return {
+    total: new Set(visible.map((row) => row.user_id)).size,
+    chapterAdmins: count("chapter_admin"),
+    regionAdmins: count("region_admin"),
+    armAdmins: count("arm_admin"),
+    superAdmins: count("super_admin"),
+  };
+}
+
+/**
+ * Overview statistics for the dashboard landing screen (§26): five scope-aware
+ * stat groups built from one lean Sanity fetch plus Postgres role counts.
+ * Every content bucket passes the same visibleToGrants gate the modules use.
+ */
+export async function getDashboardStats(): Promise<DashboardStatsPayload> {
+  const session = await requireActor();
+  const grants: ScopeGrant[] = grantsFromRoles(session.roles);
+  const canViewUsers = session.permissions.includes("users.read");
+  const canViewAudit = session.permissions.includes("audit_logs.view");
+
+  let raw: DashboardStatsInput | null = null;
+  const client = getClient();
+  if (client) {
+    try {
+      raw = await client.fetch<DashboardStatsInput | null>(DASHBOARD_STATS_QUERY);
+    } catch {
+      raw = null;
+    }
+  }
+
+  const built = buildDashboardContentStats(raw, grants, Date.now());
+  const content = maskDashboardContentStats(built, session.permissions);
+
+  const users: DashboardUserStats = canViewUsers
+    ? await scopedUserRoleCounts(session.actor)
+    : { total: null, chapterAdmins: null, regionAdmins: null, armAdmins: null, superAdmins: null };
+
+  let auditTodayCount: number | null = null;
+  if (canViewAudit) {
+    const [row] = await query<{ c: number }>(
+      "select count(*)::int as c from admin_audit_logs where created_at >= date_trunc('day', now())",
+    );
+    auditTodayCount = row?.c ?? 0;
+  }
+
+  const [roleCountRow] = await query<{ c: number }>("select count(*)::int as c from admin_roles");
+
+  return {
+    configured: raw !== null,
+    content,
+    users,
+    rolesCount: roleCountRow?.c ?? 0,
+    auditTodayCount,
+  };
 }
 
 interface RawGalleryEntry {

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { useAuditLogs } from "@/components/admin/admin-data";
 import { useAdminSession } from "@/components/admin/admin-session";
+import { auditScopeLabel, describeAuditEntry } from "@/admin/audit/describe";
 
 export const Route = createFileRoute("/admin/_layout/audit")({
   component: AdminAuditPage,
@@ -96,7 +97,10 @@ function AdminAuditPage() {
                       })}
                     </TableCell>
                     <TableCell>
-                      <code className="rounded bg-muted px-1.5 py-0.5 text-xs text-primary">
+                      <p className="text-sm font-medium">
+                        {describeAuditEntry(entry.action, entry.scope)}
+                      </p>
+                      <code className="mt-0.5 block text-[10px] text-muted-foreground">
                         {entry.action}
                       </code>
                     </TableCell>
@@ -109,6 +113,8 @@ function AdminAuditPage() {
                           {entry.targetType}
                           {entry.targetId ? ` · ${entry.targetId}` : ""}
                         </span>
+                      ) : auditScopeLabel(entry.scope) ? (
+                        <span>{auditScopeLabel(entry.scope)}</span>
                       ) : (
                         <span>—</span>
                       )}

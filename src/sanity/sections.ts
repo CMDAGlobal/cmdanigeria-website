@@ -1,4 +1,4 @@
-import type { PageSection } from "@/sanity/types";
+import type { PageSection, SectionCard } from "@/sanity/types";
 
 /**
  * Normalise a pasted video URL or bare ID into an embeddable URL.
@@ -29,6 +29,15 @@ export function videoEmbedUrl(
 export function visibleSections(sections: PageSection[] | null | undefined): PageSection[] {
   if (!Array.isArray(sections)) return [];
   return sections.filter((section) => section?.visible !== false && section?._type);
+}
+
+/**
+ * Cards inside a `cardsSection`, minus empty entries. A card is kept when it
+ * has a title or a description — an icon alone is not enough to render.
+ */
+export function sectionCards(section: PageSection | null | undefined): SectionCard[] {
+  if (!Array.isArray(section?.cards)) return [];
+  return section.cards.filter((card) => Boolean(card?.title || card?.desc));
 }
 
 /** Studio keeps body alongside sections; only render body when no sections exist. */

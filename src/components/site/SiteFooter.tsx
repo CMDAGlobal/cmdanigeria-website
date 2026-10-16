@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 
 import { Mail, MapPin, Phone } from "lucide-react";
+import { CONTACT } from "@/lib/contact";
 import { Button } from "./primitives";
 
 const columns = [
@@ -58,9 +59,7 @@ export function SiteFooter() {
                 loading="lazy"
                 className="h-12 w-auto object-contain"
               />
-              <span className="font-display text-lg font-extrabold text-white">
-                CMDA Nigeria
-              </span>
+              <span className="font-display text-lg font-extrabold text-white">CMDA Nigeria</span>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed opacity-75">
               The Christian Medical and Dental Association of Nigeria — equipping healthcare
@@ -69,26 +68,25 @@ export function SiteFooter() {
             <ul className="mt-6 space-y-3 text-sm opacity-80">
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                National Office — Wholeness House, Gwagwalada, FCT
+                {CONTACT.nationalOffice}
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="mt-0.5 size-4 shrink-0" aria-hidden="true" />
-                Global Office — 1928 Woodlawn Drive, Woodlawn, Maryland 21207
+                {CONTACT.globalOffice}
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0" aria-hidden="true" />
-                +234 (809) 153 3339
+                {CONTACT.phone}
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="size-4 shrink-0" aria-hidden="true" />
-                +1 (443) 527 4199 (Global)
+                {CONTACT.phoneGlobal} (Global)
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="size-4 shrink-0" aria-hidden="true" />
-                info@cmdanigeria.org
+                {CONTACT.email}
               </li>
             </ul>
-
           </div>
 
           <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">

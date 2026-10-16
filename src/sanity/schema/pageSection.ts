@@ -228,6 +228,71 @@ export const videoSection = defineType({
   },
 });
 
+export const cardsSection = defineType({
+  name: "cardsSection",
+  title: "Card list",
+  type: "object",
+  description:
+    "A grid of cards — values, pillars, ministry summaries, reasons to join, newsletter issues, etc.",
+  fields: [
+    ...commonFields(),
+    defineField({
+      name: "columns",
+      title: "Columns",
+      description: "How many cards per row on desktop.",
+      type: "string",
+      options: {
+        list: [
+          { title: "2", value: "2" },
+          { title: "3", value: "3" },
+          { title: "4", value: "4" },
+        ],
+      },
+      initialValue: "3",
+    }),
+    defineField({
+      name: "cards",
+      title: "Cards",
+      type: "array",
+      of: [
+        defineArrayMember({
+          name: "card",
+          title: "Card",
+          type: "object",
+          fields: [
+            defineField({ name: "icon", title: "Icon", type: "string" }),
+            defineField({ name: "title", title: "Title", type: "string" }),
+            defineField({ name: "desc", title: "Description", type: "text", rows: 3 }),
+            defineField({
+              name: "points",
+              title: "Bullet points",
+              description: "Optional short list shown under the description.",
+              type: "array",
+              of: [defineArrayMember({ type: "string" })],
+            }),
+            defineField({ name: "ctaLabel", title: "Button label", type: "string" }),
+            defineField({ name: "ctaHref", title: "Button link", type: "string" }),
+          ],
+          preview: {
+            select: { title: "title", subtitle: "desc" },
+            prepare: ({ title, subtitle }) => ({
+              title: title || "—",
+              subtitle: subtitle ? String(subtitle).slice(0, 60) : "",
+            }),
+          },
+        }),
+      ],
+    }),
+  ],
+  preview: {
+    select: { title: "heading", subtitle: "internalName", visible: "visible" },
+    prepare: ({ title, subtitle, visible }) => ({
+      title: title || "Card list",
+      subtitle: visible === false ? `${subtitle ?? ""} (hidden)`.trim() : subtitle,
+    }),
+  },
+});
+
 export const ctaSection = defineType({
   name: "ctaSection",
   title: "Call to action",
@@ -263,6 +328,7 @@ export const PAGE_SECTION_TYPES = [
   richTextSection,
   imageTextSection,
   statsSection,
+  cardsSection,
   gallerySection,
   videoSection,
   ctaSection,

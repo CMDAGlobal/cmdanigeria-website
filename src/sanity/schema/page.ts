@@ -38,6 +38,13 @@ export const page = defineType({
       validation: (r) => r.required(),
     }),
     defineField(armField),
+    defineField({
+      name: "eyebrow",
+      title: "Eyebrow",
+      description: "Small kicker shown above the page title in the hero, e.g. “Our story”.",
+      type: "string",
+      group: "content",
+    }),
     ...publicationFields.map((field) => defineField(field)),
     defineField({
       name: "section",

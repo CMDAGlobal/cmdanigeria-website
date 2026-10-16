@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { shouldRenderBody, videoEmbedUrl, visibleSections } from "./sections";
+import { sectionCards, shouldRenderBody, videoEmbedUrl, visibleSections } from "./sections";
 import type { PageSection } from "./types";
 
 const section = (over: Partial<PageSection>): PageSection => ({
@@ -73,6 +73,28 @@ describe("visibleSections", () => {
     expect(visibleSections(null)).toEqual([]);
     expect(visibleSections(undefined)).toEqual([]);
     expect(visibleSections([])).toEqual([]);
+  });
+});
+
+describe("sectionCards", () => {
+  const cardsSection = (cards: PageSection["cards"] | null) =>
+    section({ _type: "cardsSection", cards: cards ?? null });
+
+  it("keeps cards with a title or description", () => {
+    const list = cardsSection([{ title: "Values" }, { desc: "No title but has body" }, {}]);
+    expect(sectionCards(list)).toHaveLength(2);
+  });
+
+  it("drops icon-only and empty cards", () => {
+    const list = cardsSection([{ icon: "🎓" }, { title: "", desc: "" }, { title: "Keep me" }]);
+    expect(sectionCards(list)).toHaveLength(1);
+  });
+
+  it("tolerates null, missing cards, and non-cards sections", () => {
+    expect(sectionCards(null)).toEqual([]);
+    expect(sectionCards(undefined)).toEqual([]);
+    expect(sectionCards(section({ _type: "richTextSection" }))).toEqual([]);
+    expect(sectionCards(cardsSection(null))).toEqual([]);
   });
 });
 
