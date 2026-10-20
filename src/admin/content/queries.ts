@@ -195,10 +195,27 @@ export const MEDIA_QUERY = `{
 }`;
 
 export const MY_CHAPTER_QUERY = `*[_type == "chapter" && slug.current == $slug && !(_id in path("drafts.**"))][0]{
+  _id,
   "slug": slug.current,
   name,
   arm,
-  membership
+  institution,
+  location,
+  country,
+  mission,
+  "hasDescription": count(description) > 0,
+  "hasHistory": count(history) > 0,
+  "hasLogo": defined(logo.asset),
+  "logoUrl": logo.asset->url,
+  membership,
+  contactInfo,
+  socialLinks,
+  "galleryCount": count(gallery),
+  "resourcesCount": count(resources),
+  "leaderCount": count(*[_type == "person" && !(_id in path("drafts.**")) && memberOfChapter._ref == ^._id]),
+  "eventCount": count(*[_type == "event" && !(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now())) && references(^._id)]),
+  "newsCount": count(*[_type == "post" && !(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now())) && references(^._id)]),
+  "announcementCount": count(*[_type == "announcement" && !(_id in path("drafts.**")) && (publication == "published" || (publication == "scheduled" && publishAt <= now())) && references(^._id)])
 }`;
 
 /**

@@ -87,6 +87,17 @@ describe("public GROQ", () => {
     expect(queries.zoneQuery).toContain('_type == "event"');
   });
 
+  it("includes gated announcements on chapter and zone pages", () => {
+    // Unit-scoped announcements must surface on the chapter/zone pages with the
+    // same publication gate as every other public listing.
+    for (const name of ["chapterQuery", "zoneQuery"] as const) {
+      expect(queries[name], name).toContain('"announcements"');
+      expect(queries[name], name).toContain('_type == "announcement"');
+      expect(queries[name], name).toContain('!(_id in path("drafts.**"))');
+      expect(queries[name], name).toContain('publication == "published"');
+    }
+  });
+
   it("gates the public outreach listing on the publication lifecycle", () => {
     // Outreaches surface publicly on /what-we-do — drafts and archived
     // campaigns must never reach that listing.

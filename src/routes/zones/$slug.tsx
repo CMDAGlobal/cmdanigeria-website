@@ -1,11 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ZonePage } from "@/components/site/org/ZonePage";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ZoneNotFound, ZonePage } from "@/components/site/org/ZonePage";
 import { fetchZone } from "@/sanity/data";
-import type { ZoneDetail } from "@/sanity/types";
 
 export const Route = createFileRoute("/zones/$slug")({
-  loader: async ({ params }) => ({ zone: await fetchZone({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const zone = await fetchZone({ data: params.slug });
+    if (!zone) throw notFound();
+    return { zone };
+  },
   component: ZoneRoute,
+  notFoundComponent: ZoneNotFound,
   head: ({ loaderData }) => {
     const zone = loaderData?.zone;
     const title = zone ? `${zone.name} | CMDA Nigeria` : "Zone | CMDA Nigeria";
@@ -27,6 +31,6 @@ export const Route = createFileRoute("/zones/$slug")({
 });
 
 function ZoneRoute() {
-  const { zone } = Route.useLoaderData() as { zone?: ZoneDetail | null };
-  return <ZonePage zone={zone ?? null} />;
+  const { zone } = Route.useLoaderData();
+  return <ZonePage zone={zone} />;
 }

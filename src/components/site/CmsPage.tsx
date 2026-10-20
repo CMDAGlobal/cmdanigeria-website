@@ -14,6 +14,12 @@ type CmsPageProps = {
   title: string;
   intro: string;
   image?: SanityImage | null;
+  /**
+   * When true and sections exist, render CMS sections **above** the route's
+   * live children instead of replacing them. Hybrid pages (home, arm hubs)
+   * use this so editors can add narrative without losing the live blocks.
+   */
+  stackSections?: boolean;
   /** Hard-coded content used until an editor builds `sections` for this page. */
   children?: ReactNode;
 };
@@ -23,7 +29,16 @@ type CmsPageProps = {
  * page has CMS sections the Studio-built layout renders, otherwise the route's
  * own markup is shown. Admins are never expected to edit the fallback copy.
  */
-export function CmsPage({ page, counters, eyebrow, title, intro, image, children }: CmsPageProps) {
+export function CmsPage({
+  page,
+  counters,
+  eyebrow,
+  title,
+  intro,
+  image,
+  stackSections = false,
+  children,
+}: CmsPageProps) {
   const hasSections = (page?.sections?.length ?? 0) > 0;
   const hasBody = shouldRenderBody(page?.sections, page?.body);
 
@@ -36,7 +51,10 @@ export function CmsPage({ page, counters, eyebrow, title, intro, image, children
         image={hasSections ? (page?.coverImage ?? image) : image}
       />
       {hasSections ? (
-        <PageSections sections={page?.sections} arm={page?.arm} counters={counters} />
+        <>
+          <PageSections sections={page?.sections} arm={page?.arm} counters={counters} />
+          {stackSections ? children : null}
+        </>
       ) : (
         children
       )}

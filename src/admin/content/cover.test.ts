@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { actorCoversDoc, deriveWriteScope, grantCoversDoc, type CoverOrg } from "./cover";
+import {
+  actorCoversDoc,
+  coveredDocIds,
+  deriveWriteScope,
+  grantCoversDoc,
+  type CoverOrg,
+} from "./cover";
 import type { ContentScopeMeta, ScopeGrant } from "./types";
 
 const ORG: CoverOrg = {
@@ -151,6 +157,43 @@ describe("actorCoversDoc", () => {
       ],
     };
     expect(actorCoversDoc(single, STUDENTS_LAGOS, ORG)).toBe(false);
+  });
+});
+
+describe("coveredDocIds", () => {
+  const lagosAdmin = {
+    userId: "u3",
+    roles: [
+      {
+        roleKey: "chapter_admin" as const,
+        scope: { arm: "students" as const, chapterSlug: "lagos" },
+      },
+    ],
+  };
+
+  it("returns only the ids whose documents the actor may mutate", () => {
+    const docs = [
+      { id: "doc-lagos", meta: STUDENTS_LAGOS },
+      { id: "doc-ibadan", meta: meta({ arm: "students", chapters: ["ibadan"] }) },
+      { id: "doc-wide", meta: STUDENTS_WIDE },
+      { id: "doc-africa", meta: GLOBAL_AFRICA },
+    ];
+    expect(coveredDocIds(lagosAdmin, docs, ORG)).toEqual(new Set(["doc-lagos"]));
+  });
+
+  it("returns every id for a system actor", () => {
+    const system = { userId: "u4", roles: [{ roleKey: "super_admin" as const, scope: {} }] };
+    const docs = [
+      { id: "a", meta: STUDENTS_LAGOS },
+      { id: "b", meta: GLOBAL_AFRICA },
+      { id: "c", meta: NO_ARM },
+    ];
+    expect(coveredDocIds(system, docs, ORG)).toEqual(new Set(["a", "b", "c"]));
+  });
+
+  it("fails closed when the actor covers none of the documents", () => {
+    const docs = [{ id: "doc-ibadan", meta: meta({ arm: "students", chapters: ["ibadan"] }) }];
+    expect(coveredDocIds(lagosAdmin, docs, ORG).size).toBe(0);
   });
 });
 

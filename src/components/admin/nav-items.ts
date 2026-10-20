@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import {
   BookOpen,
+  Building2,
   CalendarDays,
   FileText,
   Globe2,
@@ -66,7 +67,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     href: "/admin/pages",
-    label: "Pages",
+    label: "Website Pages",
     icon: FileText,
     permission: "pages.read",
     group: "Website Content",
@@ -81,13 +82,19 @@ export const NAV_ITEMS: NavItem[] = [
     chapterScoped: true,
   },
   {
+    href: "/admin/my-chapter",
+    label: "My Chapter",
+    icon: Building2,
+    permission: "chapters.read",
+    group: "CMDA Nigeria",
+    chapterScoped: true,
+  },
+  {
     href: "/admin/students",
     label: "Students' Arm",
     icon: GraduationCap,
     permission: "chapters.read",
     group: "CMDA Nigeria",
-    chapterScoped: true,
-    arm: "students",
   },
   {
     href: "/admin/doctors",
@@ -95,8 +102,6 @@ export const NAV_ITEMS: NavItem[] = [
     icon: Stethoscope,
     permission: "chapters.read",
     group: "CMDA Nigeria",
-    chapterScoped: true,
-    arm: "doctors",
   },
   {
     href: "/admin/global-network",

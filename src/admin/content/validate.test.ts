@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ContentInputError,
+  applyPageSections,
   applySectionOrder,
   assertSlug,
   effectiveCreateScope,
@@ -12,6 +13,7 @@ import {
   slugify,
   validateCreatePublication,
   validateFields,
+  validatePageSection,
   validatePublicationTransition,
   writeScopeRefs,
 } from "./validate";
@@ -448,6 +450,155 @@ describe("applySectionOrder", () => {
     expect(applySectionOrder([], []).changed).toBe(false);
     expect(applySectionOrder(null, []).changed).toBe(false);
     expect(() => applySectionOrder(null, [{ key: "a", visible: true }])).toThrow(ContentInputError);
+  });
+});
+
+describe("validatePageSection", () => {
+  it("accepts a minimal hero section and defaults visible to true", () => {
+    const section = validatePageSection(
+      { _key: "a", _type: "heroSection", heading: "Welcome" },
+      { partial: false },
+    );
+    expect(section["_type"]).toBe("heroSection");
+    expect(section["heading"]).toBe("Welcome");
+    expect(section["visible"]).toBe(true);
+  });
+
+  it("converts a plain-text body into portable-text blocks", () => {
+    const section = validatePageSection(
+      { _key: "a", _type: "richTextSection", body: "First line.\n\nSecond line." },
+      { partial: false },
+    );
+    const body = section["body"] as Array<{ children: Array<{ text: string }> }>;
+    expect(body).toHaveLength(2);
+    expect(body[0]?.children[0]?.text).toBe("First line.");
+    expect(body[1]?.children[0]?.text).toBe("Second line.");
+  });
+
+  it("rejects unknown fields and unknown types", () => {
+    expect(() =>
+      validatePageSection({ _key: "a", _type: "heroSection", evil: true }, { partial: false }),
+    ).toThrow(ContentInputError);
+    expect(() =>
+      validatePageSection({ _key: "a", _type: "notASection" }, { partial: false }),
+    ).toThrow(ContentInputError);
+  });
+
+  it("normalizes stats items and CTA tone", () => {
+    const section = validatePageSection(
+      {
+        _key: "a",
+        _type: "statsSection",
+        autoFill: true,
+        items: [
+          { value: "120", label: "Chapters" },
+          { value: "5000", label: "Members" },
+        ],
+      },
+      { partial: false },
+    );
+    expect(section["autoFill"]).toBe(true);
+    expect(section["items"]).toEqual([
+      { value: "120", label: "Chapters" },
+      { value: "5000", label: "Members" },
+    ]);
+    const cta = validatePageSection(
+      { _key: "b", _type: "ctaSection", tone: "muted", ctaLabel: "Give" },
+      { partial: false },
+    );
+    expect(cta["tone"]).toBe("muted");
+  });
+
+  it("rejects a video section without a usable type-safe provider", () => {
+    const section = validatePageSection(
+      { _key: "v", _type: "videoSection", provider: "tiktok", videoId: "abc" },
+      { partial: false },
+    );
+    expect(section["provider"]).toBe("youtube");
+  });
+});
+
+describe("applyPageSections", () => {
+  const stored = [
+    { _key: "a", _type: "heroSection", heading: "Welcome", visible: true },
+    { _key: "b", _type: "statsSection", heading: "Numbers", visible: true },
+    { _key: "c", _type: "ctaSection", heading: "Join", visible: true },
+  ];
+
+  it("reorders without touching content when fields are omitted", () => {
+    const result = applyPageSections(stored, [
+      { key: "c", visible: true },
+      { key: "a", visible: false },
+      { key: "b", visible: true },
+    ]);
+    expect(result.changed).toBe(true);
+    expect(result.sections.map((section) => section["_key"])).toEqual(["c", "a", "b"]);
+    expect(result.sections[0]?.["heading"]).toBe("Join");
+    expect(result.sections[1]?.["visible"]).toBe(false);
+  });
+
+  it("merges field edits onto an existing section", () => {
+    const result = applyPageSections(stored, [
+      { key: "a", visible: true, fields: { heading: "New welcome", eyebrow: "About" } },
+      { key: "b", visible: true },
+      { key: "c", visible: true },
+    ]);
+    expect(result.changed).toBe(true);
+    expect(result.sections[0]?.["heading"]).toBe("New welcome");
+    expect(result.sections[0]?.["eyebrow"]).toBe("About");
+    expect(result.sections[0]?.["_type"]).toBe("heroSection");
+  });
+
+  it("creates a new section when type is supplied", () => {
+    const result = applyPageSections(stored, [
+      { key: "a", visible: true },
+      { key: "b", visible: true },
+      { key: "c", visible: true },
+      { key: "new1", visible: true, type: "richTextSection", fields: { heading: "Extra" } },
+    ]);
+    expect(result.changed).toBe(true);
+    expect(result.sections).toHaveLength(4);
+    expect(result.sections[3]?.["_type"]).toBe("richTextSection");
+    expect(result.sections[3]?.["heading"]).toBe("Extra");
+  });
+
+  it("deletes sections that are dropped from the list", () => {
+    const result = applyPageSections(stored, [
+      { key: "a", visible: true },
+      { key: "c", visible: true },
+    ]);
+    expect(result.changed).toBe(true);
+    expect(result.sections.map((section) => section["_key"])).toEqual(["a", "c"]);
+  });
+
+  it("rejects a new section without a known type", () => {
+    expect(() =>
+      applyPageSections(stored, [
+        { key: "a", visible: true },
+        { key: "b", visible: true },
+        { key: "c", visible: true },
+        { key: "new1", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("rejects unknown fields in a field edit", () => {
+    expect(() =>
+      applyPageSections(stored, [
+        { key: "a", visible: true, fields: { evil: true } },
+        { key: "b", visible: true },
+        { key: "c", visible: true },
+      ]),
+    ).toThrow(ContentInputError);
+  });
+
+  it("reports no change when nothing differs", () => {
+    const result = applyPageSections(stored, [
+      { key: "a", visible: true },
+      { key: "b", visible: true },
+      { key: "c", visible: true },
+    ]);
+    expect(result.changed).toBe(false);
   });
 });
 

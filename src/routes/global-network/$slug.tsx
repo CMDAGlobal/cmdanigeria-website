@@ -1,11 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { RegionPage } from "@/components/site/org/RegionPage";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { RegionNotFound, RegionPage } from "@/components/site/org/RegionPage";
 import { fetchRegion } from "@/sanity/data";
-import type { RegionDetail } from "@/sanity/types";
 
 export const Route = createFileRoute("/global-network/$slug")({
-  loader: async ({ params }) => ({ region: await fetchRegion({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const region = await fetchRegion({ data: params.slug });
+    if (!region) throw notFound();
+    return { region };
+  },
   component: RegionRoute,
+  notFoundComponent: RegionNotFound,
   head: ({ loaderData }) => {
     const region = loaderData?.region;
     const title = region
@@ -28,6 +32,6 @@ export const Route = createFileRoute("/global-network/$slug")({
 });
 
 function RegionRoute() {
-  const { region } = Route.useLoaderData() as { region?: RegionDetail | null };
-  return <RegionPage region={region ?? null} />;
+  const { region } = Route.useLoaderData();
+  return <RegionPage region={region} />;
 }

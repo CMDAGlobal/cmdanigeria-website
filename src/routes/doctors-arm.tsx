@@ -97,7 +97,7 @@ function DoctorsArmPage() {
   return (
     <CmsPage
       page={page}
-
+      stackSections
       eyebrow="Doctors' Arm"
       title="Professional fellowship rooted in faith and service"
       intro="Since 8 April 1972, CMDA Nigeria's doctors' arm has united Christian medical and dental professionals around clinical excellence, mentorship, missions and ethical practice."

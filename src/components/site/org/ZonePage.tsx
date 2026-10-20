@@ -5,7 +5,7 @@ import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/
 import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ZoneDetail } from "@/sanity/types";
-import { ChapterCard, EventCard, GalleryGrid, LeaderCard } from "./cards";
+import { AnnouncementCard, ChapterCard, EventCard, GalleryGrid, LeaderCard } from "./cards";
 import { upcomingEvents } from "@/components/site/Events";
 
 function zoneArm(zone: ZoneDetail): "students" | "doctors" {
@@ -149,25 +149,43 @@ function Events({ zone }: { zone: ZoneDetail }) {
   );
 }
 
+function Announcements({ zone }: { zone: ZoneDetail }) {
+  if (!zone.announcements?.length) return null;
+  return (
+    <Section className="paper" id="announcements">
+      <SectionHead eyebrow="Zonal announcements" title="News & notices" />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2">
+        {zone.announcements.map((announcement) => (
+          <AnnouncementCard key={announcement._id} announcement={announcement} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+export function ZoneNotFound() {
+  return (
+    <Section className="flex min-h-[50vh] items-center py-32">
+      <div className="mx-auto max-w-xl text-center">
+        <h1 className="display-2 text-balance">Zone not found</h1>
+        <p className="lede mt-6 text-muted-foreground">
+          The zone you are looking for does not exist or has not been published yet.
+        </p>
+        <Link
+          to="/doctors-arm"
+          className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to Doctors' Arm
+        </Link>
+      </div>
+    </Section>
+  );
+}
+
 export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
   if (!zone) {
-    return (
-      <Section className="flex min-h-[50vh] items-center py-32">
-        <div className="mx-auto max-w-xl text-center">
-          <h1 className="display-2 text-balance">Zone not found</h1>
-          <p className="lede mt-6 text-muted-foreground">
-            The zone you are looking for does not exist or has not been published yet.
-          </p>
-          <Link
-            to="/doctors-arm"
-            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to Doctors' Arm
-          </Link>
-        </div>
-      </Section>
-    );
+    return <ZoneNotFound />;
   }
 
   return (
@@ -183,6 +201,7 @@ export function ZonePage({ zone }: { zone: ZoneDetail | null | undefined }) {
       <Leaders zone={zone} />
       <Chapters zone={zone} />
       <Events zone={zone} />
+      <Announcements zone={zone} />
       <Gallery zone={zone} />
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">

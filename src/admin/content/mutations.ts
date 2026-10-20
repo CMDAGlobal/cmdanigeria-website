@@ -8,10 +8,10 @@ import type { PermissionKey } from "../rbac/permissions";
 import { PAGE_SECTIONS_STORED_QUERY } from "./queries";
 import { buildScopeMeta, strArray } from "./scope";
 import { actorCoversDoc, deriveWriteScope, type CoverOrg } from "./cover";
-import { getOrgOptions } from "./org";
+import { loadCoverOrg } from "./cover-org";
 import {
   ContentInputError,
-  applySectionOrder,
+  applyPageSections,
   assertSlug,
   effectiveCreateScope,
   normalizeScopeInput,
@@ -125,15 +125,6 @@ function assertId(value: unknown): string {
     throw new ContentMutationError("content_not_found");
   }
   return value.trim();
-}
-
-async function loadCoverOrg(): Promise<CoverOrg> {
-  const org = await getOrgOptions();
-  return {
-    chapterArms: new Map(org.chapters.map((entry) => [entry.slug, entry.arm])),
-    zoneArms: new Map(org.zones.map((entry) => [entry.slug, entry.arm])),
-    regionSlugs: new Set(org.regions.map((entry) => entry.slug)),
-  };
 }
 
 /** Internal data-integrity check — independent of who is asking. */
@@ -462,6 +453,13 @@ export async function updateContent(input: UpdateContentInput): Promise<ContentM
     const authorized = await authorizeActor(config.writePermission, scope);
     session = authorized;
 
+    // Coverage is checked against BOTH the document's existing targeting and
+    // the new one. Checking only the new scope would let a chapter admin
+    // retag another chapter's document with their own chapter in the same
+    // request and pass authorization against the forged scope.
+    if (!actorCoversDoc(authorized.actor, current.meta, org, current.slug ?? undefined)) {
+      throw new ContentMutationError("coverage_denied");
+    }
     if (!actorCoversDoc(authorized.actor, meta, org, selfSlug)) {
       throw new ContentMutationError("coverage_denied");
     }
@@ -715,7 +713,7 @@ export async function setPageSections(input: SetPageSectionsInput): Promise<Cont
       type: config.type,
       id: current.id,
     });
-    const order = applySectionOrder(stored, input?.sections);
+    const order = applyPageSections(stored, input?.sections);
     if (order.changed) {
       await client.patch(current.id, { set: { sections: order.sections } }).commit();
     }

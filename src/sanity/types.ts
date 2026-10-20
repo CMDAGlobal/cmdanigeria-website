@@ -80,6 +80,7 @@ export interface ChapterDetail extends ChapterRecord {
   membership?: StatEntry[] | null;
   exco?: LeaderRecord[] | null;
   events?: EventRecord[] | null;
+  announcements?: AnnouncementRecord[] | null;
   news?: PostRecord[] | null;
   gallery?: SanityImage[] | null;
   contactInfo?: ContactInfo | null;
@@ -106,6 +107,7 @@ export interface ZoneDetail extends ZoneRecord {
   chapters?: ChapterRecord[] | null;
   leaders?: LeaderRecord[] | null;
   events?: EventRecord[] | null;
+  announcements?: AnnouncementRecord[] | null;
   gallery?: SanityImage[] | null;
 }
 

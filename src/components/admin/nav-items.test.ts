@@ -95,7 +95,7 @@ describe("visibleNavItems", () => {
       roles: [{ key: "super_admin", name: "Super Admin", scope: {} }],
     });
     expect(hrefs(superAdmin)).toEqual(NAV_ITEMS.map((item) => item.href));
-    expect(hrefs(superAdmin)).toHaveLength(16);
+    expect(hrefs(superAdmin)).toHaveLength(17);
   });
 
   it("filters by permission only when no chapter role is held", () => {
@@ -110,11 +110,18 @@ describe("visibleNavItems", () => {
       "/admin/announcements",
       "/admin/outreaches",
       "/admin/newsletter",
-      "/admin/students",
+      "/admin/my-chapter",
       "/admin/leadership",
       "/admin/events",
       "/admin/media",
     ]);
+  });
+
+  it("hides the arm-list pages from chapter admins", () => {
+    expect(hrefs(studentsChapterAdmin)).not.toContain("/admin/students");
+    expect(hrefs(studentsChapterAdmin)).not.toContain("/admin/doctors");
+    expect(hrefs(doctorsChapterAdmin)).not.toContain("/admin/students");
+    expect(hrefs(doctorsChapterAdmin)).not.toContain("/admin/doctors");
   });
 
   it("hides main-admin modules even when the chapter admin holds the permission", () => {
@@ -126,33 +133,6 @@ describe("visibleNavItems", () => {
     expect(visible).not.toContain("/admin/global-network");
     expect(visible).not.toContain("/admin/audit");
     expect(visible).not.toContain("/admin/settings");
-  });
-
-  it("shows only the chapter admin's own arm", () => {
-    expect(hrefs(studentsChapterAdmin)).toContain("/admin/students");
-    expect(hrefs(studentsChapterAdmin)).not.toContain("/admin/doctors");
-    expect(hrefs(doctorsChapterAdmin)).toContain("/admin/doctors");
-    expect(hrefs(doctorsChapterAdmin)).not.toContain("/admin/students");
-  });
-
-  it("shows both arm entries for chapter admins of both arms", () => {
-    const both = makeSession({
-      permissions: CHAPTER_PERMS,
-      roles: [
-        {
-          key: "chapter_admin",
-          name: "Chapter Admin",
-          scope: { arm: "students", chapterSlug: "luth" },
-        },
-        {
-          key: "chapter_admin",
-          name: "Chapter Admin",
-          scope: { arm: "doctors", chapterSlug: "abu" },
-        },
-      ],
-    });
-    expect(hrefs(both)).toContain("/admin/students");
-    expect(hrefs(both)).toContain("/admin/doctors");
   });
 
   it("does not restrict actors who also hold a higher role", () => {
@@ -186,6 +166,6 @@ describe("navLabel", () => {
 
   it("keeps every other label untouched for chapters", () => {
     expect(navLabel(navItem("/admin/news"), true)).toBe("News");
-    expect(navLabel(navItem("/admin/students"), true)).toBe("Students' Arm");
+    expect(navLabel(navItem("/admin/my-chapter"), true)).toBe("My Chapter");
   });
 });

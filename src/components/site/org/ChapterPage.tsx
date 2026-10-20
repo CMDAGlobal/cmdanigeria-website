@@ -5,7 +5,7 @@ import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/
 import { PortableContent } from "@/components/site/portable";
 import { cn } from "@/lib/utils";
 import type { ChapterDetail } from "@/sanity/types";
-import { EventCard, GalleryGrid, LeaderCard } from "./cards";
+import { AnnouncementCard, EventCard, GalleryGrid, LeaderCard } from "./cards";
 import { chapterStats, upcomingEvents } from "./chapter-stats";
 import {
   CHAPTER_EXECUTIVE_POSITIONS,
@@ -224,25 +224,43 @@ function Gallery({ chapter }: { chapter: ChapterDetail }) {
   );
 }
 
+function Announcements({ chapter }: { chapter: ChapterDetail }) {
+  if (!chapter.announcements?.length) return null;
+  return (
+    <Section className="paper" id="announcements">
+      <SectionHead eyebrow="Chapter announcements" title="News & notices" />
+      <div className="mt-16 grid gap-6 sm:grid-cols-2">
+        {chapter.announcements.map((announcement) => (
+          <AnnouncementCard key={announcement._id} announcement={announcement} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
+export function ChapterNotFound() {
+  return (
+    <Section className="flex min-h-[50vh] items-center py-32">
+      <div className="mx-auto max-w-xl text-center">
+        <h1 className="display-2 text-balance">Chapter not found</h1>
+        <p className="lede mt-6 text-muted-foreground">
+          The chapter you are looking for does not exist or has not been published yet.
+        </p>
+        <Link
+          to="/students-arm"
+          className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to Students' Arm
+        </Link>
+      </div>
+    </Section>
+  );
+}
+
 export function ChapterPage({ chapter }: { chapter: ChapterDetail | null | undefined }) {
   if (!chapter) {
-    return (
-      <Section className="flex min-h-[50vh] items-center py-32">
-        <div className="mx-auto max-w-xl text-center">
-          <h1 className="display-2 text-balance">Chapter not found</h1>
-          <p className="lede mt-6 text-muted-foreground">
-            The chapter you are looking for does not exist or has not been published yet.
-          </p>
-          <Link
-            to="/students-arm"
-            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to Students' Arm
-          </Link>
-        </div>
-      </Section>
-    );
+    return <ChapterNotFound />;
   }
 
   const subtitle = [chapter.institution, chapter.location, chapter.country]
@@ -265,6 +283,7 @@ export function ChapterPage({ chapter }: { chapter: ChapterDetail | null | undef
         <Exco chapter={chapter} />
       )}
       <Events chapter={chapter} />
+      <Announcements chapter={chapter} />
       <NewsSection news={chapter.news} title={`${chapter.name} news`} />
       <Gallery chapter={chapter} />
       <ResourcesSection resources={chapter.resources} title="Chapter resources" />

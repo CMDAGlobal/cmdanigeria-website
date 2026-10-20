@@ -205,14 +205,11 @@ function AdminDashboardPage() {
     : "System-wide access";
 
   if (chapterOnly) {
-    const arm = roles.find((role) => role.key === "chapter_admin")?.scope.arm;
     const membership = chapter.data?.membership ?? [];
-    const statRows = membership.length
-      ? membership
-      : [{ label: arm === "doctors" ? "Total doctors" : "Total students", value: "" }];
+    const statRows = membership.length ? membership : [{ label: "Chapter members", value: "" }];
     const chapterLinks: Array<{ to: string; label: string }> = [
       {
-        to: arm === "doctors" ? "/admin/doctors" : "/admin/students",
+        to: "/admin/my-chapter",
         label: "Manage your chapter",
       },
       { to: "/admin/leadership", label: "Our leaders" },

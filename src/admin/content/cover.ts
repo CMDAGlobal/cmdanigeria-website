@@ -83,6 +83,23 @@ export function actorCoversDoc(
 }
 
 /**
+ * Ids of the given documents the actor may mutate. Used when one operation
+ * (e.g. replacing an asset) touches many documents at once: each must pass
+ * the write-coverage gate individually, not just the first.
+ */
+export function coveredDocIds(
+  actor: Actor,
+  docs: ReadonlyArray<{ id: string; meta: ContentScopeMeta; selfSlug?: string | undefined }>,
+  org: CoverOrg,
+): Set<string> {
+  const ids = new Set<string>();
+  for (const doc of docs) {
+    if (actorCoversDoc(actor, doc.meta, org, doc.selfSlug)) ids.add(doc.id);
+  }
+  return ids;
+}
+
+/**
  * The narrowest RBAC scope describing a document — passed to `authorizeActor`
  * so the scope-containment rules run against the document's own targeting.
  * Documents with no arm (legacy data) derive the system scope and are

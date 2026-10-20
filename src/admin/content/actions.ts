@@ -6,6 +6,7 @@ import {
   isSanityConfigured,
 } from "@/sanity/config";
 import { query } from "../db/client";
+import { scopedAuditTodayCount } from "../data/actions";
 import { getCurrentActor } from "../auth/actions";
 import { isAuthorizationError } from "../auth/guard";
 import { AuthorizationError, isSystemScope, scopeContains, type Actor } from "../rbac/engine";
@@ -185,14 +186,95 @@ export async function getContentModule(module: ContentModuleKey): Promise<Conten
  * statistics rows they type in the dashboard. The slug comes from the
  * actor's own grant, so the row returned is always their chapter.
  */
-export async function getMyChapter(): Promise<MyChapterPayload> {
-  const empty: MyChapterPayload = {
+function emptyMyChapter(): MyChapterPayload {
+  return {
     ok: false,
+    id: null,
     slug: null,
     name: null,
     arm: null,
+    institution: null,
+    location: null,
+    country: null,
+    mission: null,
+    hasDescription: false,
+    hasHistory: false,
+    hasLogo: false,
+    logoUrl: null,
     membership: [],
+    contactInfo: null,
+    socialLinks: null,
+    counts: {
+      leaders: 0,
+      events: 0,
+      news: 0,
+      announcements: 0,
+      gallery: 0,
+      resources: 0,
+    },
   };
+}
+
+function str(raw: unknown): string | null {
+  return typeof raw === "string" && raw.trim() ? raw.trim() : null;
+}
+
+function num(raw: unknown): number {
+  return typeof raw === "number" && Number.isFinite(raw) ? Math.max(0, Math.trunc(raw)) : 0;
+}
+
+interface MyChapterRow {
+  _id?: unknown;
+  slug?: unknown;
+  name?: unknown;
+  arm?: unknown;
+  institution?: unknown;
+  location?: unknown;
+  country?: unknown;
+  mission?: unknown;
+  hasDescription?: unknown;
+  hasHistory?: unknown;
+  hasLogo?: unknown;
+  logoUrl?: unknown;
+  membership?: unknown;
+  contactInfo?: unknown;
+  socialLinks?: unknown;
+  leaderCount?: unknown;
+  eventCount?: unknown;
+  newsCount?: unknown;
+  announcementCount?: unknown;
+  galleryCount?: unknown;
+  resourcesCount?: unknown;
+}
+
+function parseContact(raw: unknown): MyChapterPayload["contactInfo"] {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as { email?: unknown; phone?: unknown; address?: unknown };
+  return {
+    email: str(record.email),
+    phone: str(record.phone),
+    address: str(record.address),
+  };
+}
+
+function parseSocial(raw: unknown): MyChapterPayload["socialLinks"] {
+  if (!raw || typeof raw !== "object") return null;
+  const record = raw as {
+    instagram?: unknown;
+    x?: unknown;
+    facebook?: unknown;
+    whatsapp?: unknown;
+  };
+  return {
+    instagram: str(record.instagram),
+    x: str(record.x),
+    facebook: str(record.facebook),
+    whatsapp: str(record.whatsapp),
+  };
+}
+
+export async function getMyChapter(): Promise<MyChapterPayload> {
+  const empty = emptyMyChapter();
   try {
     const session = await requireActor();
     assertPermission(session, "chapters.read");
@@ -202,20 +284,37 @@ export async function getMyChapter(): Promise<MyChapterPayload> {
     const client = getClient();
     if (!client) return empty;
 
-    const row = await client.fetch<{
-      slug?: unknown;
-      name?: unknown;
-      arm?: unknown;
-      membership?: unknown;
-    } | null>(MY_CHAPTER_QUERY, { slug: grant.chapterSlug });
+    const row = await client.fetch<MyChapterRow | null>(MY_CHAPTER_QUERY, {
+      slug: grant.chapterSlug,
+    });
     if (!row || typeof row.slug !== "string" || !row.slug) return empty;
+    const slug: string = row.slug;
 
     return {
       ok: true,
-      slug: row.slug,
-      name: typeof row.name === "string" && row.name.trim() ? row.name.trim() : null,
-      arm: typeof row.arm === "string" && row.arm ? row.arm : (grant.arm ?? null),
+      id: str(row._id),
+      slug,
+      name: str(row.name),
+      arm: str(row.arm) ?? grant.arm ?? null,
+      institution: str(row.institution),
+      location: str(row.location),
+      country: str(row.country),
+      mission: str(row.mission),
+      hasDescription: row.hasDescription === true,
+      hasHistory: row.hasHistory === true,
+      hasLogo: row.hasLogo === true,
+      logoUrl: str(row.logoUrl),
       membership: mapChapterMembership(row.membership),
+      contactInfo: parseContact(row.contactInfo),
+      socialLinks: parseSocial(row.socialLinks),
+      counts: {
+        leaders: num(row.leaderCount),
+        events: num(row.eventCount),
+        news: num(row.newsCount),
+        announcements: num(row.announcementCount),
+        gallery: num(row.galleryCount),
+        resources: num(row.resourcesCount),
+      },
     };
   } catch (error) {
     if (isAuthorizationError(error)) return empty;
@@ -306,10 +405,7 @@ export async function getDashboardStats(): Promise<DashboardStatsPayload> {
 
   let auditTodayCount: number | null = null;
   if (canViewAudit) {
-    const [row] = await query<{ c: number }>(
-      "select count(*)::int as c from admin_audit_logs where created_at >= date_trunc('day', now())",
-    );
-    auditTodayCount = row?.c ?? 0;
+    auditTodayCount = await scopedAuditTodayCount(session.actor);
   }
 
   const [roleCountRow] = await query<{ c: number }>("select count(*)::int as c from admin_roles");

@@ -719,6 +719,345 @@ export function validatePublicationTransition(
 /** Upper bound on a page's sections, mirroring the other list limits. */
 export const MAX_PAGE_SECTIONS = 100;
 
+/** The eight hideable block types a page may contain (mirrors Studio). */
+export const PAGE_SECTION_TYPE_KEYS = [
+  "heroSection",
+  "richTextSection",
+  "imageTextSection",
+  "statsSection",
+  "cardsSection",
+  "gallerySection",
+  "videoSection",
+  "ctaSection",
+] as const;
+
+export type PageSectionTypeKey = (typeof PAGE_SECTION_TYPE_KEYS)[number];
+
+const SECTION_COMMON_FIELDS = ["internalName", "eyebrow", "heading", "body", "visible"] as const;
+
+const SECTION_TYPE_FIELDS: Record<PageSectionTypeKey, readonly string[]> = {
+  heroSection: [...SECTION_COMMON_FIELDS, "backgroundImage", "ctaLabel", "ctaHref"],
+  richTextSection: [...SECTION_COMMON_FIELDS, "width"],
+  imageTextSection: [
+    ...SECTION_COMMON_FIELDS,
+    "image",
+    "imageSide",
+    "imageAlt",
+    "imageCaption",
+    "ctaLabel",
+    "ctaHref",
+  ],
+  statsSection: [...SECTION_COMMON_FIELDS, "autoFill", "items"],
+  cardsSection: [...SECTION_COMMON_FIELDS, "columns", "cards"],
+  gallerySection: [...SECTION_COMMON_FIELDS, "images"],
+  videoSection: [...SECTION_COMMON_FIELDS, "provider", "videoId", "poster", "caption"],
+  ctaSection: [...SECTION_COMMON_FIELDS, "ctaLabel", "ctaHref", "tone"],
+};
+
+function isSectionType(value: unknown): value is PageSectionTypeKey {
+  return typeof value === "string" && (PAGE_SECTION_TYPE_KEYS as readonly string[]).includes(value);
+}
+
+/** Minimal portable-text builder for dashboard-entered body text. */
+function bodyTextToBlocks(text: string): Array<Record<string, unknown>> {
+  const blocks: Array<Record<string, unknown>> = [];
+  for (const raw of text.split(/\r?\n/)) {
+    const line = raw.trim();
+    if (!line) continue;
+    blocks.push({
+      _type: "block",
+      style: "normal",
+      markDefs: [],
+      children: [{ _type: "span", text: line, marks: [] }],
+    });
+  }
+  return blocks;
+}
+
+function normalizeSectionBody(value: unknown): unknown {
+  if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "string") {
+    if (value.length > MAX_FIELD_CHARS) throw new ContentInputError("invalid_input");
+    return bodyTextToBlocks(value);
+  }
+  if (Array.isArray(value)) {
+    if (value.length > MAX_LIST_ITEMS) throw new ContentInputError("invalid_input");
+    assertValueShape(value);
+    return value;
+  }
+  throw new ContentInputError("invalid_input");
+}
+
+function normalizeStatItems(value: unknown): Array<Record<string, string>> {
+  return normalizeStructArray(value, ["value", "label"]);
+}
+
+function normalizeCardRows(value: unknown): Array<Record<string, unknown>> {
+  if (value === null || value === undefined || value === "") return [];
+  if (!Array.isArray(value) || value.length > MAX_LIST_ITEMS) {
+    throw new ContentInputError("invalid_input");
+  }
+  const rows: Array<Record<string, unknown>> = [];
+  for (const entry of value) {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const input = entry as Record<string, unknown>;
+    const row: Record<string, unknown> = { _type: "card" };
+    const icon = typeof input["icon"] === "string" ? input["icon"].trim() : "";
+    if (icon) row["icon"] = icon.slice(0, 80);
+    const title = typeof input["title"] === "string" ? input["title"].trim() : "";
+    if (title) row["title"] = title.slice(0, 200);
+    const desc = typeof input["desc"] === "string" ? input["desc"].trim() : "";
+    if (desc) row["desc"] = desc.slice(0, MAX_FIELD_CHARS);
+    const points = strArray(input["points"] ?? null);
+    if (points.length) row["points"] = points;
+    const ctaLabel = typeof input["ctaLabel"] === "string" ? input["ctaLabel"].trim() : "";
+    if (ctaLabel) row["ctaLabel"] = ctaLabel.slice(0, 120);
+    const ctaHref = typeof input["ctaHref"] === "string" ? input["ctaHref"].trim() : "";
+    if (ctaHref) row["ctaHref"] = ctaHref.slice(0, 500);
+    rows.push(row);
+  }
+  return rows;
+}
+
+/**
+ * Validates one section object against the per-type field whitelist.
+ * Returns a deep copy containing only allowed, normalized fields plus
+ * `_key`/`_type`/`visible`. Unknown fields fail closed.
+ */
+export function validatePageSection(
+  raw: unknown,
+  options: { partial: boolean },
+): Record<string, unknown> {
+  if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+    throw new ContentInputError("invalid_input");
+  }
+  const input = raw as Record<string, unknown>;
+  const type = input["_type"];
+  if (!isSectionType(type)) throw new ContentInputError("invalid_input");
+  const allowed = SECTION_TYPE_FIELDS[type] as readonly string[];
+
+  const key = typeof input["_key"] === "string" ? input["_key"].trim() : "";
+  if (!key || key.length > 80) throw new ContentInputError("invalid_input");
+
+  if (!options.partial) {
+    for (const field of Object.keys(input)) {
+      if (field === "_key" || field === "_type") continue;
+      if (!(allowed as readonly string[]).includes(field)) {
+        throw new ContentInputError("invalid_input");
+      }
+    }
+  }
+
+  const output: Record<string, unknown> = { _key: key, _type: type };
+  const visible = input["visible"];
+  output["visible"] = visible !== false;
+
+  const optionalString = (field: string, max: number): void => {
+    if (!(field in input)) return;
+    if (!(allowed as readonly string[]).includes(field)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const value = input[field];
+    if (value === null || value === undefined || value === "") {
+      output[field] = null;
+      return;
+    }
+    if (typeof value !== "string" || value.length > max) {
+      throw new ContentInputError("invalid_input");
+    }
+    output[field] = value;
+  };
+
+  optionalString("internalName", 200);
+  optionalString("eyebrow", 200);
+  optionalString("heading", 500);
+  optionalString("ctaLabel", 200);
+  optionalString("ctaHref", 500);
+  optionalString("imageAlt", 500);
+  optionalString("imageCaption", 500);
+  optionalString("videoId", 500);
+  optionalString("caption", 500);
+
+  if ("body" in input) {
+    if (!(allowed as readonly string[]).includes("body")) {
+      throw new ContentInputError("invalid_input");
+    }
+    output["body"] = normalizeSectionBody(input["body"]);
+  }
+
+  if ("width" in input) {
+    if (!(allowed as readonly string[]).includes("width")) {
+      throw new ContentInputError("invalid_input");
+    }
+    output["width"] = input["width"] === true;
+  }
+
+  if ("autoFill" in input) {
+    if (!(allowed as readonly string[]).includes("autoFill")) {
+      throw new ContentInputError("invalid_input");
+    }
+    output["autoFill"] = input["autoFill"] === true;
+  }
+
+  if ("imageSide" in input) {
+    const side = input["imageSide"];
+    output["imageSide"] = side === "left" ? "left" : "right";
+  }
+
+  if ("columns" in input) {
+    const columns = input["columns"];
+    output["columns"] = columns === "2" || columns === "4" ? columns : ("3" as const);
+  }
+
+  if ("provider" in input) {
+    const provider = input["provider"];
+    output["provider"] = provider === "vimeo" ? "vimeo" : ("youtube" as const);
+  }
+
+  if ("tone" in input) {
+    const tone = input["tone"];
+    output["tone"] = tone === "muted" ? "muted" : ("primary" as const);
+  }
+
+  if ("items" in input) {
+    if (!(allowed as readonly string[]).includes("items")) {
+      throw new ContentInputError("invalid_input");
+    }
+    output["items"] = normalizeStatItems(input["items"]);
+  }
+
+  if ("cards" in input) {
+    if (!(allowed as readonly string[]).includes("cards")) {
+      throw new ContentInputError("invalid_input");
+    }
+    output["cards"] = normalizeCardRows(input["cards"]);
+  }
+
+  if ("images" in input) {
+    output["images"] = normalizeGalleryField(input["images"]);
+  }
+
+  for (const field of ["backgroundImage", "image", "poster"] as const) {
+    if (!(field in input)) continue;
+    if (!(allowed as readonly string[]).includes(field)) {
+      throw new ContentInputError("invalid_input");
+    }
+    // Existing sections keep their stored asset object when the form does not
+    // replace it; a bare asset id is normalized the same way as module assets.
+    const value = input[field];
+    if (value === null || value === undefined || value === "") {
+      output[field] = null;
+      continue;
+    }
+    if (typeof value === "string") {
+      output[field] = normalizeAssetField(value, "image");
+      continue;
+    }
+    if (typeof value === "object" && !Array.isArray(value)) {
+      assertValueShape(value);
+      output[field] = value;
+      continue;
+    }
+    throw new ContentInputError("invalid_input");
+  }
+
+  return output;
+}
+
+/**
+ * Validates a full dashboard sections payload: reorder, hide, add, delete and
+ * field edits. Each entry is `{ key, visible, type?, fields? }`; a `key` that
+ * is not already stored requires `type` (create); a stored key with no matching
+ * incoming entry is deleted. `fields` is a partial or full field map validated
+ * by {@link validatePageSection}.
+ */
+export function applyPageSections(storedValue: unknown, incoming: unknown): SectionOrderResult {
+  const stored = Array.isArray(storedValue) ? storedValue : [];
+  if (!Array.isArray(incoming) || incoming.length > MAX_PAGE_SECTIONS) {
+    throw new ContentInputError("invalid_input");
+  }
+  const byKey = new Map<string, Record<string, unknown>>();
+  for (const entry of stored) {
+    if (entry === null || typeof entry !== "object" || Array.isArray(entry)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const record = entry as Record<string, unknown>;
+    const key = typeof record["_key"] === "string" ? record["_key"] : "";
+    if (!key || byKey.has(key)) throw new ContentInputError("invalid_input");
+    byKey.set(key, record);
+  }
+
+  const seen = new Set<string>();
+  const sections: Record<string, unknown>[] = [];
+  for (const raw of incoming) {
+    if (raw === null || typeof raw !== "object" || Array.isArray(raw)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const entry = raw as Record<string, unknown>;
+    const key = typeof entry["key"] === "string" ? entry["key"].trim() : "";
+    const visible = entry["visible"];
+    if (!key || typeof visible !== "boolean" || seen.has(key)) {
+      throw new ContentInputError("invalid_input");
+    }
+    seen.add(key);
+
+    const existing = byKey.get(key);
+    const fields = entry["fields"];
+    if (existing) {
+      const hasFields =
+        fields !== undefined &&
+        fields !== null &&
+        typeof fields === "object" &&
+        !Array.isArray(fields);
+      if (hasFields) {
+        const merged = {
+          ...existing,
+          ...(fields as Record<string, unknown>),
+          _key: key,
+          _type: existing["_type"],
+        };
+        const validated = validatePageSection(merged, { partial: false });
+        sections.push({ ...validated, visible });
+      } else {
+        sections.push({ ...existing, visible });
+      }
+      continue;
+    }
+
+    // New section: type is required; fields optional (defaults only).
+    const type = entry["type"];
+    if (!isSectionType(type)) throw new ContentInputError("invalid_input");
+    const seed: Record<string, unknown> = { _key: key, _type: type, visible };
+    if (
+      fields !== undefined &&
+      fields !== null &&
+      typeof fields === "object" &&
+      !Array.isArray(fields)
+    ) {
+      Object.assign(seed, fields as Record<string, unknown>);
+    }
+    seed["_key"] = key;
+    seed["_type"] = type;
+    sections.push(validatePageSection(seed, { partial: false }));
+  }
+
+  const wasVisible = (record: Record<string, unknown>) => record["visible"] !== false;
+  let changed = stored.length !== sections.length;
+  for (let index = 0; !changed && index < sections.length; index += 1) {
+    const previous = stored[index] as Record<string, unknown> | undefined;
+    const next = sections[index];
+    changed =
+      !previous ||
+      !next ||
+      previous["_key"] !== next["_key"] ||
+      wasVisible(previous) !== wasVisible(next) ||
+      JSON.stringify(previous) !== JSON.stringify(next);
+  }
+  return { sections, changed };
+}
+
 export interface SectionOrderResult {
   sections: Record<string, unknown>[];
   changed: boolean;

@@ -8,6 +8,9 @@ import { parseModuleConfig, type AssetKind } from "./validate";
 import { parseAssetId } from "./asset-id";
 import { validateUpload } from "./asset-validate";
 import { changedTopLevelKeys, swapAssetRef } from "./asset-relink";
+import { coveredDocIds } from "./cover";
+import { loadCoverOrg } from "./cover-org";
+import { buildScopeMeta } from "./scope";
 import {
   assetUploadScope,
   canAccessAsset,
@@ -34,6 +37,18 @@ const LIBRARY_LIMIT = 200;
 const REFERENCES_QUERY = `count(*[references($id)])`;
 
 const REFERENCING_DOCS_QUERY = `*[_type != "sanity.imageAsset" && _type != "sanity.fileAsset" && references($id)]`;
+
+/**
+ * Scope projection for the same corpus as REFERENCING_DOCS_QUERY — one row per
+ * referencing document, enough for the write-coverage gate. Mirrors the
+ * coalesce pattern used by the content mutation loader.
+ */
+const REFERENCING_SCOPE_QUERY = `*[_type != "sanity.imageAsset" && _type != "sanity.fileAsset" && references($id)]{
+  _id, _type, "slug": slug.current, arm,
+  "regions": coalesce(regions[]->slug.current, region->slug.current),
+  "zones": coalesce(zones[]->slug.current, zone->slug.current),
+  "chapters": coalesce(chapters[]->slug.current, memberOfChapter->slug.current)
+}`;
 
 const ASSET_QUERY = `*[_type == $type] | order(_createdAt desc)[0...$limit]{
   _id, originalFilename, mimeType, size, url, _createdAt, cmdaScope
@@ -62,6 +77,17 @@ interface AssetRow {
   url?: unknown;
   _createdAt?: unknown;
   cmdaScope?: unknown;
+}
+
+/** Scope projection row for a document referencing an asset. */
+interface ScopeRow {
+  _id?: unknown;
+  _type?: unknown;
+  slug?: unknown;
+  arm?: unknown;
+  regions?: unknown;
+  zones?: unknown;
+  chapters?: unknown;
 }
 
 /** Reads the `cmdaScope` stamp off an asset row or document. */
@@ -244,6 +270,11 @@ export async function uploadSanityAsset(input: UploadAssetInput): Promise<Upload
  * referenced the old asset at the new one, then deleting the old asset. The
  * public site therefore keeps working without editors having to re-attach the
  * image on each page. Requires `media.write`.
+ *
+ * Scoped admins may only replace assets they own; the documents repointed are
+ * additionally filtered by the per-document write-coverage gate, and the old
+ * asset is kept whenever any referencing document was skipped so those pages
+ * never end up with broken media.
  */
 export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<UploadAssetResult> {
   const fail = (error: string): UploadAssetResult => ({ ok: false, error });
@@ -278,7 +309,40 @@ export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<Uplo
   if (!client) return fail("The content store is not configured for uploads.");
 
   try {
-    // 1. Upload the new binary as a fresh asset.
+    // 1. Work out which referencing documents this actor may mutate BEFORE
+    //    uploading anything, so a scope failure cannot leave a stray asset.
+    const org = await loadCoverOrg();
+    const scopeRows = await client.fetch<ScopeRow[] | null>(REFERENCING_SCOPE_QUERY, {
+      id: oldId,
+    });
+    const coveredDocs = (Array.isArray(scopeRows) ? scopeRows : [])
+      .filter((row) => typeof row._id === "string" && row._id)
+      .map((row) => {
+        const meta = buildScopeMeta({
+          arm: row.arm,
+          regions: row.regions,
+          zones: row.zones,
+          chapters: row.chapters,
+        });
+        const slug = typeof row.slug === "string" && row.slug ? row.slug : undefined;
+        if (row._type === "chapter") {
+          meta.chapters = slug ? [slug] : [];
+        } else if (row._type === "region") {
+          meta.arm = "global";
+          meta.regions = slug ? [slug] : [];
+          meta.zones = [];
+          meta.chapters = [];
+        }
+        return { id: row._id as string, meta, selfSlug: slug };
+      });
+    const covered = coveredDocIds(session.actor, coveredDocs, org);
+    const totalReferencing = coveredDocs.length;
+    const skipped = totalReferencing - covered.size;
+    if (totalReferencing > 0 && covered.size === 0) {
+      return fail("This file is used by content outside your scope.");
+    }
+
+    // 2. Upload the new binary as a fresh asset.
     const uploaded = await client.assets.upload(kind, checked.bytes, {
       filename: checked.filename,
       contentType: checked.contentType,
@@ -286,11 +350,13 @@ export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<Uplo
     if (!uploaded?._id) return fail("The replace did not return an asset.");
     const newId = uploaded._id;
 
-    // 2. Repoint every document that used the old asset.
+    // 3. Repoint the documents this actor covers.
     const docs = await client.fetch<Array<Record<string, unknown>> | null>(REFERENCING_DOCS_QUERY, {
       id: oldId,
     });
-    const referencing = Array.isArray(docs) ? docs : [];
+    const referencing = (Array.isArray(docs) ? docs : []).filter(
+      (doc) => typeof doc["_id"] === "string" && covered.has(doc["_id"] as string),
+    );
     if (referencing.length > 0) {
       const txn = client.transaction();
       for (const doc of referencing) {
@@ -306,13 +372,17 @@ export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<Uplo
       await txn.commit();
     }
 
-    // 3. Drop the old asset now that nothing references it.
-    try {
-      await client.delete(oldId);
-    } catch (error) {
-      // Non-fatal: the old binary lingers but every reference already points
-      // at the new asset, so the site is correct either way.
-      console.error("[admin] old asset delete after replace failed", error);
+    // 4. Drop the old asset only when EVERY referencing document was repointed.
+    //    Skipped documents still point at the old id, so deleting it would
+    //    break media on pages this admin cannot see.
+    if (skipped === 0) {
+      try {
+        await client.delete(oldId);
+      } catch (error) {
+        // Non-fatal: the old binary lingers but every reference already points
+        // at the new asset, so the site is correct either way.
+        console.error("[admin] old asset delete after replace failed", error);
+      }
     }
 
     await recordAudit({
@@ -321,7 +391,7 @@ export async function replaceSanityAsset(input: ReplaceAssetInput): Promise<Uplo
       targetType: assetType(kind),
       targetId: oldId,
       outcome: "success",
-      reason: `replace:${newId}:${referencing.length}`,
+      reason: `replace:${newId}:${referencing.length}${skipped > 0 ? `:skipped:${skipped}` : ""}`,
     });
     return {
       ok: true,

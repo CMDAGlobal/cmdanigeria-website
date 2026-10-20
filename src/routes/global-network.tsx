@@ -137,7 +137,7 @@ function GlobalNetworkPage() {
   return (
     <CmsPage
       page={page}
-
+      stackSections
       eyebrow="Global Network"
       title="Connecting Nigerian Christian healthcare professionals worldwide"
       intro="From Lagos to London, Abuja to Atlanta — CMDA Nigeria's global network spans over 20 countries, uniting alumni and partners around faith, service and mission."

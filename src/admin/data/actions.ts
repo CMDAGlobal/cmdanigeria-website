@@ -181,6 +181,35 @@ async function todayAuditRows(actor: Actor, limit: number): Promise<AuditRow[]> 
   });
 }
 
+/**
+ * Audit entries created today that the actor's scope may see. Scoped viewers
+ * (arm/region/chapter) must not learn system-wide activity volume from the
+ * dashboard counters even though the row list itself is already filtered.
+ */
+export async function scopedAuditTodayCount(actor: Actor): Promise<number> {
+  if (hasSystemGrant(actor)) {
+    const [row] = await query<{ c: number }>(
+      "select count(*)::int as c from admin_audit_logs where created_at >= date_trunc('day', now())",
+    );
+    return row?.c ?? 0;
+  }
+  const rows = await query<Pick<AuditRow, "scope_arm" | "scope_region" | "scope_chapter">>(
+    `select scope_arm, scope_region, scope_chapter
+     from admin_audit_logs
+     where created_at >= date_trunc('day', now())`,
+  );
+  return rows.filter((row) =>
+    scopeContainsInner(
+      actor,
+      toScope(
+        row.scope_arm ?? undefined,
+        row.scope_region ?? undefined,
+        row.scope_chapter ?? undefined,
+      ),
+    ),
+  ).length;
+}
+
 function mapAuditEntry(row: AuditRow): AuditEntryItem {
   return {
     id: row.id,
@@ -217,13 +246,7 @@ export async function getOverview(): Promise<OverviewResult> {
   const recentAudit = canViewAudit
     ? (await todayAuditRows(session.actor, 6)).slice(0, 6).map(mapAuditEntry)
     : [];
-  const auditTodayCount = canViewAudit
-    ? ((
-        await query<{ c: number }>(
-          "select count(*)::int as c from admin_audit_logs where created_at >= date_trunc('day', now())",
-        )
-      )[0]?.c ?? 0)
-    : null;
+  const auditTodayCount = canViewAudit ? await scopedAuditTodayCount(session.actor) : null;
 
   return {
     usersCount: canViewUsers ? await scopedUserCount(session.actor) : null,
@@ -269,14 +292,18 @@ export async function listAdminUsers(): Promise<AdminUserItem[]> {
       grouped.set(row.id, item);
     }
     if (row.role_key && row.role_name) {
+      const scope = toScope(
+        row.arm ?? undefined,
+        row.region_slug ?? undefined,
+        row.chapter_slug ?? undefined,
+      );
+      // Scoped viewers only see the grants that fall inside their own scope —
+      // never a colleague's grants at other chapters, regions or arms.
+      if (!hasSystemGrant(session.actor) && !scopeContainsInner(session.actor, scope)) continue;
       item.roles.push({
         key: row.role_key,
         name: row.role_name,
-        scope: toScope(
-          row.arm ?? undefined,
-          row.region_slug ?? undefined,
-          row.chapter_slug ?? undefined,
-        ),
+        scope,
       });
     }
   }

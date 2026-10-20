@@ -246,6 +246,10 @@ export const chapterQuery = `
   "exco": *[_type == "person" && ${NOT_DRAFT} && memberOfChapter._ref == ^._id] | order(order asc, _createdAt asc) ${personProjection},
   "gallery": coalesce(gallery[]${imageProjection}, []),
   "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(startDate desc) ${eventProjection},
+  "announcements": *[_type == "announcement" && ${VISIBLE} && references(^._id)] | order(pinned desc, publishedAt desc) {
+    _id, title, slug, category, publishedAt, pinned, link,
+    "body": coalesce(body[]{ ${portableTextProjection} }, [])
+  },
   "news": *[_type == "post" && ${VISIBLE} && references(^._id)] | order(publishedAt desc)[0...6] { ${postFields} }
 }
 `;
@@ -257,6 +261,10 @@ export const zoneQuery = `
   "chapters": *[_type == "chapter" && ${LIVE_UNIT} && references(^._id)] | order(order asc, name asc) ${chapterListProjection},
   "leaders": *[_type == "person" && ${NOT_DRAFT} && references(^._id)] | order(order asc, _createdAt asc) ${personProjection},
   "events": *[_type == "event" && ${VISIBLE} && references(^._id)] | order(featured desc, startDate desc) ${eventProjection},
+  "announcements": *[_type == "announcement" && ${VISIBLE} && references(^._id)] | order(pinned desc, publishedAt desc) {
+    _id, title, slug, category, publishedAt, pinned, link,
+    "body": coalesce(body[]{ ${portableTextProjection} }, [])
+  },
   "gallery": coalesce(gallery[]${imageProjection}, [])
 }
 `;

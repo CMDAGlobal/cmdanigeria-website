@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, CalendarDays } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
@@ -12,8 +12,13 @@ const siteTitle = "News | CMDA Nigeria";
 const siteDescription = "Stories, press releases and public statements from CMDA Nigeria.";
 
 export const Route = createFileRoute("/news/$slug")({
-  loader: async ({ params }) => ({ post: await fetchPost({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const post = await fetchPost({ data: params.slug });
+    if (!post) throw notFound();
+    return { post };
+  },
   component: NewsDetailPage,
+  notFoundComponent: NewsNotFound,
   head: ({ loaderData }) => {
     const post = loaderData?.post;
     const title = post ? post.seoTitle || `${post.title} | CMDA Nigeria News` : siteTitle;
@@ -31,27 +36,27 @@ export const Route = createFileRoute("/news/$slug")({
   },
 });
 
+function NewsNotFound() {
+  return (
+    <>
+      <PageHero
+        eyebrow="News"
+        title="News item not found"
+        intro="This story may have been unpublished or the address may be incorrect."
+      />
+      <Section className="paper">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Link to="/news" className={cn(buttonVariants({ variant: "primary" }))}>
+            Back to all news
+          </Link>
+        </Reveal>
+      </Section>
+    </>
+  );
+}
+
 function NewsDetailPage() {
   const { post } = Route.useLoaderData();
-
-  if (!post) {
-    return (
-      <>
-        <PageHero
-          eyebrow="News"
-          title="News item not found"
-          intro="This story may have been unpublished or the address may be incorrect."
-        />
-        <Section className="paper">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <Link to="/news" className={cn(buttonVariants({ variant: "primary" }))}>
-              Back to all news
-            </Link>
-          </Reveal>
-        </Section>
-      </>
-    );
-  }
 
   const date = formatDate(post.publishedAt);
   const coverUrl = post.cover?.asset?.url;

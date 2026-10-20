@@ -57,7 +57,13 @@ function Index() {
     <>
       <Hero />
       {hasSections ? (
-        <PageSections sections={page?.sections} counters={counters} />
+        <>
+          <PageSections sections={page?.sections} counters={counters} />
+          <ImpactStats chapters={chapters} />
+          <WhoWeAre />
+          <Ministries />
+          <ReasonsToJoin />
+        </>
       ) : (
         <>
           <ImpactStats chapters={chapters} />

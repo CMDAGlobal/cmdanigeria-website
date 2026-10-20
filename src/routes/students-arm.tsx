@@ -101,7 +101,7 @@ function StudentsArmPage() {
   return (
     <CmsPage
       page={page}
-
+      stackSections
       eyebrow="Students' Arm"
       title="Building faith, excellence and service in the next generation"
       intro="Since 1981, CMDA Nigeria's student fellowship has grown into one of the largest Christian medical student movements in the world — shaping doctors who practise with conviction, compassion and skill."

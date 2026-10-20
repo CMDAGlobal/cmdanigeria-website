@@ -1,10 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { ChapterPage } from "@/components/site/org/ChapterPage";
+import { createFileRoute, notFound } from "@tanstack/react-router";
+import { ChapterNotFound, ChapterPage } from "@/components/site/org/ChapterPage";
 import { fetchChapter } from "@/sanity/data";
 
 export const Route = createFileRoute("/chapters/$slug")({
-  loader: async ({ params }) => ({ chapter: await fetchChapter({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const chapter = await fetchChapter({ data: params.slug });
+    if (!chapter) throw notFound();
+    return { chapter };
+  },
   component: ChapterRoute,
+  notFoundComponent: ChapterNotFound,
   head: ({ loaderData }) => {
     const chapter = loaderData?.chapter;
     const title = chapter ? `${chapter.name} | CMDA Nigeria` : "Chapter | CMDA Nigeria";
@@ -26,5 +31,5 @@ export const Route = createFileRoute("/chapters/$slug")({
 
 function ChapterRoute() {
   const { chapter } = Route.useLoaderData();
-  return <ChapterPage chapter={chapter ?? null} />;
+  return <ChapterPage chapter={chapter} />;
 }

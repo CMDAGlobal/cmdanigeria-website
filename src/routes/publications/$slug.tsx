@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, CalendarDays, Download, User } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
@@ -25,8 +25,13 @@ function formatIssueDate(value: string | null | undefined): string | null {
 }
 
 export const Route = createFileRoute("/publications/$slug")({
-  loader: async ({ params }) => ({ issue: await fetchPrescription({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const issue = await fetchPrescription({ data: params.slug });
+    if (!issue) throw notFound();
+    return { issue };
+  },
   component: PublicationDetailPage,
+  notFoundComponent: PublicationNotFound,
   head: ({ loaderData }) => {
     const issue = loaderData?.issue;
     const title = issue ? `${issue.title} | CMDA Nigeria` : siteTitle;
@@ -46,27 +51,27 @@ export const Route = createFileRoute("/publications/$slug")({
   },
 });
 
+function PublicationNotFound() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Publications"
+        title="Issue not found"
+        intro="This issue may have been unpublished, or the address may be incorrect."
+      />
+      <Section className="paper">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Link to="/publications" className={cn(buttonVariants({ variant: "primary" }))}>
+            Back to all publications
+          </Link>
+        </Reveal>
+      </Section>
+    </>
+  );
+}
+
 function PublicationDetailPage() {
   const { issue } = Route.useLoaderData();
-
-  if (!issue) {
-    return (
-      <>
-        <PageHero
-          eyebrow="Publications"
-          title="Issue not found"
-          intro="This issue may have been unpublished, or the address may be incorrect."
-        />
-        <Section className="paper">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <Link to="/publications" className={cn(buttonVariants({ variant: "primary" }))}>
-              Back to all publications
-            </Link>
-          </Reveal>
-        </Section>
-      </>
-    );
-  }
 
   const kind = KIND_LABELS[issue.kind ?? ""] ?? "Publication";
   const date = formatIssueDate(issue.issueDate);

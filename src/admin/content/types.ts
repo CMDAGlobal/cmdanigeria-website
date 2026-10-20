@@ -89,12 +89,46 @@ export interface MyChapterStat {
   value: string;
 }
 
+export interface MyChapterContact {
+  email: string | null;
+  phone: string | null;
+  address: string | null;
+}
+
+export interface MyChapterSocial {
+  instagram: string | null;
+  x: string | null;
+  facebook: string | null;
+  whatsapp: string | null;
+}
+
+export interface MyChapterCounts {
+  leaders: number;
+  events: number;
+  news: number;
+  announcements: number;
+  gallery: number;
+  resources: number;
+}
+
 export interface MyChapterPayload {
   ok: boolean;
+  id: string | null;
   slug: string | null;
   name: string | null;
   arm: string | null;
+  institution: string | null;
+  location: string | null;
+  country: string | null;
+  mission: string | null;
+  hasDescription: boolean;
+  hasHistory: boolean;
+  hasLogo: boolean;
+  logoUrl: string | null;
   membership: MyChapterStat[];
+  contactInfo: MyChapterContact | null;
+  socialLinks: MyChapterSocial | null;
+  counts: MyChapterCounts;
 }
 
 export interface MediaAsset {
@@ -193,6 +227,13 @@ export interface PageSectionsPayload {
 export interface PageSectionOrder {
   key: string;
   visible: boolean;
+  /** Required when creating a new section (not already stored). */
+  type?: string;
+  /**
+   * Partial or full field map for the section (eyebrow, heading, body text,
+   * type-specific fields). Omitted entries keep their stored content.
+   */
+  fields?: Record<string, unknown>;
 }
 
 export interface SetPageSectionsInput {

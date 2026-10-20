@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, CalendarDays, Clock, MapPin, Users, Video } from "lucide-react";
 import { format, parseISO } from "date-fns";
 
@@ -14,8 +14,13 @@ const siteTitle = "Event | CMDA Nigeria";
 const siteDescription = "Conferences, retreats, outreaches and gatherings from CMDA Nigeria.";
 
 export const Route = createFileRoute("/events/$slug")({
-  loader: async ({ params }) => ({ event: await fetchEvent({ data: params.slug }) }),
+  loader: async ({ params }) => {
+    const event = await fetchEvent({ data: params.slug });
+    if (!event) throw notFound();
+    return { event };
+  },
   component: EventDetailPage,
+  notFoundComponent: EventNotFound,
   head: ({ loaderData }) => {
     const event = loaderData?.event;
     const title = event ? `${event.title} | CMDA Nigeria Events` : siteTitle;
@@ -43,27 +48,27 @@ function formatTime(value?: string | null): string | null {
   }
 }
 
+function EventNotFound() {
+  return (
+    <>
+      <PageHero
+        eyebrow="Events"
+        title="Event not found"
+        intro="This event may have been unpublished or the address may be incorrect."
+      />
+      <Section className="paper">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Link to="/events" className={cn(buttonVariants({ variant: "primary" }))}>
+            Back to all events
+          </Link>
+        </Reveal>
+      </Section>
+    </>
+  );
+}
+
 function EventDetailPage() {
   const { event } = Route.useLoaderData();
-
-  if (!event) {
-    return (
-      <>
-        <PageHero
-          eyebrow="Events"
-          title="Event not found"
-          intro="This event may have been unpublished or the address may be incorrect."
-        />
-        <Section className="paper">
-          <Reveal className="mx-auto max-w-2xl text-center">
-            <Link to="/events" className={cn(buttonVariants({ variant: "primary" }))}>
-              Back to all events
-            </Link>
-          </Reveal>
-        </Section>
-      </>
-    );
-  }
 
   const date = formatDate(event.startDate);
   const endDate = formatDate(event.endDate);

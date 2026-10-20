@@ -218,25 +218,29 @@ function Gallery({ region }: { region: RegionDetail }) {
   );
 }
 
+export function RegionNotFound() {
+  return (
+    <Section className="flex min-h-[50vh] items-center py-32">
+      <div className="mx-auto max-w-xl text-center">
+        <h1 className="display-2 text-balance">Region not found</h1>
+        <p className="lede mt-6 text-muted-foreground">
+          The region you are looking for does not exist or has not been published yet.
+        </p>
+        <Link
+          to="/global-network"
+          className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
+        >
+          <ArrowLeft className="size-4" aria-hidden="true" />
+          Back to Global Network
+        </Link>
+      </div>
+    </Section>
+  );
+}
+
 export function RegionPage({ region }: { region: RegionDetail | null | undefined }) {
   if (!region) {
-    return (
-      <Section className="flex min-h-[50vh] items-center py-32">
-        <div className="mx-auto max-w-xl text-center">
-          <h1 className="display-2 text-balance">Region not found</h1>
-          <p className="lede mt-6 text-muted-foreground">
-            The region you are looking for does not exist or has not been published yet.
-          </p>
-          <Link
-            to="/global-network"
-            className={cn(buttonVariants({ variant: "primary", size: "lg" }), "mt-8")}
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Back to Global Network
-          </Link>
-        </div>
-      </Section>
-    );
+    return <RegionNotFound />;
   }
 
   return (

@@ -53,6 +53,7 @@ import { Route as AdminLayoutEventsRouteImport } from './routes/admin/_layout/ev
 import { Route as AdminLayoutGlobalNetworkRouteImport } from './routes/admin/_layout/global-network'
 import { Route as AdminLayoutLeadershipRouteImport } from './routes/admin/_layout/leadership'
 import { Route as AdminLayoutMediaRouteImport } from './routes/admin/_layout/media'
+import { Route as AdminLayoutMyChapterRouteImport } from './routes/admin/_layout/my-chapter'
 import { Route as AdminLayoutNewsRouteImport } from './routes/admin/_layout/news'
 import { Route as AdminLayoutNewsletterRouteImport } from './routes/admin/_layout/newsletter'
 import { Route as AdminLayoutOutreachesRouteImport } from './routes/admin/_layout/outreaches'
@@ -285,6 +286,11 @@ const AdminLayoutMediaRoute = AdminLayoutMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AdminLayoutRoute,
 } as any)
+const AdminLayoutMyChapterRoute = AdminLayoutMyChapterRouteImport.update({
+  id: '/my-chapter',
+  path: '/my-chapter',
+  getParentRoute: () => AdminLayoutRoute,
+} as any)
 const AdminLayoutNewsRoute = AdminLayoutNewsRouteImport.update({
   id: '/news',
   path: '/news',
@@ -365,6 +371,7 @@ export interface FileRoutesByFullPath {
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/media': typeof AdminLayoutMediaRoute
+  '/admin/my-chapter': typeof AdminLayoutMyChapterRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
@@ -417,6 +424,7 @@ export interface FileRoutesByTo {
   '/admin/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/media': typeof AdminLayoutMediaRoute
+  '/admin/my-chapter': typeof AdminLayoutMyChapterRoute
   '/admin/news': typeof AdminLayoutNewsRoute
   '/admin/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/outreaches': typeof AdminLayoutOutreachesRoute
@@ -471,6 +479,7 @@ export interface FileRoutesById {
   '/admin/_layout/global-network': typeof AdminLayoutGlobalNetworkRoute
   '/admin/_layout/leadership': typeof AdminLayoutLeadershipRoute
   '/admin/_layout/media': typeof AdminLayoutMediaRoute
+  '/admin/_layout/my-chapter': typeof AdminLayoutMyChapterRoute
   '/admin/_layout/news': typeof AdminLayoutNewsRoute
   '/admin/_layout/newsletter': typeof AdminLayoutNewsletterRoute
   '/admin/_layout/outreaches': typeof AdminLayoutOutreachesRoute
@@ -526,6 +535,7 @@ export interface FileRouteTypes {
     | '/admin/global-network'
     | '/admin/leadership'
     | '/admin/media'
+    | '/admin/my-chapter'
     | '/admin/news'
     | '/admin/newsletter'
     | '/admin/outreaches'
@@ -578,6 +588,7 @@ export interface FileRouteTypes {
     | '/admin/global-network'
     | '/admin/leadership'
     | '/admin/media'
+    | '/admin/my-chapter'
     | '/admin/news'
     | '/admin/newsletter'
     | '/admin/outreaches'
@@ -631,6 +642,7 @@ export interface FileRouteTypes {
     | '/admin/_layout/global-network'
     | '/admin/_layout/leadership'
     | '/admin/_layout/media'
+    | '/admin/_layout/my-chapter'
     | '/admin/_layout/news'
     | '/admin/_layout/newsletter'
     | '/admin/_layout/outreaches'
@@ -980,6 +992,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminLayoutMediaRouteImport
       parentRoute: typeof AdminLayoutRoute
     }
+    '/admin/_layout/my-chapter': {
+      id: '/admin/_layout/my-chapter'
+      path: '/my-chapter'
+      fullPath: '/admin/my-chapter'
+      preLoaderRoute: typeof AdminLayoutMyChapterRouteImport
+      parentRoute: typeof AdminLayoutRoute
+    }
     '/admin/_layout/news': {
       id: '/admin/_layout/news'
       path: '/news'
@@ -1087,6 +1106,7 @@ interface AdminLayoutRouteChildren {
   AdminLayoutGlobalNetworkRoute: typeof AdminLayoutGlobalNetworkRoute
   AdminLayoutLeadershipRoute: typeof AdminLayoutLeadershipRoute
   AdminLayoutMediaRoute: typeof AdminLayoutMediaRoute
+  AdminLayoutMyChapterRoute: typeof AdminLayoutMyChapterRoute
   AdminLayoutNewsRoute: typeof AdminLayoutNewsRoute
   AdminLayoutNewsletterRoute: typeof AdminLayoutNewsletterRoute
   AdminLayoutOutreachesRoute: typeof AdminLayoutOutreachesRoute
@@ -1107,6 +1127,7 @@ const AdminLayoutRouteChildren: AdminLayoutRouteChildren = {
   AdminLayoutGlobalNetworkRoute: AdminLayoutGlobalNetworkRoute,
   AdminLayoutLeadershipRoute: AdminLayoutLeadershipRoute,
   AdminLayoutMediaRoute: AdminLayoutMediaRoute,
+  AdminLayoutMyChapterRoute: AdminLayoutMyChapterRoute,
   AdminLayoutNewsRoute: AdminLayoutNewsRoute,
   AdminLayoutNewsletterRoute: AdminLayoutNewsletterRoute,
   AdminLayoutOutreachesRoute: AdminLayoutOutreachesRoute,
