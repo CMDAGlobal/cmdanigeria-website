@@ -208,6 +208,25 @@ function MinistryDetail({ item, index }: { item: (typeof ministries)[number]; in
           <span className="numeral">{String(index + 1).padStart(2, "0")}</span>
           <span className="eyebrow mt-4 block text-cmda-green">{item.short}</span>
           <h3 className="mt-3 display-2 text-balance">{item.name}</h3>
+          {item.external ? (
+            <a
+              href={item.external}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
+            >
+              See more
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
+          ) : item.link ? (
+            <Link
+              to={item.link}
+              className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
+            >
+              Learn more
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </Link>
+          ) : null}
         </div>
         <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
           <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-primary">
