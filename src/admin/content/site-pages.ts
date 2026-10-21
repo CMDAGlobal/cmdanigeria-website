@@ -109,13 +109,15 @@ export const SITE_PAGES: SitePageEntry[] = [
     title: "Give — Doctors & Students",
     path: "/give/doctors-students",
     kind: "static",
-    editHint: "Areas of need and giving copy are code constants on this page.",
+    editHint:
+      "Areas of need, giving copy and the donate/pledge forms are code constants on this page; forms show a front-end confirmation only.",
   },
   {
     title: "Give — Global Network",
     path: "/give/global-network",
     kind: "static",
-    editHint: "Areas of need and giving copy are code constants on this page.",
+    editHint:
+      "Areas of need, giving copy and the global donation form are code constants on this page; the form shows a front-end confirmation only.",
   },
   {
     title: "Give — Non-Members",

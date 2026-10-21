@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
+import { GlobalNetworkForm } from "@/components/site/GiveForms";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 import { CONTACT } from "@/lib/contact";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
@@ -138,6 +139,17 @@ function GlobalNetworkGivePage() {
               </div>
             </div>
           </Reveal>
+        </div>
+      </Section>
+
+      <Section id="donate">
+        <SectionHead
+          eyebrow="Donation form"
+          title="CMDA Global Donation"
+          intro="Choose your category of donation, enter your amount and tell us how you would like to pay — our team will follow up to complete your gift."
+        />
+        <div className="mx-auto mt-16 max-w-3xl">
+          <GlobalNetworkForm />
         </div>
       </Section>
 

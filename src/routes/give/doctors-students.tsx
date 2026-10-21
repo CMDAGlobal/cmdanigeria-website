@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Mail, Phone } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
+import { DonationForm } from "@/components/site/GiveForms";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
 import { CONTACT } from "@/lib/contact";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
@@ -86,6 +88,14 @@ const areasOfNeed = [
 
 function DoctorsStudentsGivePage() {
   const { page, counters } = Route.useLoaderData();
+  const [giveTab, setGiveTab] = useState<"donate" | "pledge">("donate");
+  const tabClass = (active: boolean) =>
+    `px-6 py-3 font-display text-xs font-bold uppercase tracking-widest transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+      active
+        ? "bg-cmda-green text-white shadow-card"
+        : "border border-foreground/20 bg-card text-foreground hover:border-cmda-green hover:text-cmda-green"
+    }`;
+
   return (
     <CmsPage
       page={page}
@@ -153,7 +163,61 @@ function DoctorsStudentsGivePage() {
         </div>
       </Section>
 
-      <Section id="in-kind">
+      <Section id="donate">
+        <div className="mx-auto max-w-3xl">
+          <div
+            role="tablist"
+            aria-label="Donation options"
+            className="flex flex-wrap gap-3 border-b border-border pb-4"
+          >
+            <button
+              type="button"
+              role="tab"
+              id="give-donate-tab"
+              aria-selected={giveTab === "donate"}
+              aria-controls="give-donate-panel"
+              onClick={() => setGiveTab("donate")}
+              className={tabClass(giveTab === "donate")}
+            >
+              Donate now
+            </button>
+            <button
+              type="button"
+              role="tab"
+              id="give-pledge-tab"
+              aria-selected={giveTab === "pledge"}
+              aria-controls="give-pledge-panel"
+              onClick={() => setGiveTab("pledge")}
+              className={tabClass(giveTab === "pledge")}
+            >
+              Pledge / pay later
+            </button>
+          </div>
+          <div
+            id="give-donate-panel"
+            role="tabpanel"
+            aria-labelledby="give-donate-tab"
+            hidden={giveTab !== "donate"}
+            className="mt-8"
+          >
+            <DonationForm variant="donation" />
+          </div>
+          <div
+            id="give-pledge-panel"
+            role="tabpanel"
+            aria-labelledby="give-pledge-tab"
+            hidden={giveTab !== "pledge"}
+            className="mt-8"
+          >
+            <p className="mb-6 text-base leading-relaxed text-muted-foreground">
+              Kindly fill the pledge form below if you are not ready to make payment immediately.
+            </p>
+            <DonationForm variant="pledge" />
+          </div>
+        </div>
+      </Section>
+
+      <Section id="in-kind" className="bg-muted">
         <Reveal className="mx-auto max-w-3xl text-center">
           <div className="flex items-center justify-center gap-4">
             <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
