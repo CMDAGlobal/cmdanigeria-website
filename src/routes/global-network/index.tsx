@@ -21,7 +21,7 @@ const title = "Global Network | CMDA Nigeria";
 const description =
   "CMDA Nigeria connects Christian healthcare professionals in over 20 countries — a global network of faith, service and mission.";
 
-export const Route = createFileRoute("/global-network")({
+export const Route = createFileRoute("/global-network/")({
   loader: async () => ({
     page: await fetchPageBySlug({ data: "global-network" }),
     regions: await fetchRegions(),

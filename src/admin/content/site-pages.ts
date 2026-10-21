@@ -103,7 +103,25 @@ export const SITE_PAGES: SitePageEntry[] = [
     title: "Give",
     path: "/give",
     kind: "static",
-    editHint: "Bank details are code constants on the Give page.",
+    editHint: "Category cards and copy are code constants on the Give hub page.",
+  },
+  {
+    title: "Give — Doctors & Students",
+    path: "/give/doctors-students",
+    kind: "static",
+    editHint: "Areas of need and giving copy are code constants on this page.",
+  },
+  {
+    title: "Give — Global Network",
+    path: "/give/global-network",
+    kind: "static",
+    editHint: "Areas of need and giving copy are code constants on this page.",
+  },
+  {
+    title: "Give — Non-Members",
+    path: "/give/non-members",
+    kind: "static",
+    editHint: "The non-member donation form is front-end only and shows a success message.",
   },
   {
     title: "Contact",

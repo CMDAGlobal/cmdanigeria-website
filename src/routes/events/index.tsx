@@ -7,7 +7,7 @@ const title = "Events & Conferences | CMDA Nigeria";
 const description =
   "National conferences, regional retreats, medical outreaches and student camps — find the next CMDA Nigeria gathering near you.";
 
-export const Route = createFileRoute("/events")({
+export const Route = createFileRoute("/events/")({
   loader: async () => ({
     page: await fetchPageBySlug({ data: "events" }),
     events: await fetchEvents(),

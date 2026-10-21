@@ -260,12 +260,15 @@ export function Giving() {
               with transparent reporting on every naira received.
             </p>
             <div className="mt-10 flex flex-wrap gap-4">
-              <a href="#give" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
+              <a href="#categories" className={cn(buttonVariants({ variant: "gold", size: "lg" }))}>
                 Donate Today
               </a>
-              <a href="#give" className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}>
+              <Link
+                to="/give/doctors-students"
+                className={cn(buttonVariants({ variant: "onDark", size: "lg" }))}
+              >
                 Sponsor a Student
-              </a>
+              </Link>
             </div>
           </Reveal>
 

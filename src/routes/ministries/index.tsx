@@ -1,21 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
-import { Giving } from "@/components/site/Events";
+import { MinistriesFull } from "@/components/site/Ministries";
 
-const title = "Give | CMDA Nigeria";
+const title = "Ministries | CMDA Nigeria";
 const description =
-  "Support medical missions, student scholarships and emergency relief through CMDA Nigeria — with transparent reporting on every naira received.";
+  "Explore IfEHL, IMM, Wholeness Missions Outreach, Starting Strong, EXCEL and Lady Doctors & Students — the six ministry areas of CMDA Nigeria.";
 
-export const Route = createFileRoute("/give")({
+export const Route = createFileRoute("/ministries/")({
   loader: async () => {
     const [page, counters] = await Promise.all([
-      fetchPageBySlug({ data: "give" }),
+      fetchPageBySlug({ data: "ministries" }),
       fetchPageCounters(),
     ]);
     return { page, counters };
   },
-  component: GivePage,
+  component: MinistriesPage,
   head: ({ loaderData }) => ({
     meta: [
       { title: loaderData?.page?.seoTitle || title },
@@ -28,18 +28,18 @@ export const Route = createFileRoute("/give")({
   }),
 });
 
-function GivePage() {
+function MinistriesPage() {
   const { page, counters } = Route.useLoaderData();
   return (
     <CmsPage
       page={page}
       counters={counters}
 
-      eyebrow="Give"
-      title="Send healthcare where the need is greatest"
-      intro="Every gift funds outreaches, scholarships and mission hospitals — and every naira is accounted for in our published reports."
+      eyebrow="Ministries"
+      title="Specialised arms carrying the mission forward"
+      intro="Each ministry sharpens a different edge of our calling — leadership formation, missions training, wholeness, foundational formation, academic excellence and fellowship."
     >
-      <Giving />
+      <MinistriesFull />
     </CmsPage>
   );
 }

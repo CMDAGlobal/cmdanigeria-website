@@ -13,13 +13,9 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
-import { Route as EventsRouteImport } from './routes/events'
-import { Route as GiveRouteImport } from './routes/give'
-import { Route as GlobalNetworkRouteImport } from './routes/global-network'
 import { Route as ImpactRouteImport } from './routes/impact'
 import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 import { Route as MembershipRouteImport } from './routes/membership'
-import { Route as MinistriesRouteImport } from './routes/ministries'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
 import { Route as StudioRouteImport } from './routes/studio'
 import { Route as WhatWeDoRouteImport } from './routes/what-we-do'
@@ -30,8 +26,15 @@ import { Route as AdminLayoutRouteImport } from './routes/admin/_layout'
 import { Route as AdminLoginRouteImport } from './routes/admin/login'
 import { Route as ChaptersIndexRouteImport } from './routes/chapters/index'
 import { Route as ChaptersSlugRouteImport } from './routes/chapters/$slug'
+import { Route as EventsIndexRouteImport } from './routes/events/index'
 import { Route as EventsSlugRouteImport } from './routes/events/$slug'
+import { Route as GiveIndexRouteImport } from './routes/give/index'
+import { Route as GiveDoctorsStudentsRouteImport } from './routes/give/doctors-students'
+import { Route as GiveGlobalNetworkRouteImport } from './routes/give/global-network'
+import { Route as GiveNonMembersRouteImport } from './routes/give/non-members'
+import { Route as GlobalNetworkIndexRouteImport } from './routes/global-network/index'
 import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$slug'
+import { Route as MinistriesIndexRouteImport } from './routes/ministries/index'
 import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
 import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
@@ -82,21 +85,6 @@ const DoctorsArmRoute = DoctorsArmRouteImport.update({
   path: '/doctors-arm',
   getParentRoute: () => rootRouteImport,
 } as any)
-const EventsRoute = EventsRouteImport.update({
-  id: '/events',
-  path: '/events',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GiveRoute = GiveRouteImport.update({
-  id: '/give',
-  path: '/give',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const GlobalNetworkRoute = GlobalNetworkRouteImport.update({
-  id: '/global-network',
-  path: '/global-network',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
@@ -110,11 +98,6 @@ const MediaResourcesRoute = MediaResourcesRouteImport.update({
 const MembershipRoute = MembershipRouteImport.update({
   id: '/membership',
   path: '/membership',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MinistriesRoute = MinistriesRouteImport.update({
-  id: '/ministries',
-  path: '/ministries',
   getParentRoute: () => rootRouteImport,
 } as any)
 const StudentsArmRoute = StudentsArmRouteImport.update({
@@ -167,47 +150,82 @@ const ChaptersSlugRoute = ChaptersSlugRouteImport.update({
   path: '/chapters/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const EventsIndexRoute = EventsIndexRouteImport.update({
+  id: '/events/',
+  path: '/events/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const EventsSlugRoute = EventsSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => EventsRoute,
+  id: '/events/$slug',
+  path: '/events/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiveIndexRoute = GiveIndexRouteImport.update({
+  id: '/give/',
+  path: '/give/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiveDoctorsStudentsRoute = GiveDoctorsStudentsRouteImport.update({
+  id: '/give/doctors-students',
+  path: '/give/doctors-students',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiveGlobalNetworkRoute = GiveGlobalNetworkRouteImport.update({
+  id: '/give/global-network',
+  path: '/give/global-network',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GiveNonMembersRoute = GiveNonMembersRouteImport.update({
+  id: '/give/non-members',
+  path: '/give/non-members',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GlobalNetworkIndexRoute = GlobalNetworkIndexRouteImport.update({
+  id: '/global-network/',
+  path: '/global-network/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const GlobalNetworkSlugRoute = GlobalNetworkSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => GlobalNetworkRoute,
+  id: '/global-network/$slug',
+  path: '/global-network/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MinistriesIndexRoute = MinistriesIndexRouteImport.update({
+  id: '/ministries/',
+  path: '/ministries/',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MinistriesExcelRoute = MinistriesExcelRouteImport.update({
-  id: '/excel',
-  path: '/excel',
-  getParentRoute: () => MinistriesRoute,
+  id: '/ministries/excel',
+  path: '/ministries/excel',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MinistriesIfehlRoute = MinistriesIfehlRouteImport.update({
-  id: '/ifehl',
-  path: '/ifehl',
-  getParentRoute: () => MinistriesRoute,
+  id: '/ministries/ifehl',
+  path: '/ministries/ifehl',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MinistriesImmRoute = MinistriesImmRouteImport.update({
-  id: '/imm',
-  path: '/imm',
-  getParentRoute: () => MinistriesRoute,
+  id: '/ministries/imm',
+  path: '/ministries/imm',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MinistriesStartingStrongRoute =
   MinistriesStartingStrongRouteImport.update({
-    id: '/starting-strong',
-    path: '/starting-strong',
-    getParentRoute: () => MinistriesRoute,
+    id: '/ministries/starting-strong',
+    path: '/ministries/starting-strong',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const MinistriesTheLadyDoctorRoute = MinistriesTheLadyDoctorRouteImport.update({
-  id: '/the-lady-doctor',
-  path: '/the-lady-doctor',
-  getParentRoute: () => MinistriesRoute,
+  id: '/ministries/the-lady-doctor',
+  path: '/ministries/the-lady-doctor',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const MinistriesWholenessMissionsRoute =
   MinistriesWholenessMissionsRouteImport.update({
-    id: '/wholeness-missions',
-    path: '/wholeness-missions',
-    getParentRoute: () => MinistriesRoute,
+    id: '/ministries/wholeness-missions',
+    path: '/ministries/wholeness-missions',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const NewsIndexRoute = NewsIndexRouteImport.update({
   id: '/news/',
@@ -332,13 +350,9 @@ export interface FileRoutesByFullPath {
   '/$slug': typeof SlugRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRouteWithChildren
-  '/give': typeof GiveRoute
-  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRouteWithChildren
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -348,6 +362,9 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/give/doctors-students': typeof GiveDoctorsStudentsRoute
+  '/give/global-network': typeof GiveGlobalNetworkRoute
+  '/give/non-members': typeof GiveNonMembersRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -360,6 +377,10 @@ export interface FileRoutesByFullPath {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/give/': typeof GiveIndexRoute
+  '/global-network/': typeof GlobalNetworkIndexRoute
+  '/ministries/': typeof MinistriesIndexRoute
   '/news/': typeof NewsIndexRoute
   '/publications/': typeof PublicationsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
@@ -386,13 +407,9 @@ export interface FileRoutesByTo {
   '/$slug': typeof SlugRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRouteWithChildren
-  '/give': typeof GiveRoute
-  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRouteWithChildren
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -401,6 +418,9 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/give/doctors-students': typeof GiveDoctorsStudentsRoute
+  '/give/global-network': typeof GiveGlobalNetworkRoute
+  '/give/non-members': typeof GiveNonMembersRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -413,6 +433,10 @@ export interface FileRoutesByTo {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
+  '/events': typeof EventsIndexRoute
+  '/give': typeof GiveIndexRoute
+  '/global-network': typeof GlobalNetworkIndexRoute
+  '/ministries': typeof MinistriesIndexRoute
   '/news': typeof NewsIndexRoute
   '/publications': typeof PublicationsIndexRoute
   '/admin/announcements': typeof AdminLayoutAnnouncementsRoute
@@ -440,13 +464,9 @@ export interface FileRoutesById {
   '/$slug': typeof SlugRoute
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
-  '/events': typeof EventsRouteWithChildren
-  '/give': typeof GiveRoute
-  '/global-network': typeof GlobalNetworkRouteWithChildren
   '/impact': typeof ImpactRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
-  '/ministries': typeof MinistriesRouteWithChildren
   '/students-arm': typeof StudentsArmRoute
   '/studio': typeof StudioRoute
   '/what-we-do': typeof WhatWeDoRoute
@@ -456,6 +476,9 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/chapters/$slug': typeof ChaptersSlugRoute
   '/events/$slug': typeof EventsSlugRoute
+  '/give/doctors-students': typeof GiveDoctorsStudentsRoute
+  '/give/global-network': typeof GiveGlobalNetworkRoute
+  '/give/non-members': typeof GiveNonMembersRoute
   '/global-network/$slug': typeof GlobalNetworkSlugRoute
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
@@ -468,6 +491,10 @@ export interface FileRoutesById {
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
+  '/events/': typeof EventsIndexRoute
+  '/give/': typeof GiveIndexRoute
+  '/global-network/': typeof GlobalNetworkIndexRoute
+  '/ministries/': typeof MinistriesIndexRoute
   '/news/': typeof NewsIndexRoute
   '/publications/': typeof PublicationsIndexRoute
   '/admin/_layout/announcements': typeof AdminLayoutAnnouncementsRoute
@@ -496,13 +523,9 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/contact'
     | '/doctors-arm'
-    | '/events'
-    | '/give'
-    | '/global-network'
     | '/impact'
     | '/media-resources'
     | '/membership'
-    | '/ministries'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -512,6 +535,9 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chapters/$slug'
     | '/events/$slug'
+    | '/give/doctors-students'
+    | '/give/global-network'
+    | '/give/non-members'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -524,6 +550,10 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/events/'
+    | '/give/'
+    | '/global-network/'
+    | '/ministries/'
     | '/news/'
     | '/publications/'
     | '/admin/announcements'
@@ -550,13 +580,9 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/contact'
     | '/doctors-arm'
-    | '/events'
-    | '/give'
-    | '/global-network'
     | '/impact'
     | '/media-resources'
     | '/membership'
-    | '/ministries'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -565,6 +591,9 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chapters/$slug'
     | '/events/$slug'
+    | '/give/doctors-students'
+    | '/give/global-network'
+    | '/give/non-members'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -577,6 +606,10 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about'
     | '/chapters'
+    | '/events'
+    | '/give'
+    | '/global-network'
+    | '/ministries'
     | '/news'
     | '/publications'
     | '/admin/announcements'
@@ -603,13 +636,9 @@ export interface FileRouteTypes {
     | '/$slug'
     | '/contact'
     | '/doctors-arm'
-    | '/events'
-    | '/give'
-    | '/global-network'
     | '/impact'
     | '/media-resources'
     | '/membership'
-    | '/ministries'
     | '/students-arm'
     | '/studio'
     | '/what-we-do'
@@ -619,6 +648,9 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/chapters/$slug'
     | '/events/$slug'
+    | '/give/doctors-students'
+    | '/give/global-network'
+    | '/give/non-members'
     | '/global-network/$slug'
     | '/ministries/excel'
     | '/ministries/ifehl'
@@ -631,6 +663,10 @@ export interface FileRouteTypes {
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
+    | '/events/'
+    | '/give/'
+    | '/global-network/'
+    | '/ministries/'
     | '/news/'
     | '/publications/'
     | '/admin/_layout/announcements'
@@ -658,13 +694,9 @@ export interface RootRouteChildren {
   SlugRoute: typeof SlugRoute
   ContactRoute: typeof ContactRoute
   DoctorsArmRoute: typeof DoctorsArmRoute
-  EventsRoute: typeof EventsRouteWithChildren
-  GiveRoute: typeof GiveRoute
-  GlobalNetworkRoute: typeof GlobalNetworkRouteWithChildren
   ImpactRoute: typeof ImpactRoute
   MediaResourcesRoute: typeof MediaResourcesRoute
   MembershipRoute: typeof MembershipRoute
-  MinistriesRoute: typeof MinistriesRouteWithChildren
   StudentsArmRoute: typeof StudentsArmRoute
   StudioRoute: typeof StudioRoute
   WhatWeDoRoute: typeof WhatWeDoRoute
@@ -673,11 +705,26 @@ export interface RootRouteChildren {
   AdminLayoutRoute: typeof AdminLayoutRouteWithChildren
   AdminLoginRoute: typeof AdminLoginRoute
   ChaptersSlugRoute: typeof ChaptersSlugRoute
+  EventsSlugRoute: typeof EventsSlugRoute
+  GiveDoctorsStudentsRoute: typeof GiveDoctorsStudentsRoute
+  GiveGlobalNetworkRoute: typeof GiveGlobalNetworkRoute
+  GiveNonMembersRoute: typeof GiveNonMembersRoute
+  GlobalNetworkSlugRoute: typeof GlobalNetworkSlugRoute
+  MinistriesExcelRoute: typeof MinistriesExcelRoute
+  MinistriesIfehlRoute: typeof MinistriesIfehlRoute
+  MinistriesImmRoute: typeof MinistriesImmRoute
+  MinistriesStartingStrongRoute: typeof MinistriesStartingStrongRoute
+  MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
+  MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
   NewsSlugRoute: typeof NewsSlugRoute
   PublicationsSlugRoute: typeof PublicationsSlugRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   ChaptersIndexRoute: typeof ChaptersIndexRoute
+  EventsIndexRoute: typeof EventsIndexRoute
+  GiveIndexRoute: typeof GiveIndexRoute
+  GlobalNetworkIndexRoute: typeof GlobalNetworkIndexRoute
+  MinistriesIndexRoute: typeof MinistriesIndexRoute
   NewsIndexRoute: typeof NewsIndexRoute
   PublicationsIndexRoute: typeof PublicationsIndexRoute
 }
@@ -712,27 +759,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DoctorsArmRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/events': {
-      id: '/events'
-      path: '/events'
-      fullPath: '/events'
-      preLoaderRoute: typeof EventsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/give': {
-      id: '/give'
-      path: '/give'
-      fullPath: '/give'
-      preLoaderRoute: typeof GiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/global-network': {
-      id: '/global-network'
-      path: '/global-network'
-      fullPath: '/global-network'
-      preLoaderRoute: typeof GlobalNetworkRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/impact': {
       id: '/impact'
       path: '/impact'
@@ -752,13 +778,6 @@ declare module '@tanstack/react-router' {
       path: '/membership'
       fullPath: '/membership'
       preLoaderRoute: typeof MembershipRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ministries': {
-      id: '/ministries'
-      path: '/ministries'
-      fullPath: '/ministries'
-      preLoaderRoute: typeof MinistriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/students-arm': {
@@ -831,61 +850,110 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChaptersSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/events/': {
+      id: '/events/'
+      path: '/events'
+      fullPath: '/events/'
+      preLoaderRoute: typeof EventsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/events/$slug': {
       id: '/events/$slug'
-      path: '/$slug'
+      path: '/events/$slug'
       fullPath: '/events/$slug'
       preLoaderRoute: typeof EventsSlugRouteImport
-      parentRoute: typeof EventsRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/give/': {
+      id: '/give/'
+      path: '/give'
+      fullPath: '/give/'
+      preLoaderRoute: typeof GiveIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/give/doctors-students': {
+      id: '/give/doctors-students'
+      path: '/give/doctors-students'
+      fullPath: '/give/doctors-students'
+      preLoaderRoute: typeof GiveDoctorsStudentsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/give/global-network': {
+      id: '/give/global-network'
+      path: '/give/global-network'
+      fullPath: '/give/global-network'
+      preLoaderRoute: typeof GiveGlobalNetworkRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/give/non-members': {
+      id: '/give/non-members'
+      path: '/give/non-members'
+      fullPath: '/give/non-members'
+      preLoaderRoute: typeof GiveNonMembersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/global-network/': {
+      id: '/global-network/'
+      path: '/global-network'
+      fullPath: '/global-network/'
+      preLoaderRoute: typeof GlobalNetworkIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/global-network/$slug': {
       id: '/global-network/$slug'
-      path: '/$slug'
+      path: '/global-network/$slug'
       fullPath: '/global-network/$slug'
       preLoaderRoute: typeof GlobalNetworkSlugRouteImport
-      parentRoute: typeof GlobalNetworkRoute
+      parentRoute: typeof rootRouteImport
+    }
+    '/ministries/': {
+      id: '/ministries/'
+      path: '/ministries'
+      fullPath: '/ministries/'
+      preLoaderRoute: typeof MinistriesIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/excel': {
       id: '/ministries/excel'
-      path: '/excel'
+      path: '/ministries/excel'
       fullPath: '/ministries/excel'
       preLoaderRoute: typeof MinistriesExcelRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/ifehl': {
       id: '/ministries/ifehl'
-      path: '/ifehl'
+      path: '/ministries/ifehl'
       fullPath: '/ministries/ifehl'
       preLoaderRoute: typeof MinistriesIfehlRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/imm': {
       id: '/ministries/imm'
-      path: '/imm'
+      path: '/ministries/imm'
       fullPath: '/ministries/imm'
       preLoaderRoute: typeof MinistriesImmRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/starting-strong': {
       id: '/ministries/starting-strong'
-      path: '/starting-strong'
+      path: '/ministries/starting-strong'
       fullPath: '/ministries/starting-strong'
       preLoaderRoute: typeof MinistriesStartingStrongRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/the-lady-doctor': {
       id: '/ministries/the-lady-doctor'
-      path: '/the-lady-doctor'
+      path: '/ministries/the-lady-doctor'
       fullPath: '/ministries/the-lady-doctor'
       preLoaderRoute: typeof MinistriesTheLadyDoctorRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/ministries/wholeness-missions': {
       id: '/ministries/wholeness-missions'
-      path: '/wholeness-missions'
+      path: '/ministries/wholeness-missions'
       fullPath: '/ministries/wholeness-missions'
       preLoaderRoute: typeof MinistriesWholenessMissionsRouteImport
-      parentRoute: typeof MinistriesRoute
+      parentRoute: typeof rootRouteImport
     }
     '/news/': {
       id: '/news/'
@@ -1051,51 +1119,6 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface EventsRouteChildren {
-  EventsSlugRoute: typeof EventsSlugRoute
-}
-
-const EventsRouteChildren: EventsRouteChildren = {
-  EventsSlugRoute: EventsSlugRoute,
-}
-
-const EventsRouteWithChildren =
-  EventsRoute._addFileChildren(EventsRouteChildren)
-
-interface GlobalNetworkRouteChildren {
-  GlobalNetworkSlugRoute: typeof GlobalNetworkSlugRoute
-}
-
-const GlobalNetworkRouteChildren: GlobalNetworkRouteChildren = {
-  GlobalNetworkSlugRoute: GlobalNetworkSlugRoute,
-}
-
-const GlobalNetworkRouteWithChildren = GlobalNetworkRoute._addFileChildren(
-  GlobalNetworkRouteChildren,
-)
-
-interface MinistriesRouteChildren {
-  MinistriesExcelRoute: typeof MinistriesExcelRoute
-  MinistriesIfehlRoute: typeof MinistriesIfehlRoute
-  MinistriesImmRoute: typeof MinistriesImmRoute
-  MinistriesStartingStrongRoute: typeof MinistriesStartingStrongRoute
-  MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
-  MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
-}
-
-const MinistriesRouteChildren: MinistriesRouteChildren = {
-  MinistriesExcelRoute: MinistriesExcelRoute,
-  MinistriesIfehlRoute: MinistriesIfehlRoute,
-  MinistriesImmRoute: MinistriesImmRoute,
-  MinistriesStartingStrongRoute: MinistriesStartingStrongRoute,
-  MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
-  MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
-}
-
-const MinistriesRouteWithChildren = MinistriesRoute._addFileChildren(
-  MinistriesRouteChildren,
-)
-
 interface AdminLayoutRouteChildren {
   AdminLayoutAnnouncementsRoute: typeof AdminLayoutAnnouncementsRoute
   AdminLayoutAuditRoute: typeof AdminLayoutAuditRoute
@@ -1147,13 +1170,9 @@ const rootRouteChildren: RootRouteChildren = {
   SlugRoute: SlugRoute,
   ContactRoute: ContactRoute,
   DoctorsArmRoute: DoctorsArmRoute,
-  EventsRoute: EventsRouteWithChildren,
-  GiveRoute: GiveRoute,
-  GlobalNetworkRoute: GlobalNetworkRouteWithChildren,
   ImpactRoute: ImpactRoute,
   MediaResourcesRoute: MediaResourcesRoute,
   MembershipRoute: MembershipRoute,
-  MinistriesRoute: MinistriesRouteWithChildren,
   StudentsArmRoute: StudentsArmRoute,
   StudioRoute: StudioRoute,
   WhatWeDoRoute: WhatWeDoRoute,
@@ -1162,11 +1181,26 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLayoutRoute: AdminLayoutRouteWithChildren,
   AdminLoginRoute: AdminLoginRoute,
   ChaptersSlugRoute: ChaptersSlugRoute,
+  EventsSlugRoute: EventsSlugRoute,
+  GiveDoctorsStudentsRoute: GiveDoctorsStudentsRoute,
+  GiveGlobalNetworkRoute: GiveGlobalNetworkRoute,
+  GiveNonMembersRoute: GiveNonMembersRoute,
+  GlobalNetworkSlugRoute: GlobalNetworkSlugRoute,
+  MinistriesExcelRoute: MinistriesExcelRoute,
+  MinistriesIfehlRoute: MinistriesIfehlRoute,
+  MinistriesImmRoute: MinistriesImmRoute,
+  MinistriesStartingStrongRoute: MinistriesStartingStrongRoute,
+  MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
+  MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
   NewsSlugRoute: NewsSlugRoute,
   PublicationsSlugRoute: PublicationsSlugRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   ChaptersIndexRoute: ChaptersIndexRoute,
+  EventsIndexRoute: EventsIndexRoute,
+  GiveIndexRoute: GiveIndexRoute,
+  GlobalNetworkIndexRoute: GlobalNetworkIndexRoute,
+  MinistriesIndexRoute: MinistriesIndexRoute,
   NewsIndexRoute: NewsIndexRoute,
   PublicationsIndexRoute: PublicationsIndexRoute,
 }
