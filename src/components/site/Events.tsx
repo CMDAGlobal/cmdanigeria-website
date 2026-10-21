@@ -228,10 +228,10 @@ export function Membership() {
                   ))}
                 </ul>
                 <a
-                  href="#membership"
+                  href="https://cmdanigeria.net"
                   className={cn(buttonVariants({ variant: "primary" }), "mt-8 w-full")}
                 >
-                  Apply Online
+                  JOIN
                 </a>
               </div>
             </Reveal>

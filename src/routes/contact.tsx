@@ -6,7 +6,7 @@ import { CONTACT } from "@/lib/contact";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 
 const NATIONAL_OFFICE_COORDS = "8.954927,7.059332";
-const MAPS_EMBED_SRC = `https://www.google.com/maps?q=${NATIONAL_OFFICE_COORDS}&hl=en&z=15&output=embed`;
+const MAPS_EMBED_SRC = `https://www.openstreetmap.org/export/embed.html?bbox=7.049332%2C8.944927%2C7.069332%2C8.964927&layer=mapnik&marker=8.954927%2C7.059332`;
 const MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(NATIONAL_OFFICE_COORDS)}`;
 
 const title = "Contact CMDA Nigeria | National Secretariat";
@@ -123,7 +123,6 @@ function ContactPage() {
               className="h-96 w-full lg:h-[480px]"
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
             />
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
