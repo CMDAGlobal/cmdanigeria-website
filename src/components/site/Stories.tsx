@@ -11,7 +11,6 @@ const categories = [
   "Mission Stories",
   "Chapter Stories",
   "Student Stories",
-  "Patient Stories",
   "Doctor Stories",
 ] as const;
 
@@ -235,7 +234,7 @@ Four years later, I am now a member of CMDA Nigeria, striving to embody the orga
   },
 ];
 
-const emptyCategories: Category[] = ["Documentaries", "Chapter Stories", "Patient Stories"];
+const emptyCategories: Category[] = ["Documentaries", "Chapter Stories"];
 
 /* ──────────────────────────────────────────────
  * Story card
@@ -300,7 +299,6 @@ const storyData: Record<Category, Story[]> = {
   "Mission Stories": missionStories,
   "Chapter Stories": [],
   "Student Stories": studentStories,
-  "Patient Stories": [],
   "Doctor Stories": doctorStories,
 };
 
@@ -315,7 +313,7 @@ export function ImpactStories() {
         tone="dark"
         eyebrow="Stories of impact"
         title="Behind every number is a name"
-        intro="Mission, student, doctor and patient stories from across the federation and the global network."
+        intro="Mission, student and doctor stories from across the federation and the global network."
       />
 
       {/* Category tabs */}
@@ -343,9 +341,7 @@ export function ImpactStories() {
             <EmptyState category={active} />
           </div>
         ) : (
-          stories.map((story) => (
-            <StoryCard key={story.title} story={story} />
-          ))
+          stories.map((story) => <StoryCard key={story.title} story={story} />)
         )}
       </div>
     </Section>

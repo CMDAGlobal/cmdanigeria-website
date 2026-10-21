@@ -1,9 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { ArrowUpRight, Clock, Mail, MapPin, Phone } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
-import { Button, Reveal, Section } from "@/components/site/primitives";
+import { Button, Reveal, Section, SectionHead } from "@/components/site/primitives";
 import { CONTACT } from "@/lib/contact";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
+
+const NATIONAL_OFFICE_COORDS = "8.954927,7.059332";
+const MAPS_EMBED_SRC = `https://www.google.com/maps?q=${NATIONAL_OFFICE_COORDS}&hl=en&z=15&output=embed`;
+const MAPS_LINK = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(NATIONAL_OFFICE_COORDS)}`;
 
 const title = "Contact CMDA Nigeria | National Secretariat";
 const description =
@@ -103,6 +107,40 @@ function ContactPage() {
             </form>
           </Reveal>
         </div>
+      </Section>
+
+      <Section id="location" className="bg-muted">
+        <SectionHead
+          eyebrow="Visit us"
+          title="Wholeness House, Gwagwalada"
+          intro="The CMDA Nigeria National Secretariat sits on Wholeness Road, beside the University of Abuja Teaching Hospital, Gwagwalada, FCT."
+        />
+        <Reveal className="mt-12">
+          <div className="overflow-hidden rounded-xl border border-border shadow-card">
+            <iframe
+              title="Map showing Wholeness House, Gwagwalada, Abuja"
+              src={MAPS_EMBED_SRC}
+              className="h-96 w-full lg:h-[480px]"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              Wholeness House — National Office, Gwagwalada, FCT, Nigeria.
+            </p>
+            <a
+              href={MAPS_LINK}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
+            >
+              Open in Google Maps
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
+          </div>
+        </Reveal>
       </Section>
     </CmsPage>
   );
