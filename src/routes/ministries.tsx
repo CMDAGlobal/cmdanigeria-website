@@ -5,7 +5,7 @@ import { MinistriesFull } from "@/components/site/Ministries";
 
 const title = "Ministries | CMDA Nigeria";
 const description =
-  "Explore IfEHL, the Institute of Medical Missions, EXCEL, Wholeness Missions and the CMDA Nigeria Global Network.";
+  "Explore IfEHL, IMM, Wholeness Missions Outreach, Starting Strong, EXCEL and Lady Doctors & Students — the six ministry areas of CMDA Nigeria.";
 
 export const Route = createFileRoute("/ministries")({
   loader: async () => {
@@ -37,7 +37,7 @@ function MinistriesPage() {
 
       eyebrow="Ministries"
       title="Specialised arms carrying the mission forward"
-      intro="Each ministry sharpens a different edge of our calling — leadership formation, missions training, student excellence and global fellowship."
+      intro="Each ministry sharpens a different edge of our calling — leadership formation, missions training, wholeness, foundational formation, academic excellence and fellowship."
     >
       <MinistriesFull />
     </CmsPage>

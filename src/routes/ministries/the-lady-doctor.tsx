@@ -3,9 +3,9 @@ import { CmsPage } from "@/components/site/CmsPage";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { Reveal, Section, SectionHead } from "@/components/site/primitives";
 
-const title = "The Lady Doctor | CMDA Nigeria";
+const title = "Lady Doctors & Students | CMDA Nigeria";
 const description =
-  "A platform addressing the life and journey of female medical professionals and students — spiritual growth, career, leadership, family and ministry.";
+  "CMDA-Lady Doctors/Students (CMDA-LD/LS) — empowering godly women of global impact and influence to transform the health sector.";
 
 export const Route = createFileRoute("/ministries/the-lady-doctor")({
   loader: async () => {
@@ -28,30 +28,18 @@ export const Route = createFileRoute("/ministries/the-lady-doctor")({
   }),
 });
 
-const pillars = [
+const mandates = [
   {
-    title: "Spiritual & Holistic Growth",
-    desc: "Nurturing the faith and well-being of female healthcare professionals through devotion, prayer and community.",
+    title: "Empower women in the health sector",
+    desc: "Empowering women in the health sector to maximize their talents for the glory of Jesus.",
   },
   {
-    title: "Career & Academics",
-    desc: "Supporting professional development, mentorship and academic excellence for women in medicine.",
+    title: "Foster a godly community",
+    desc: "Fostering a community of godly ladies bonded by shared gospel values.",
   },
   {
-    title: "Leadership",
-    desc: "Raising female leaders who influence healthcare institutions and communities with vision and integrity.",
-  },
-  {
-    title: "Family & Ministry",
-    desc: "Balancing the demands of medical practice with family life and call to service.",
-  },
-  {
-    title: "Wellness & Lifestyle",
-    desc: "Promoting self-care, mental health and work-life balance among female professionals.",
-  },
-  {
-    title: "Missions & Testimonies",
-    desc: "Celebrating the impact of women in medical missions and sharing stories of faith in action.",
+    title: "Transform lives and societies",
+    desc: "Transforming lives, societies, and communities through our skills and services.",
   },
 ];
 
@@ -62,60 +50,63 @@ function LadyDoctorPage() {
       page={page}
       counters={counters}
 
-      eyebrow="The Lady Doctor"
-      title="Empowering women in medicine"
-      intro="A platform addressing key aspects of the life and journey of female medical professionals and students."
+      eyebrow="CMDA-LD/LS"
+      title="CMDA Lady Doctors & Students"
+      intro="Empowering godly women of global impact and influence to transform the health sector."
     >
       <Section id="about" className="paper">
-        <div className="grid items-center gap-16 lg:grid-cols-[1.2fr_1fr] lg:gap-24">
+        <div className="mx-auto max-w-3xl">
           <Reveal>
             <div className="flex items-center gap-4">
               <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
-              <p className="eyebrow text-cmda-green">About The Lady Doctor</p>
+              <p className="eyebrow text-cmda-green">About CMDA-LD/LS</p>
             </div>
             <h2 className="display-2 mt-6 text-balance">
-              Addressing the unique journey of women in healthcare.
+              An off-shoot of CMDA Nigeria, for godly women in healthcare.
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                The Lady Doctor is a platform addressing key aspects of the life and journey of
-                female medical professionals and students, including spiritual and holistic growth,
-                career and academics, leadership, family and ministry, wellness and lifestyle,
-                missions, and testimonies.
+                The CMDA-Lady Doctors/Students (CMDA-LD/LS) community is an off-shoot of CMDA
+                NIGERIA.
               </p>
               <p>
-                Produced by Lady Doctors and Students for Lady Doctors and Students, it provides
-                encouragement, mentorship and community for women navigating the unique challenges
-                of medical practice while maintaining their faith and family life.
+                Our vision is to empower godly women of global impact and influence to transform the
+                health sector.
               </p>
-            </div>
-          </Reveal>
-
-          <Reveal delay={120}>
-            <div className="relative">
-              <div className="framed">
-                <div className="aspect-[4/3] w-full bg-cmda-green/10 flex items-center justify-center">
-                  <p className="text-sm text-cmda-green font-semibold">The Lady Doctor Forum</p>
-                </div>
-              </div>
             </div>
           </Reveal>
         </div>
       </Section>
 
-      <Section id="pillars" className="bg-muted">
-        <SectionHead eyebrow="Focus areas" title="Six dimensions of the Lady Doctor experience" />
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {pillars.map((item, i) => (
+      <Section id="mandates" className="bg-muted">
+        <SectionHead
+          eyebrow="Our mission"
+          title="Three core mandates"
+          intro="The core mandates of our mission carry the weight of everything we do."
+        />
+        <div className="mt-16 grid gap-6 sm:grid-cols-3">
+          {mandates.map((item, i) => (
             <Reveal key={item.title} delay={(i % 3) * 90}>
               <div className="border border-border bg-background p-6 transition-shadow hover:shadow-card h-full">
-                <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                <span className="numeral text-cmda-green">{String(i + 1).padStart(2, "0")}</span>
+                <h3 className="mt-4 font-display text-lg font-bold tracking-tight text-foreground">
                   {item.title}
                 </h3>
                 <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{item.desc}</p>
               </div>
             </Reveal>
           ))}
+        </div>
+      </Section>
+
+      <Section id="leadership">
+        <SectionHead
+          eyebrow="Leadership"
+          title="Lady Doctors Leadership"
+          intro="Leadership details for the CMDA-LD/LS community will be published here soon."
+        />
+        <div className="mx-auto mt-12 flex min-h-40 max-w-3xl items-center justify-center border border-dashed border-border bg-muted/50 p-12">
+          <p className="text-sm text-muted-foreground">Leadership profiles coming soon.</p>
         </div>
       </Section>
     </CmsPage>

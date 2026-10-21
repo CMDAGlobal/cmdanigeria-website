@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
-import { Reveal, Section, SectionHead } from "@/components/site/primitives";
+import { buttonVariants, Reveal, Section, SectionHead } from "@/components/site/primitives";
+import { cn } from "@/lib/utils";
 
 const title = "IfEHL | CMDA Nigeria";
 const description =
@@ -72,26 +74,41 @@ function IfEhlPage() {
               <p className="eyebrow text-cmda-green">About IfEHL</p>
             </div>
             <h2 className="display-2 mt-6 text-balance">
-              Transforming healthcare begins with transforming the healthcare professional.
+              Holistic care requires excellent, formational leadership.
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                Conceived in 2015 and launched in 2018, IfEHL was founded in response to the growing
-                need for purposeful, ethical, and transformational leadership within Nigeria's
-                healthcare system and beyond.
+                The healthcare sector is a unique and essential contributor to the overall wellbeing
+                of a country, given its focus on human lives.
               </p>
               <p>
-                Through values-driven training, mentorship, research, and strategic collaboration,
-                the Institute equips healthcare professionals to provide excellent care, influence
-                health systems, and drive sustainable change.
+                For individuals and families, their quality of life, productivity, and societal
+                relevance rest significantly on the extent to which they have access to and can
+                utilize holistic care.
               </p>
               <p>
-                Since its inception, IfEHL has trained and mentored over 350 healthcare
-                professionals through its Basic and Advanced leadership programmes, with alumni
-                serving and making an impact across hospitals, academia, public health, policy, and
-                global health institutions in Nigeria and around the world.
+                To achieve holistic care, which is care for the body, soul and spirit, care
+                providers must be knowledgeable, excellent, proficient, compassionate and
+                productive.
+              </p>
+              <p>
+                Those who shape or lead the sector at any level must be skilled enough to
+                efficiently and effectively manage human, financial and material resources, to make
+                meaningful contributions to individual and population health improvement.
+              </p>
+              <p>
+                They must also have passion and commitment to ensure fairness and accountability.
               </p>
             </div>
+            <a
+              href="https://ifehl.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "primary" }), "mt-8")}
+            >
+              See more
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
           </Reveal>
 
           <Reveal delay={120}>

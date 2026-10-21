@@ -35,7 +35,7 @@ import { Route as GlobalNetworkSlugRouteImport } from './routes/global-network/$
 import { Route as MinistriesExcelRouteImport } from './routes/ministries/excel'
 import { Route as MinistriesIfehlRouteImport } from './routes/ministries/ifehl'
 import { Route as MinistriesImmRouteImport } from './routes/ministries/imm'
-import { Route as MinistriesSalineTrainingRouteImport } from './routes/ministries/saline-training'
+import { Route as MinistriesStartingStrongRouteImport } from './routes/ministries/starting-strong'
 import { Route as MinistriesTheLadyDoctorRouteImport } from './routes/ministries/the-lady-doctor'
 import { Route as MinistriesWholenessMissionsRouteImport } from './routes/ministries/wholeness-missions'
 import { Route as NewsIndexRouteImport } from './routes/news/index'
@@ -192,10 +192,10 @@ const MinistriesImmRoute = MinistriesImmRouteImport.update({
   path: '/imm',
   getParentRoute: () => MinistriesRoute,
 } as any)
-const MinistriesSalineTrainingRoute =
-  MinistriesSalineTrainingRouteImport.update({
-    id: '/saline-training',
-    path: '/saline-training',
+const MinistriesStartingStrongRoute =
+  MinistriesStartingStrongRouteImport.update({
+    id: '/starting-strong',
+    path: '/starting-strong',
     getParentRoute: () => MinistriesRoute,
   } as any)
 const MinistriesTheLadyDoctorRoute = MinistriesTheLadyDoctorRouteImport.update({
@@ -352,7 +352,7 @@ export interface FileRoutesByFullPath {
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/starting-strong': typeof MinistriesStartingStrongRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -405,7 +405,7 @@ export interface FileRoutesByTo {
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/starting-strong': typeof MinistriesStartingStrongRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -460,7 +460,7 @@ export interface FileRoutesById {
   '/ministries/excel': typeof MinistriesExcelRoute
   '/ministries/ifehl': typeof MinistriesIfehlRoute
   '/ministries/imm': typeof MinistriesImmRoute
-  '/ministries/saline-training': typeof MinistriesSalineTrainingRoute
+  '/ministries/starting-strong': typeof MinistriesStartingStrongRoute
   '/ministries/the-lady-doctor': typeof MinistriesTheLadyDoctorRoute
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
@@ -516,7 +516,7 @@ export interface FileRouteTypes {
     | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/saline-training'
+    | '/ministries/starting-strong'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
@@ -569,7 +569,7 @@ export interface FileRouteTypes {
     | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/saline-training'
+    | '/ministries/starting-strong'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
@@ -623,7 +623,7 @@ export interface FileRouteTypes {
     | '/ministries/excel'
     | '/ministries/ifehl'
     | '/ministries/imm'
-    | '/ministries/saline-training'
+    | '/ministries/starting-strong'
     | '/ministries/the-lady-doctor'
     | '/ministries/wholeness-missions'
     | '/news/$slug'
@@ -866,11 +866,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MinistriesImmRouteImport
       parentRoute: typeof MinistriesRoute
     }
-    '/ministries/saline-training': {
-      id: '/ministries/saline-training'
-      path: '/saline-training'
-      fullPath: '/ministries/saline-training'
-      preLoaderRoute: typeof MinistriesSalineTrainingRouteImport
+    '/ministries/starting-strong': {
+      id: '/ministries/starting-strong'
+      path: '/starting-strong'
+      fullPath: '/ministries/starting-strong'
+      preLoaderRoute: typeof MinistriesStartingStrongRouteImport
       parentRoute: typeof MinistriesRoute
     }
     '/ministries/the-lady-doctor': {
@@ -1078,7 +1078,7 @@ interface MinistriesRouteChildren {
   MinistriesExcelRoute: typeof MinistriesExcelRoute
   MinistriesIfehlRoute: typeof MinistriesIfehlRoute
   MinistriesImmRoute: typeof MinistriesImmRoute
-  MinistriesSalineTrainingRoute: typeof MinistriesSalineTrainingRoute
+  MinistriesStartingStrongRoute: typeof MinistriesStartingStrongRoute
   MinistriesTheLadyDoctorRoute: typeof MinistriesTheLadyDoctorRoute
   MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
 }
@@ -1087,7 +1087,7 @@ const MinistriesRouteChildren: MinistriesRouteChildren = {
   MinistriesExcelRoute: MinistriesExcelRoute,
   MinistriesIfehlRoute: MinistriesIfehlRoute,
   MinistriesImmRoute: MinistriesImmRoute,
-  MinistriesSalineTrainingRoute: MinistriesSalineTrainingRoute,
+  MinistriesStartingStrongRoute: MinistriesStartingStrongRoute,
   MinistriesTheLadyDoctorRoute: MinistriesTheLadyDoctorRoute,
   MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
 }

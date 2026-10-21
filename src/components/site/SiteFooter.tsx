@@ -20,10 +20,12 @@ const columns = [
   {
     title: "Ministries",
     links: [
-      { label: "IfEHL", to: "/ministries" },
-      { label: "Institute of Medical Missions", to: "/ministries" },
-      { label: "EXCEL", to: "/ministries" },
-      { label: "Global Network", to: "/global-network" },
+      { label: "IfEHL", to: "/ministries/ifehl" },
+      { label: "Institute of Medical Missions", to: "/ministries/imm" },
+      { label: "Wholeness Missions Outreach", to: "/ministries/wholeness-missions" },
+      { label: "Starting Strong", to: "/ministries/starting-strong" },
+      { label: "EXCEL", to: "/ministries/excel" },
+      { label: "Lady Doctors & Students", to: "/ministries/the-lady-doctor" },
     ],
   },
   {

@@ -5,29 +5,62 @@ import { buttonVariants, Reveal, Section, SectionHead } from "./primitives";
 import { cn } from "@/lib/utils";
 
 /* ──────────────────────────────────────────────
- * Ministry data
+ * Ministry data — the six ministry areas of CMDA Nigeria
  * ────────────────────────────────────────────── */
 
-const trainingArms = [
+interface MinistryItem {
+  short: string;
+  name: string;
+  desc: string;
+  full: string;
+  link: string;
+  /** External "See more" target when the ministry has its own site. */
+  external?: string;
+}
+
+const ministries: MinistryItem[] = [
   {
     short: "IfEHL",
     name: "Institute for Excellence in Healthcare and Leadership",
-    desc: "The leadership development arm of CMDA Nigeria, established to raise healthcare professionals who lead with compassion, competence, and character.",
-    full: `Conceived in 2015 and launched in 2018, IfEHL was founded in response to the growing need for purposeful, ethical, and transformational leadership within Nigeria's healthcare system and beyond. Through values-driven training, mentorship, research, and strategic collaboration, the Institute equips healthcare professionals to provide excellent care, influence health systems, and drive sustainable change.
+    desc: "The healthcare sector is a unique and essential contributor to the overall wellbeing of a country, given its focus on human lives.",
+    full: `For individuals and families, their quality of life, productivity, and societal relevance rest significantly on the extent to which they have access to and can utilize holistic care.
 
-Since its inception, IfEHL has trained and mentored over 350 healthcare professionals through its Basic and Advanced leadership programmes, with alumni serving and making an impact across hospitals, academia, public health, policy, and global health institutions in Nigeria and around the world.
+To achieve holistic care, which is care for the body, soul and spirit, care providers must be knowledgeable, excellent, proficient, compassionate and productive.
 
-At IfEHL, we believe that transforming healthcare begins with transforming the healthcare professional. We are committed to building a global community of leaders who view healthcare not just as a profession, but as a calling to serve, lead, and shape the future of healthcare with excellence and integrity.`,
+Those who shape or lead the sector at any level must be skilled enough to efficiently and effectively manage human, financial and material resources, to make meaningful contributions to individual and population health improvement.
+
+They must also have passion and commitment to ensure fairness and accountability.`,
     link: "/ministries/ifehl",
+    external: "https://ifehl.org",
   },
   {
     short: "IMM",
     name: "Institute of Medical Missions",
-    desc: "The missions training and mobilisation arm of CMDA Nigeria, dedicated to raising Christian healthcare professionals who advance God's Kingdom through medical missions.",
-    full: `Established in 2006, following a vision to rekindle the missionary passion among Christian health professionals, IMM equips doctors, dentists, nurses, pharmacists, and other healthcare workers to integrate faith with professional practice and serve communities with compassion, excellence, and the love of Christ.
+    desc: "IMM was established in 2006 to mobilize, train, and mentor doctors, medical students and health workers to understand, support and commit themselves to missions work across various platforms within and beyond Nigeria.",
+    full: `The training opportunities offered by the Institute are implemented using an interactive adult learning approach (andragogy). Participants are exposed to highly engaging faculty members who have practical life experiences in missions.
 
-Through mission-focused training, mentorship, research, and strategic partnerships, IMM prepares healthcare professionals for impactful service in Nigeria and across the world. More than a training institute, IMM is a growing movement committed to building a generation of disciple-makers who see healthcare as a platform for fulfilling the Great Commission and transforming lives through holistic, Christ-centred care.`,
+The Foundation Course in Medical Missions which last one week is formational, and goes beyond the traditional approaches of merely disseminating information and imparting knowledge.`,
     link: "/ministries/imm",
+    external: "https://immafrica.com",
+  },
+  {
+    short: "Wholeness Missions",
+    name: "Wholeness Missions Outreach",
+    desc: "Wholeness Missions is the mission arm of CMDA Nigeria through which members, partners, and collaborators provide health, healing, and support to individuals, households, and communities within and outside Nigeria.",
+    full: `This is achieved through the mission's outreaches, missions awareness, resources, and in-reaches to members, in line with CMDA Nigeria's vision of caring for the whole man: spirit, soul, and body.
+
+Missions in CMDA Nigeria is as old as the organization — from its inception under the leadership of the Late Sir, Dr. Eze Akanu Ibiam, members were constantly mobilized for outreaches. The term 'Wholeness Missions' was adopted for all mission activities of CMDA Nigeria in 2018.`,
+    link: "/ministries/wholeness-missions",
+    external: "https://cmdanigeria.org/what-we-do/wholeness-missions/",
+  },
+  {
+    short: "Starting Strong",
+    name: "Starting Strong",
+    desc: "A monthly mentorship and capacity-building program equipping young doctors with the knowledge, skills, and insights they need to navigate their careers successfully.",
+    full: `Our mission is to expose early-career medical professionals to a wide range of career pathways, helping them navigate their professional journeys with clarity and confidence. Each session features seasoned professionals sharing practical guidance on diverse career pathways, financial literacy, work-life balance, and more.
+
+Starting Strong is more than a program — it is a movement raising a generation of doctors who are spiritually strong, professionally excellent, financially stable, and committed to making a difference in every community they serve.`,
+    link: "/ministries/starting-strong",
   },
   {
     short: "EXCEL",
@@ -41,42 +74,11 @@ Through EXCEL, CMDA Nigeria is raising healthcare professionals who are academic
     link: "/ministries/excel",
   },
   {
-    short: "Starting Strong",
-    name: "Starting Strong",
-    desc: "Equipping new members and fresh graduates with the foundation they need to thrive in faith, practice, and professional life from day one.",
-    full: "",
-    link: "",
-  },
-];
-
-const otherMinistries = [
-  {
-    short: "The Lady Doctor",
-    name: "The Lady Doctor",
-    desc: "A platform addressing key aspects of the life and journey of female medical professionals and students, including spiritual and holistic growth, career, leadership, family and ministry.",
-    full: "",
+    short: "Lady Doctors & Students",
+    name: "Lady Doctors & Students",
+    desc: "The CMDA-Lady Doctors/Students (CMDA-LD/LS) community is an off-shoot of CMDA Nigeria. Our vision is to empower godly women of global impact and influence to transform the health sector.",
+    full: `The core mandates of our mission are: 1) Empowering women in the health sector to maximize their talents for the glory of Jesus. 2) Fostering a community of godly ladies bonded by shared gospel values. 3) Transforming lives, societies, and communities through our skills and services.`,
     link: "/ministries/the-lady-doctor",
-  },
-  {
-    short: "Saline Training",
-    name: "Saline Training",
-    desc: "Practical clinical skills training programme equipping students and young doctors with hands-on competencies for compassionate, whole-person patient care.",
-    full: "",
-    link: "/ministries/saline-training",
-  },
-  {
-    short: "Wholeness",
-    name: "Wholeness Missions",
-    desc: "Whole-person care projects addressing body, mind and spirit in communities.",
-    full: "",
-    link: "/ministries/wholeness-missions",
-  },
-  {
-    short: "Global",
-    name: "Global Network",
-    desc: "Connecting Nigerian Christian healthcare professionals in over 20 countries.",
-    full: "",
-    link: "/global-network",
   },
 ];
 
@@ -84,13 +86,7 @@ const otherMinistries = [
  * Ministry row with expandable description
  * ────────────────────────────────────────────── */
 
-function MinistryRow({
-  item,
-  index,
-}: {
-  item: (typeof trainingArms)[number];
-  index: number;
-}) {
+function MinistryRow({ item, index }: { item: (typeof ministries)[number]; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const hasMore = item.full.length > 0;
 
@@ -118,7 +114,17 @@ function MinistryRow({
             )}
           </div>
           <div className="flex items-center gap-3">
-            {item.link ? (
+            {item.external ? (
+              <a
+                href={item.external}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
+              >
+                See more
+                <ArrowUpRight className="size-4" aria-hidden="true" />
+              </a>
+            ) : item.link ? (
               <Link
                 to={item.link}
                 className="flex shrink-0 items-center gap-1 pt-1 text-sm font-semibold text-cmda-green transition-colors hover:text-cmda-green-deep"
@@ -169,18 +175,21 @@ export function Ministries() {
         eyebrow="Featured ministries"
         title="Institutions built for lasting impact"
         action={
-          <Link to="/ministries" className={cn(buttonVariants({ variant: "outline" }), "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white")}>
+          <Link
+            to="/ministries"
+            className={cn(
+              buttonVariants({ variant: "outline" }),
+              "border-cmda-green text-cmda-green hover:bg-cmda-green hover:text-white",
+            )}
+          >
             View all ministries
           </Link>
         }
       />
 
       <div className="mt-16 border-t border-border">
-        {trainingArms.map((m, i) => (
+        {ministries.map((m, i) => (
           <MinistryRow key={m.short} item={m} index={i} />
-        ))}
-        {otherMinistries.map((m, i) => (
-          <MinistryRow key={m.short} item={m} index={trainingArms.length + i} />
         ))}
       </div>
     </Section>
@@ -191,19 +200,13 @@ export function Ministries() {
  * Full ministries page — detailed sections
  * ────────────────────────────────────────────── */
 
-function MinistryDetail({
-  item,
-  index,
-}: {
-  item: (typeof trainingArms)[number];
-  index: number;
-}) {
+function MinistryDetail({ item, index }: { item: (typeof ministries)[number]; index: number }) {
   return (
     <Reveal>
       <div className="grid items-start gap-12 py-16 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
         <div>
           <span className="numeral">{String(index + 1).padStart(2, "0")}</span>
-            <span className="eyebrow mt-4 block text-cmda-green">{item.short}</span>
+          <span className="eyebrow mt-4 block text-cmda-green">{item.short}</span>
           <h3 className="mt-3 display-2 text-balance">{item.name}</h3>
         </div>
         <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
@@ -221,31 +224,17 @@ function MinistryDetail({
 
 export function MinistriesFull() {
   return (
-    <>
-      <Section id="training-arms" className="paper">
-        <SectionHead
-          eyebrow="Training arms"
-          title="Forming leaders for the future of healthcare"
-          intro="IfEHL, IMM, EXCEL, and Starting Strong are the training arms of CMDA Nigeria — each equipping a different dimension of the healthcare professional."
-        />
-        <div className="mt-8 divide-y divide-border border-t border-border">
-          {trainingArms.map((m, i) => (
-            <MinistryDetail key={m.short} item={m} index={i} />
-          ))}
-        </div>
-      </Section>
-
-      <Section id="other-ministries" className="bg-muted">
-        <SectionHead
-          eyebrow="Other ministries"
-          title="Carrying the mission into every sphere"
-        />
-        <div className="mt-8 divide-y divide-border border-t border-border">
-          {otherMinistries.map((m, i) => (
-            <MinistryDetail key={m.short} item={m} index={trainingArms.length + i} />
-          ))}
-        </div>
-      </Section>
-    </>
+    <Section id="ministries" className="paper">
+      <SectionHead
+        eyebrow="Our ministries"
+        title="Six ministries carrying the mission forward"
+        intro="IfEHL, IMM, Wholeness Missions Outreach, Starting Strong, EXCEL and Lady Doctors & Students — each sharpening a different edge of our calling."
+      />
+      <div className="mt-8 divide-y divide-border border-t border-border">
+        {ministries.map((m, i) => (
+          <MinistryDetail key={m.short} item={m} index={i} />
+        ))}
+      </div>
+    </Section>
   );
 }

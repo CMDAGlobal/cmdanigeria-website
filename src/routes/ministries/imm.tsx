@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { ArrowUpRight } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
-import { Reveal, Section, SectionHead } from "@/components/site/primitives";
+import { buttonVariants, Reveal, Section, SectionHead } from "@/components/site/primitives";
+import { cn } from "@/lib/utils";
 
 const title = "IMM | CMDA Nigeria";
 const description =
@@ -66,26 +68,34 @@ function ImmPage() {
               <p className="eyebrow text-cmda-green">About IMM</p>
             </div>
             <h2 className="display-2 mt-6 text-balance">
-              More than a training institute — a growing movement.
+              Mobilizing, training, and mentoring for missions.
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                Established in 2006, following a vision to rekindle the missionary passion among
-                Christian health professionals, IMM equips doctors, dentists, nurses, pharmacists,
-                and other healthcare workers to integrate faith with professional practice and serve
-                communities with compassion, excellence, and the love of Christ.
+                IMM was established in 2006 to mobilize, train, and mentor doctors, medical students
+                and health workers to understand, support and commit themselves to missions work
+                across various platforms within and beyond Nigeria.
               </p>
               <p>
-                Through mission-focused training, mentorship, research, and strategic partnerships,
-                IMM prepares healthcare professionals for impactful service in Nigeria and across
-                the world.
+                The training opportunities offered by the Institute are implemented using an
+                interactive adult learning approach (andragogy). Participants are exposed to highly
+                engaging faculty members who have practical life experiences in missions.
               </p>
               <p>
-                IMM is a growing movement committed to building a generation of disciple-makers who
-                see healthcare as a platform for fulfilling the Great Commission and transforming
-                lives through holistic, Christ-centred care.
+                The Foundation Course in Medical Missions which last one week is formational, and
+                goes beyond the traditional approaches of merely disseminating information and
+                imparting knowledge.
               </p>
             </div>
+            <a
+              href="https://immafrica.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(buttonVariants({ variant: "primary" }), "mt-8")}
+            >
+              See more
+              <ArrowUpRight className="size-4" aria-hidden="true" />
+            </a>
           </Reveal>
 
           <Reveal delay={120}>

@@ -36,12 +36,12 @@ const ministries = [
   { title: "IfEHL", full: "Institute for Excellence in Healthcare and Leadership" },
   { title: "IMM", full: "Institute of Medical Missions" },
   {
-    title: "Wholeness Missions",
+    title: "Wholeness Missions Outreach",
     full: "Whole-person care projects addressing body, mind and spirit in communities",
   },
+  { title: "Starting Strong", full: "Foundation equipping new members and fresh graduates" },
   { title: "EXCEL", full: "Academic and professional development ministry" },
-  { title: "The Lady Doctor", full: "Platform for female medical professionals and students" },
-  { title: "Saline Training", full: "Practical clinical skills training programme" },
+  { title: "Lady Doctors & Students", full: "For female medical professionals and students" },
 ];
 
 /* ─── 3. Media / Resources ─── */
