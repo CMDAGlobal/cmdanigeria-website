@@ -112,18 +112,30 @@ function IfEhlPage() {
           </Reveal>
 
           <Reveal delay={120}>
-            <div className="grid grid-cols-3 gap-6">
-              {highlights.map((h) => (
-                <div
-                  key={h.label}
-                  className="border border-border bg-background p-6 text-center transition-shadow hover:shadow-card"
-                >
-                  <p className="font-display text-3xl font-extrabold text-cmda-green">{h.stat}</p>
-                  <p className="mt-2 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
-                    {h.label}
-                  </p>
+            <div className="space-y-8">
+              <div className="framed">
+                <div className="flex aspect-[4/3] w-full items-center justify-center bg-cmda-green/10 p-12">
+                  <img
+                    src="/logos/ifehl.png"
+                    alt="IfEHL logo"
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain"
+                  />
                 </div>
-              ))}
+              </div>
+              <div className="grid grid-cols-3 gap-6">
+                {highlights.map((h) => (
+                  <div
+                    key={h.label}
+                    className="border border-border bg-background p-6 text-center transition-shadow hover:shadow-card"
+                  >
+                    <p className="font-display text-3xl font-extrabold text-cmda-green">{h.stat}</p>
+                    <p className="mt-2 text-xs font-semibold tracking-wide uppercase text-muted-foreground">
+                      {h.label}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </Reveal>
         </div>

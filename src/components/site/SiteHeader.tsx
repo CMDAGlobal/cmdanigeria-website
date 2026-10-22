@@ -9,13 +9,29 @@ import {
   Globe2,
   History,
   Award,
+  Stethoscope,
+  Heart,
+  GraduationCap,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 
 import { Button, buttonVariants } from "./primitives";
 import { cn } from "@/lib/utils";
 
-const nav = [
+interface NavItem {
+  label: string;
+  to: string;
+  mega?: {
+    intro: string;
+    columns: {
+      heading: string;
+      items: { label: string; to: string; icon: typeof Users; desc: string }[];
+    }[];
+    featured: { title: string; desc: string; to: string; cta: string };
+  };
+}
+
+const nav: NavItem[] = [
   { label: "Home", to: "/" },
   {
     label: "Who We Are",
@@ -79,18 +95,73 @@ const nav = [
     },
   },
   { label: "What We Do", to: "/what-we-do" },
-  { label: "Ministries", to: "/ministries" },
+  {
+    label: "Ministries",
+    to: "/ministries",
+    mega: {
+      intro: "Six specialised ministries sharpening different edges of our calling.",
+      columns: [
+        {
+          heading: "Our Ministries",
+          items: [
+            {
+              label: "IMM",
+              to: "/ministries/imm",
+              icon: Stethoscope,
+              desc: "Mobilising doctors and students for medical missions",
+            },
+            {
+              label: "Wholeness Missions Outreach",
+              to: "/ministries/wholeness-missions",
+              icon: Heart,
+              desc: "Health, healing and support to communities",
+            },
+            {
+              label: "IfEHL",
+              to: "/ministries/ifehl",
+              icon: Award,
+              desc: "Leadership training for healthcare professionals",
+            },
+            {
+              label: "Starting Strong",
+              to: "/ministries/starting-strong",
+              icon: GraduationCap,
+              desc: "Mentorship and career support for young doctors",
+            },
+            {
+              label: "EXCEL",
+              to: "/ministries/excel",
+              icon: BookOpen,
+              desc: "Academic and professional development",
+            },
+            {
+              label: "Lady Doctors & Students",
+              to: "/ministries/the-lady-doctor",
+              icon: Users,
+              desc: "Empowering godly women in healthcare",
+            },
+          ],
+        },
+      ],
+      featured: {
+        title: "All Ministries",
+        desc: "Explore every CMDA Nigeria ministry — their stories, programmes and how to get involved.",
+        to: "/ministries",
+        cta: "View Ministries",
+      },
+    },
+  },
   { label: "Impact", to: "/impact" },
   { label: "Publications", to: "/publications" },
   { label: "News", to: "/news" },
   { label: "Events", to: "/events" },
   { label: "Contact", to: "/contact" },
-] as const;
+];
 
 export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const [megaOpen, setMegaOpen] = useState(false);
+  const [openMega, setOpenMega] = useState<string | null>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -102,13 +173,13 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
 
   const solid = scrolled || !transparent;
 
-  const handleMegaEnter = () => {
+  const handleMegaEnter = (to: string) => {
     clearTimeout(timeoutRef.current);
-    setMegaOpen(true);
+    setOpenMega(to);
   };
 
   const handleMegaLeave = () => {
-    timeoutRef.current = setTimeout(() => setMegaOpen(false), 120);
+    timeoutRef.current = setTimeout(() => setOpenMega(null), 120);
   };
 
   return (
@@ -137,7 +208,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
               <div
                 key={item.to}
                 className="relative"
-                onMouseEnter={handleMegaEnter}
+                onMouseEnter={() => handleMegaEnter(item.to)}
                 onMouseLeave={handleMegaLeave}
               >
                 <Link
@@ -154,14 +225,29 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                 >
                   {item.label}
                   <ChevronDown
-                    className={cn("size-3 transition-transform", megaOpen && "rotate-180")}
+                    className={cn(
+                      "size-3 transition-transform",
+                      openMega === item.to && "rotate-180",
+                    )}
                     aria-hidden="true"
                   />
                 </Link>
 
-                {megaOpen && (
-                  <div className="absolute left-1/2 top-full z-50 mt-3 w-[720px] -translate-x-1/2 border border-border bg-background shadow-elegant">
-                    <div className="grid grid-cols-[1fr_1fr_auto] gap-0">
+                {openMega === item.to && (
+                  <div
+                    className={cn(
+                      "absolute left-1/2 top-full z-50 mt-3 -translate-x-1/2 border border-border bg-background shadow-elegant",
+                      item.mega.columns.length === 1 ? "w-[480px]" : "w-[720px]",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "grid gap-0",
+                        item.mega.columns.length === 1
+                          ? "grid-cols-[1fr_auto]"
+                          : "grid-cols-[1fr_1fr_auto]",
+                      )}
+                    >
                       {/* Columns */}
                       {item.mega.columns.map((col) => (
                         <div key={col.heading} className="p-6">
@@ -174,7 +260,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                                 activeOptions={{ exact: child.to === "/about" }}
                                 activeProps={{ className: "bg-accent text-primary" }}
                                 className="group flex items-start gap-3 rounded-sm px-3 py-2.5 transition-colors hover:bg-accent"
-                                onClick={() => setMegaOpen(false)}
+                                onClick={() => setOpenMega(null)}
                               >
                                 <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center border border-border text-cmda-green transition-colors group-hover:border-cmda-green group-hover:bg-cmda-green group-hover:text-white">
                                   <child.icon className="size-4" aria-hidden="true" />
@@ -205,7 +291,7 @@ export function SiteHeader({ transparent = false }: { transparent?: boolean }) {
                             buttonVariants({ variant: "primary", size: "sm" }),
                             "mt-5 w-full bg-cmda-green hover:bg-cmda-green-deep",
                           )}
-                          onClick={() => setMegaOpen(false)}
+                          onClick={() => setOpenMega(null)}
                         >
                           {item.mega.featured.cta}
                           <ArrowRight className="size-4" aria-hidden="true" />

@@ -34,6 +34,7 @@ Those who shape or lead the sector at any level must be skilled enough to effici
 They must also have passion and commitment to ensure fairness and accountability.`,
     link: "/ministries/ifehl",
     external: "https://ifehl.org",
+    logo: "/logos/ifehl.png",
   },
   {
     short: "IMM",
