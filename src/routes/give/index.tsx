@@ -36,7 +36,7 @@ type Category =
       desc: string;
       to: "/give/doctors-students" | "/give/global-network" | "/give/non-members";
     }
-  | { title: string; desc: string; href: string };
+  | { title: string; desc: string; href: string; logo: string };
 
 const categories: Category[] = [
   {
@@ -58,6 +58,7 @@ const categories: Category[] = [
     title: "Impact Fund",
     desc: "Long-term investment in scholarships, mission hospitals and healthcare infrastructure across Nigeria.",
     href: "https://impact.cmdanigeria.org/",
+    logo: "/logos/impact-fund.png",
   },
 ];
 
@@ -80,6 +81,16 @@ function categoryBody(category: Category, external: boolean, index: number) {
           />
         )}
       </div>
+      {"logo" in category ? (
+        <div className="mt-6 flex h-24 items-center">
+          <img
+            src={category.logo}
+            alt=""
+            loading="lazy"
+            className="max-h-24 w-auto max-w-full object-contain"
+          />
+        </div>
+      ) : null}
       <h3 className="mt-6 font-display text-xl font-bold tracking-tight text-foreground">
         {category.title}
       </h3>

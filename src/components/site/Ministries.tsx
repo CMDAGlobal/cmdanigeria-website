@@ -16,6 +16,8 @@ interface MinistryItem {
   link: string;
   /** External "See more" target when the ministry has its own site. */
   external?: string;
+  /** Optional ministry logo shown as a picture block on the full ministries page. */
+  logo?: string;
 }
 
 const ministries: MinistryItem[] = [
@@ -42,6 +44,7 @@ They must also have passion and commitment to ensure fairness and accountability
 The Foundation Course in Medical Missions which last one week is formational, and goes beyond the traditional approaches of merely disseminating information and imparting knowledge.`,
     link: "/ministries/imm",
     external: "https://immafrica.com",
+    logo: "/logos/imm.png",
   },
   {
     short: "Wholeness Missions",
@@ -52,6 +55,7 @@ The Foundation Course in Medical Missions which last one week is formational, an
 Missions in CMDA Nigeria is as old as the organization — from its inception under the leadership of the Late Sir, Dr. Eze Akanu Ibiam, members were constantly mobilized for outreaches. The term 'Wholeness Missions' was adopted for all mission activities of CMDA Nigeria in 2018.`,
     link: "/ministries/wholeness-missions",
     external: "https://cmdanigeria.org/what-we-do/wholeness-missions/",
+    logo: "/logos/wholeness-missions-outreach.png",
   },
   {
     short: "Starting Strong",
@@ -72,6 +76,7 @@ Its programmes include the EXCEL Programme for Students, Whole Person Medicine T
 
 Through EXCEL, CMDA Nigeria is raising healthcare professionals who are academically sound, professionally competent, and equipped to serve God and humanity with excellence.`,
     link: "/ministries/excel",
+    logo: "/logos/excel.png",
   },
   {
     short: "Lady Doctors & Students",
@@ -208,6 +213,16 @@ function MinistryDetail({ item, index }: { item: (typeof ministries)[number]; in
           <span className="numeral">{String(index + 1).padStart(2, "0")}</span>
           <span className="eyebrow mt-4 block text-cmda-green">{item.short}</span>
           <h3 className="mt-3 display-2 text-balance">{item.name}</h3>
+          {item.logo ? (
+            <div className="mt-6 flex h-24 w-full max-w-xs items-center rounded-lg border border-border bg-background p-5">
+              <img
+                src={item.logo}
+                alt=""
+                loading="lazy"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+          ) : null}
           {item.external ? (
             <a
               href={item.external}

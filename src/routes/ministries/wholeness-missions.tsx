@@ -118,10 +118,13 @@ function WholenessMissionsPage() {
           <Reveal delay={120}>
             <div className="relative">
               <div className="framed">
-                <div className="aspect-[4/3] w-full bg-cmda-green/10 flex items-center justify-center">
-                  <p className="text-sm text-cmda-green font-semibold">
-                    Wholeness Missions Outreach
-                  </p>
+                <div className="flex aspect-[4/3] w-full items-center justify-center bg-cmda-green/10 p-12">
+                  <img
+                    src="/logos/wholeness-missions-outreach.png"
+                    alt="Wholeness Missions Outreach logo"
+                    loading="lazy"
+                    className="max-h-full max-w-full object-contain"
+                  />
                 </div>
               </div>
             </div>
