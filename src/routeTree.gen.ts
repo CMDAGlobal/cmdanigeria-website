@@ -14,6 +14,7 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DoctorsArmRouteImport } from './routes/doctors-arm'
 import { Route as ImpactRouteImport } from './routes/impact'
+import { Route as ImpactFundRouteImport } from './routes/impact-fund'
 import { Route as MediaResourcesRouteImport } from './routes/media-resources'
 import { Route as MembershipRouteImport } from './routes/membership'
 import { Route as StudentsArmRouteImport } from './routes/students-arm'
@@ -88,6 +89,11 @@ const DoctorsArmRoute = DoctorsArmRouteImport.update({
 const ImpactRoute = ImpactRouteImport.update({
   id: '/impact',
   path: '/impact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpactFundRoute = ImpactFundRouteImport.update({
+  id: '/impact-fund',
+  path: '/impact-fund',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MediaResourcesRoute = MediaResourcesRouteImport.update({
@@ -351,6 +357,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/impact': typeof ImpactRoute
+  '/impact-fund': typeof ImpactFundRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/students-arm': typeof StudentsArmRoute
@@ -408,6 +415,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/impact': typeof ImpactRoute
+  '/impact-fund': typeof ImpactFundRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/students-arm': typeof StudentsArmRoute
@@ -465,6 +473,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/doctors-arm': typeof DoctorsArmRoute
   '/impact': typeof ImpactRoute
+  '/impact-fund': typeof ImpactFundRoute
   '/media-resources': typeof MediaResourcesRoute
   '/membership': typeof MembershipRoute
   '/students-arm': typeof StudentsArmRoute
@@ -524,6 +533,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/doctors-arm'
     | '/impact'
+    | '/impact-fund'
     | '/media-resources'
     | '/membership'
     | '/students-arm'
@@ -581,6 +591,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/doctors-arm'
     | '/impact'
+    | '/impact-fund'
     | '/media-resources'
     | '/membership'
     | '/students-arm'
@@ -637,6 +648,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/doctors-arm'
     | '/impact'
+    | '/impact-fund'
     | '/media-resources'
     | '/membership'
     | '/students-arm'
@@ -695,6 +707,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DoctorsArmRoute: typeof DoctorsArmRoute
   ImpactRoute: typeof ImpactRoute
+  ImpactFundRoute: typeof ImpactFundRoute
   MediaResourcesRoute: typeof MediaResourcesRoute
   MembershipRoute: typeof MembershipRoute
   StudentsArmRoute: typeof StudentsArmRoute
@@ -764,6 +777,13 @@ declare module '@tanstack/react-router' {
       path: '/impact'
       fullPath: '/impact'
       preLoaderRoute: typeof ImpactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impact-fund': {
+      id: '/impact-fund'
+      path: '/impact-fund'
+      fullPath: '/impact-fund'
+      preLoaderRoute: typeof ImpactFundRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/media-resources': {
@@ -1171,6 +1191,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DoctorsArmRoute: DoctorsArmRoute,
   ImpactRoute: ImpactRoute,
+  ImpactFundRoute: ImpactFundRoute,
   MediaResourcesRoute: MediaResourcesRoute,
   MembershipRoute: MembershipRoute,
   StudentsArmRoute: StudentsArmRoute,

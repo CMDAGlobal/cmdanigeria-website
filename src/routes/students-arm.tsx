@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
-import { ArmAnnouncements, ArmEvents, ArmZones } from "@/components/site/org/arm-sections";
+import { ArmAnnouncements, ArmZones } from "@/components/site/org/arm-sections";
 import { PhotoGallery } from "@/components/site/PhotoGallery";
 import { STUDENT_GALLERY } from "@/components/site/gallery-data";
 import {
@@ -214,7 +214,6 @@ function StudentsArmPage() {
         }
         intro="Click a chapter to explore its leadership, activities and events."
       />
-      <ArmEvents events={data.events} title="Events for students" />
       <ArmAnnouncements announcements={data.announcements} title="Student notices" />
 
       {/* Gallery */}

@@ -78,26 +78,29 @@ function IfEhlPage() {
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                The healthcare sector is a unique and essential contributor to the overall wellbeing
-                of a country, given its focus on human lives.
+                The Institute for Excellence in Healthcare and Leadership (IfEHL) is the leadership
+                development arm of the Christian Medical and Dental Association of Nigeria (CMDA
+                Nigeria), established to raise healthcare professionals who lead with compassion,
+                competence, and character.
               </p>
               <p>
-                For individuals and families, their quality of life, productivity, and societal
-                relevance rest significantly on the extent to which they have access to and can
-                utilize holistic care.
+                Conceived in 2015 and launched in 2018, IfEHL was founded in response to the growing
+                need for purposeful, ethical, and transformational leadership within Nigeria's
+                healthcare system and beyond. Through values-driven training, mentorship, research,
+                and strategic collaboration, the Institute equips healthcare professionals to
+                provide excellent care, influence health systems, and drive sustainable change.
               </p>
               <p>
-                To achieve holistic care, which is care for the body, soul and spirit, care
-                providers must be knowledgeable, excellent, proficient, compassionate and
-                productive.
+                Since its inception, IfEHL has trained and mentored over 350 healthcare
+                professionals through its Basic and Advanced leadership programmes, with alumni
+                serving and making an impact across hospitals, academia, public health, policy, and
+                global health institutions in Nigeria and around the world.
               </p>
               <p>
-                Those who shape or lead the sector at any level must be skilled enough to
-                efficiently and effectively manage human, financial and material resources, to make
-                meaningful contributions to individual and population health improvement.
-              </p>
-              <p>
-                They must also have passion and commitment to ensure fairness and accountability.
+                At IfEHL, we believe that transforming healthcare begins with transforming the
+                healthcare professional. We are committed to building a global community of leaders
+                who view healthcare not just as a profession, but as a calling to serve, lead, and
+                shape the future of healthcare with excellence and integrity.
               </p>
             </div>
             <a

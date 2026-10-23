@@ -34,7 +34,8 @@ type Category =
   | {
       title: string;
       desc: string;
-      to: "/give/doctors-students" | "/give/global-network" | "/give/non-members";
+      to: "/give/doctors-students" | "/give/global-network" | "/give/non-members" | "/impact-fund";
+      logo?: string;
     }
   | { title: string; desc: string; href: string; logo: string };
 
@@ -56,8 +57,8 @@ const categories: Category[] = [
   },
   {
     title: "Impact Fund",
-    desc: "Long-term investment in scholarships, mission hospitals and healthcare infrastructure across Nigeria.",
-    href: "https://impact.cmdanigeria.org/",
+    desc: "CMDA Nigeria's strategic endowment — securing the future of our mission for generations to come.",
+    to: "/impact-fund",
     logo: "/logos/impact-fund.png",
   },
 ];

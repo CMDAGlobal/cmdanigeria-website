@@ -78,19 +78,23 @@ function ExcelPage() {
             </h2>
             <div className="mt-8 space-y-5 text-base leading-relaxed text-muted-foreground">
               <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-cmda-green">
-                Through academic support, clinical mentorship, peer learning, and leadership
-                development, EXCEL equips members to grow in competence, character, and
-                Christ-centred professionalism.
+                EXCEL is the academic and professional development ministry of CMDA Nigeria,
+                committed to helping Christian medical and dental students and practitioners achieve
+                excellence in learning, practice, and service. Through academic support, clinical
+                mentorship, peer learning, and leadership development, EXCEL equips members to grow
+                in competence, character, and Christ-centred professionalism.
               </p>
               <p>
                 Its programmes include the EXCEL Programme for Students, Whole Person Medicine
                 Training, Continuing Medical Education (CME), The Good Teacher, Developing Health
-                Course, and the Publications & Library.
+                Course, and the Publications &amp; Library. Together, these initiatives promote
+                academic excellence, patient-centred care, values-based teaching, lifelong learning,
+                and access to quality educational resources.
               </p>
               <p>
-                Together, these initiatives promote academic excellence, patient-centred care,
-                values-based teaching, lifelong learning, and access to quality educational
-                resources.
+                Through EXCEL, CMDA Nigeria is raising healthcare professionals who are academically
+                sound, professionally competent, and equipped to serve God and humanity with
+                excellence.
               </p>
             </div>
           </Reveal>

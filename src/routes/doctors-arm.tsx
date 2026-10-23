@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
-import { ArmAnnouncements, ArmEvents, ArmNec } from "@/components/site/org/arm-sections";
+import { ArmAnnouncements, ArmNec } from "@/components/site/org/arm-sections";
 import { fetchArmOverview, fetchArmStats, fetchPageBySlug } from "@/sanity/data";
 import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
@@ -285,7 +285,6 @@ function DoctorsArmPage() {
           ))}
         </div>
       </Section>
-      <ArmEvents events={data.events} title="Events for doctors" />
       <ArmAnnouncements announcements={data.announcements} title="Doctor notices" />
 
       {/* Newsletters */}

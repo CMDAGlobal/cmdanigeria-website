@@ -6,7 +6,6 @@ import { cn } from "@/lib/utils";
 const heroImages = [
   "/Hero Scrolling image/DSC_0378.webp",
   "/Hero Scrolling image/DSC_0021.webp",
-  "/Hero Scrolling image/DSC_0410.webp",
   "/Hero Scrolling image/DSC_0402.webp",
   "/Hero Scrolling image/DSC_0823.webp",
   "/Hero Scrolling image/DSC_0680.webp",
