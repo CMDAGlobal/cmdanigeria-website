@@ -74,10 +74,7 @@ const marks = [
   { value: "75+", label: "Global network" },
 ];
 
-function useMarquee(
-  direction: "up" | "down",
-  speed: number,
-) {
+function useMarquee(direction: "up" | "down", speed: number) {
   const trackRef = useRef<HTMLDivElement>(null);
   const offsetRef = useRef(0);
 
@@ -150,13 +147,7 @@ function HeroSlider() {
   );
 }
 
-function MarqueeColumn({
-  col,
-  ci,
-}: {
-  col: (typeof columns)[number];
-  ci: number;
-}) {
+function MarqueeColumn({ col, ci }: { col: (typeof columns)[number]; ci: number }) {
   const trackRef = useMarquee(col.direction, col.speed);
 
   return (
@@ -205,22 +196,23 @@ export function Hero() {
         <div className="relative z-10 flex flex-col justify-center">
           <div className="flex items-center gap-4">
             <span className="h-px w-14 bg-gold" aria-hidden="true" />
-            <p className="eyebrow text-gold">Christian Medical &amp; Dental Association</p>
+            <p className="eyebrow text-gold">
+              Christian Medical and Dental Association of Nigeria (CMDA Nigeria)
+            </p>
           </div>
 
           <h1 className="display-1 mt-8 text-balance text-white">
             <span className="block min-h-[2.8em] overflow-hidden">
-              <span
-                key={word}
-                className={cn("block", mounted && "animate-slide-up")}
-              >
+              <span key={word} className={cn("block", mounted && "animate-slide-up")}>
                 {rotating[word].text.split(/(\s+)/).map((token, i) => {
                   const clean = token.trim().replace(/[,.]/g, "").toLowerCase();
                   const isHighlight = rotating[word].highlight.some((h) =>
                     h.toLowerCase().split(/\s+/).includes(clean),
                   );
                   return isHighlight ? (
-                    <span key={i} className="text-gold whitespace-nowrap">{token}</span>
+                    <span key={i} className="text-gold whitespace-nowrap">
+                      {token}
+                    </span>
                   ) : (
                     <span key={i}>{token}</span>
                   );
@@ -228,9 +220,6 @@ export function Hero() {
               </span>
             </span>
           </h1>
-          <p className="mt-4 font-display text-lg font-semibold tracking-wide text-gold lg:text-xl">
-            Healing hands. Faithful hearts.
-          </p>
 
           <p className="lede mt-8 max-w-lg text-white/70">
             For over five decades CMDA Nigeria has equipped Christian doctors, dentists and students
@@ -239,10 +228,16 @@ export function Hero() {
           </p>
 
           <div className="mt-10 flex flex-wrap gap-4">
-            <Link to="/membership" className={cn(buttonVariants({ variant: "editorial", size: "lg" }))}>
+            <Link
+              to="/membership"
+              className={cn(buttonVariants({ variant: "editorial", size: "lg" }))}
+            >
               Become a Member
             </Link>
-            <Link to="/give" className={cn(buttonVariants({ variant: "editorialGold", size: "lg" }), "text-white")}>
+            <Link
+              to="/give"
+              className={cn(buttonVariants({ variant: "editorialGold", size: "lg" }), "text-white")}
+            >
               Support the Mission
             </Link>
           </div>
@@ -263,10 +258,7 @@ export function Hero() {
         {/* ---------- Moving collage ---------- */}
         <div className="relative -mx-6 z-10 h-[26rem] overflow-hidden sm:h-[34rem] lg:mx-0 lg:h-[42rem]">
           <div className="grid h-full grid-cols-3 gap-3 sm:gap-4">
-            {mounted &&
-              columns.map((col, ci) => (
-                <MarqueeColumn key={ci} col={col} ci={ci} />
-              ))}
+            {mounted && columns.map((col, ci) => <MarqueeColumn key={ci} col={col} ci={ci} />)}
           </div>
 
           {/* Feathered edges so the motion dissolves rather than clipping */}
