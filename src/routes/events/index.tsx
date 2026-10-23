@@ -1,6 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Events } from "@/components/site/Events";
+import { PhotoGallery } from "@/components/site/PhotoGallery";
+import { CONFERENCE_GALLERY } from "@/components/site/gallery-data";
+import { Section, SectionHead } from "@/components/site/primitives";
 import { fetchEvents, fetchPageBySlug } from "@/sanity/data";
 
 const title = "Events & Conferences | CMDA Nigeria";
@@ -36,6 +39,18 @@ function EventsPage() {
       intro="Conferences, retreats, outreaches and student camps run through the year across our chapters nationwide."
     >
       <Events events={events} />
+
+      {/* Conference gallery */}
+      <Section className="paper">
+        <SectionHead
+          eyebrow="Conference gallery"
+          title="Moments from our conferences"
+          intro="Scenes from past national conferences and joint gatherings."
+        />
+        <div className="mt-16">
+          <PhotoGallery photos={CONFERENCE_GALLERY} />
+        </div>
+      </Section>
     </CmsPage>
   );
 }

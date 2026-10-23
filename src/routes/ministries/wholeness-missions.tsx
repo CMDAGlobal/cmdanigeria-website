@@ -3,6 +3,8 @@ import { ArrowUpRight } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { buttonVariants, Reveal, Section, SectionHead } from "@/components/site/primitives";
+import { PhotoGallery } from "@/components/site/PhotoGallery";
+import { WHOLENESS_ALBUMS } from "@/components/site/gallery-data";
 import { cn } from "@/lib/utils";
 
 const title = "Wholeness Missions | CMDA Nigeria";
@@ -159,6 +161,26 @@ function WholenessMissionsPage() {
                 </ul>
               </div>
             </Reveal>
+          ))}
+        </div>
+      </Section>
+
+      <Section id="gallery" className="paper">
+        <SectionHead
+          eyebrow="Gallery"
+          title="Missions on the ground"
+          intro="Scenes from Wholeness Missions outreaches."
+        />
+        <div className="mt-16 space-y-14">
+          {WHOLENESS_ALBUMS.map((group) => (
+            <div key={group.title}>
+              <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                {group.title}
+              </h3>
+              <div className="mt-6">
+                <PhotoGallery photos={group.photos} />
+              </div>
+            </div>
           ))}
         </div>
       </Section>

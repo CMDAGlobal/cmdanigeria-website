@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { Reveal, Section, SectionHead, buttonVariants } from "@/components/site/primitives";
-import { ArmAnnouncements, ArmEvents, ArmNec, ArmZones } from "@/components/site/org/arm-sections";
+import { ArmAnnouncements, ArmEvents, ArmNec } from "@/components/site/org/arm-sections";
 import { fetchArmOverview, fetchArmStats, fetchPageBySlug } from "@/sanity/data";
 import { ORG_TOTALS, liveCount } from "@/sanity/org-totals";
 import { cn } from "@/lib/utils";
@@ -65,6 +65,64 @@ const pillars = [
 
 // See DoctorsArmPage for the CMS-driven version of these figures.
 
+const regionChapters = {
+  North: [
+    "Adamawa",
+    "Bauchi",
+    "Benue",
+    "Borno",
+    "FCT Gwagwalada",
+    "FCT Municipal",
+    "Gombe",
+    "Kaduna – Kaduna",
+    "Kaduna – Zaria",
+    "Kano",
+    "Kebbi",
+    "Kogi",
+    "Nasarawa - Keffi",
+    "Nasarawa – Lafiya",
+    "Niger-Bida",
+    "Plateau",
+    "Sokoto",
+    "Taraba",
+    "Zamfara State Chapter",
+  ],
+  East: [
+    "Abia – Umuahia",
+    "Akwa Ibom",
+    "Anambra (COOUTH)",
+    "Anambra (NAUTH)",
+    "Bayelsa",
+    "CMDA Uyo",
+    "Cross River",
+    "Ebonyi",
+    "Enugu",
+    "Imo",
+    "Rivers",
+  ],
+  West: [
+    "Delta - DELSUTH, Oghara",
+    "Delta FMC, Asaba",
+    "Edo-Benin",
+    "Edo-Irrua",
+    "Edo-SHMB",
+    "Ekiti – Ido",
+    "Ekiti-Ado",
+    "Kwara",
+    "LAUTECH",
+    "Lagos",
+    "Lagos-Lasuth",
+    "Lagos-Luth",
+    "ONDO – UNIMEDTH",
+    "Ogun – Abeokuta",
+    "Ogun – Shagamu",
+    "Ondo – Owo",
+    "Osun-Ife",
+    "Osun-Osogbo",
+    "Oyo",
+  ],
+} as const;
+
 const newsletters = [
   {
     title: "Touch Magazine",
@@ -86,8 +144,6 @@ const newsletters = [
 
 function DoctorsArmPage() {
   const { data, stats: liveStats, page } = Route.useLoaderData();
-  const chapters = liveStats?.chapters != null ? String(liveStats.chapters) : "—";
-  const zones = liveStats?.zones != null ? String(liveStats.zones) : "—";
   // Counts come from the CMS so they cannot drift from what admins manage.
   const stats = [
     { value: `${ORG_TOTALS.doctorMembers.toLocaleString("en-NG")}+`, label: "Doctors & dentists" },
@@ -195,15 +251,40 @@ function DoctorsArmPage() {
       </Section>
 
       <ArmNec nec={data.nec} title="Doctors' national leadership" />
-      <ArmZones
-        zones={data.zones}
-        title={
-          chapters === "—" || zones === "—"
-            ? "Doctor chapters across the nation"
-            : `${chapters} doctor chapters across ${zones} zones`
-        }
-        intro="Click a chapter to explore its leadership, activities and events."
-      />
+      <Section className="paper" id="chapters">
+        <SectionHead
+          eyebrow="Our chapters"
+          title="Chapters across three regions"
+          intro="CMDA Nigeria's doctors' arm is organised into three regions — North, East and West. Find your chapter below."
+        />
+        <div className="mt-16 grid gap-6 lg:grid-cols-3">
+          {Object.entries(regionChapters).map(([region, list], i) => (
+            <Reveal key={region} delay={i * 80}>
+              <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
+                    {region}
+                  </h3>
+                  <span className="font-display text-2xl font-extrabold text-cmda-green">
+                    {list.length}
+                  </span>
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">chapters</p>
+                <ul className="mt-5 border-t border-border">
+                  {list.map((name) => (
+                    <li
+                      key={name}
+                      className="border-b border-border py-2.5 text-sm text-muted-foreground"
+                    >
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+      </Section>
       <ArmEvents events={data.events} title="Events for doctors" />
       <ArmAnnouncements announcements={data.announcements} title="Doctor notices" />
 
