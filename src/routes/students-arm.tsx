@@ -143,8 +143,8 @@ function StudentsArmPage() {
             <div className="relative">
               <div className="framed">
                 <img
-                  src="/About1.webp"
-                  alt="CMDA Nigeria students in fellowship"
+                  src="/gallery/students/students-11.webp"
+                  alt="CMDA Nigeria students at the national conference"
                   loading="lazy"
                   className="aspect-4/5 size-full object-cover"
                 />
@@ -246,7 +246,7 @@ function StudentsArmPage() {
       {/* CTA */}
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">
-          <h2 className="display-2 text-balance">Ready to join the fellowship?</h2>
+          <h2 className="display-2 text-balance">Join the Student Arm</h2>
           <p className="lede mt-6 text-primary-foreground/75">
             Connect with a CMDA chapter at your university and start your journey of faith,
             excellence and service.
