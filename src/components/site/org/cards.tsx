@@ -84,7 +84,7 @@ export function Avatar({
   );
 }
 
-export function LeaderCard({ leader }: { leader: LeaderRecord }) {
+export function LeaderCard({ leader, compact }: { leader: LeaderRecord; compact?: boolean }) {
   const role = leader.position ?? leader.chapterRole ?? "Leader";
   const detail = [leader.institution, leader.chapter, leader.country].filter(Boolean).join(" · ");
   return (
@@ -101,7 +101,7 @@ export function LeaderCard({ leader }: { leader: LeaderRecord }) {
           </h3>
           <p className="mt-1 text-sm font-semibold text-cmda-green">{role}</p>
           {detail ? <p className="mt-1 text-xs text-muted-foreground">{detail}</p> : null}
-          {leader.bio ? (
+          {!compact && leader.bio ? (
             <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
               {leader.bio}
             </p>
@@ -130,7 +130,7 @@ function formatTime(value?: string | null): string | null {
   }
 }
 
-export function EventCard({ event }: { event: EventRecord }) {
+export function EventCard({ event, compact }: { event: EventRecord; compact?: boolean }) {
   const date = formatDate(event.startDate);
   const startTime = formatTime(event.startDate);
   const endTime = formatTime(event.endDate);
@@ -176,7 +176,7 @@ export function EventCard({ event }: { event: EventRecord }) {
             Featured
           </span>
         ) : null}
-        {event.description?.length ? (
+        {!compact && event.description?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={event.description} />
           </div>
@@ -245,7 +245,13 @@ export function EventCard({ event }: { event: EventRecord }) {
   return <Reveal className="h-full">{card}</Reveal>;
 }
 
-export function ActivityCard({ activity }: { activity: ActivityRecord }) {
+export function ActivityCard({
+  activity,
+  compact,
+}: {
+  activity: ActivityRecord;
+  compact?: boolean;
+}) {
   return (
     <Reveal className="h-full">
       <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
@@ -253,12 +259,12 @@ export function ActivityCard({ activity }: { activity: ActivityRecord }) {
         <h3 className="mt-3 font-display text-lg font-bold tracking-tight text-foreground">
           {activity.title}
         </h3>
-        {activity.description?.length ? (
+        {!compact && activity.description?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={activity.description} />
           </div>
         ) : null}
-        {activity.outcome ? (
+        {!compact && activity.outcome ? (
           <p className="mt-4 border-t border-border pt-3 text-xs font-medium text-muted-foreground">
             Outcome: {activity.outcome}
           </p>
@@ -268,7 +274,13 @@ export function ActivityCard({ activity }: { activity: ActivityRecord }) {
   );
 }
 
-export function AnnouncementCard({ announcement }: { announcement: AnnouncementRecord }) {
+export function AnnouncementCard({
+  announcement,
+  compact,
+}: {
+  announcement: AnnouncementRecord;
+  compact?: boolean;
+}) {
   const date = formatDate(announcement.publishedAt);
   return (
     <Reveal className="h-full">
@@ -289,7 +301,7 @@ export function AnnouncementCard({ announcement }: { announcement: AnnouncementR
           {announcement.title}
         </h3>
         {date ? <p className="mt-1 text-xs text-muted-foreground">{date}</p> : null}
-        {announcement.body?.length ? (
+        {!compact && announcement.body?.length ? (
           <div className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             <PortableContent value={announcement.body} />
           </div>
@@ -320,7 +332,7 @@ export function kindLabel(kind?: string | null): string {
   return kind ? (labels[kind] ?? kind) : "News";
 }
 
-export function NewsCard({ post }: { post: PostRecord }) {
+export function NewsCard({ post, compact }: { post: PostRecord; compact?: boolean | undefined }) {
   const date = formatDate(post.publishedAt);
   const coverUrl = post.cover?.asset?.url;
   // Items with no body of their own are pointers to external coverage.
@@ -348,7 +360,7 @@ export function NewsCard({ post }: { post: PostRecord }) {
         <h3 className="mt-3 font-display text-lg font-bold leading-snug tracking-tight text-foreground">
           {post.title}
         </h3>
-        {post.excerpt ? (
+        {!compact && post.excerpt ? (
           <p className="mt-2 line-clamp-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             {post.excerpt}
           </p>
@@ -427,7 +439,7 @@ export function ChapterCard({
   );
 }
 
-export function NewsletterCard({ item }: { item: NewsletterEntry }) {
+export function NewsletterCard({ item, compact }: { item: NewsletterEntry; compact?: boolean }) {
   return (
     <Reveal className="h-full">
       <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
@@ -435,7 +447,7 @@ export function NewsletterCard({ item }: { item: NewsletterEntry }) {
         <h3 className="font-display text-lg font-bold tracking-tight text-foreground">
           {item.title}
         </h3>
-        {item.description ? (
+        {!compact && item.description ? (
           <p className="mt-3 flex-1 text-sm leading-relaxed text-muted-foreground">
             {item.description}
           </p>
@@ -455,7 +467,13 @@ export function NewsletterCard({ item }: { item: NewsletterEntry }) {
   );
 }
 
-export function GalleryGrid({ images }: { images?: SanityImage[] | null }) {
+export function GalleryGrid({
+  images,
+  compact,
+}: {
+  images?: SanityImage[] | null;
+  compact?: boolean;
+}) {
   if (!images || images.length === 0) return null;
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -470,7 +488,7 @@ export function GalleryGrid({ images }: { images?: SanityImage[] | null }) {
                 className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
             ) : null}
-            {image.caption ? (
+            {!compact && image.caption ? (
               <figcaption className="absolute inset-x-0 bottom-0 bg-primary-deep/80 px-3 py-2 text-xs text-primary-foreground backdrop-blur">
                 {image.caption}
               </figcaption>

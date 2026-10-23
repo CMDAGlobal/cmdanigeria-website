@@ -116,7 +116,7 @@ function Leadership({ region }: { region: RegionDetail }) {
       />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {region.leaders.map((leader) => (
-          <LeaderCard key={leader._id} leader={leader} />
+          <LeaderCard key={leader._id} leader={leader} compact />
         ))}
       </div>
     </Section>
@@ -130,7 +130,7 @@ function Activities({ region }: { region: RegionDetail }) {
       <SectionHead eyebrow="Regional activities" title="What the region is doing" />
       <div className="mt-16 grid gap-6 sm:grid-cols-2">
         {region.activities.map((activity) => (
-          <ActivityCard key={activity._id} activity={activity} />
+          <ActivityCard key={activity._id} activity={activity} compact />
         ))}
       </div>
     </Section>
@@ -148,7 +148,7 @@ function Events({ region }: { region: RegionDetail }) {
       />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {region.events.map((event) => (
-          <EventCard key={event._id} event={event} />
+          <EventCard key={event._id} event={event} compact />
         ))}
       </div>
     </Section>
@@ -162,7 +162,7 @@ function Announcements({ region }: { region: RegionDetail }) {
       <SectionHead eyebrow="Regional announcements" title="News & notices" />
       <div className="mt-16 grid gap-6 sm:grid-cols-2">
         {region.announcements.map((announcement) => (
-          <AnnouncementCard key={announcement._id} announcement={announcement} />
+          <AnnouncementCard key={announcement._id} announcement={announcement} compact />
         ))}
       </div>
     </Section>
@@ -199,7 +199,7 @@ function Publications({ region }: { region: RegionDetail }) {
       <SectionHead eyebrow="Publications" title="Newsletters & resources" />
       <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {region.newsletters.map((item, index) => (
-          <NewsletterCard key={item.title ?? index} item={item} />
+          <NewsletterCard key={item.title ?? index} item={item} compact />
         ))}
       </div>
     </Section>
@@ -212,7 +212,7 @@ function Gallery({ region }: { region: RegionDetail }) {
     <Section className="paper" id="media">
       <SectionHead eyebrow="Media" title="Photo gallery" />
       <div className="mt-16">
-        <GalleryGrid images={region.gallery} />
+        <GalleryGrid images={region.gallery} compact />
       </div>
     </Section>
   );
@@ -257,11 +257,11 @@ export function RegionPage({ region }: { region: RegionDetail | null | undefined
       <Activities region={region} />
       <Events region={region} />
       <Announcements region={region} />
-      <NewsSection news={region.news} title={`${region.name} news`} />
+      <NewsSection news={region.news} title={`${region.name} news`} compact />
       <Chapters region={region} />
       <Publications region={region} />
       <Gallery region={region} />
-      <ResourcesSection resources={region.resources} title="Regional resources" />
+      <ResourcesSection resources={region.resources} title="Regional resources" compact />
       <ContactSection contact={region.contactInfo} social={region.socialLinks} />
       <Section className="bg-primary-deep text-primary-foreground">
         <Reveal className="mx-auto max-w-3xl text-center">
