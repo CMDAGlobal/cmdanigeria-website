@@ -143,8 +143,8 @@ function StudentsArmPage() {
             <div className="relative">
               <div className="framed">
                 <img
-                  src="/gallery/students/students-11.webp"
-                  alt="CMDA Nigeria students at the national conference"
+                  src="/gallery/students/students-02.webp"
+                  alt="CMDA Nigeria students worshipping at the student conference"
                   loading="lazy"
                   className="aspect-4/5 size-full object-cover"
                 />

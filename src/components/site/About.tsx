@@ -132,16 +132,18 @@ export function OurStory() {
           </h2>
           <div className="mt-8 space-y-5 border-l border-border pl-6 text-base leading-relaxed text-muted-foreground">
             <p className="first-letter:float-left first-letter:mr-3 first-letter:font-display first-letter:text-6xl first-letter:leading-[0.8] first-letter:font-extrabold first-letter:text-primary">
-              The Christian Medical and Dental Association of Nigeria (CMDA Nigeria) is a faith-based
-              network of Christian medical and dental practitioners registered with the Medical and
-              Dental Council of Nigeria, alongside students training in these professions.
+              The Christian Medical and Dental Association of Nigeria (CMDA Nigeria) is a
+              faith-based network of Christian medical and dental practitioners registered with the
+              Medical and Dental Council of Nigeria, alongside students training in these
+              professions.
             </p>
             <p>
               Established in 1972, CMDA Nigeria has spent over five decades equipping healthcare
-              professionals to serve with clinical excellence, Christ-like compassion, and integrity.
-              We believe that God created humanity as spirit, soul, and body (1 Thessalonians 5:23),
-              and we are committed to raising healthcare professionals who provide holistic care
-              while reflecting Christ in their personal and professional lives.
+              professionals to serve with clinical excellence, Christ-like compassion, and
+              integrity. We believe that God created humanity as spirit, soul, and body (1
+              Thessalonians 5:23), and we are committed to raising healthcare professionals who
+              provide holistic care while reflecting Christ in their personal and professional
+              lives.
             </p>
             <p>
               Through fellowship, mentorship, leadership development, medical missions, health
@@ -176,10 +178,10 @@ export function OurStory() {
           <div className="relative">
             <div className="framed">
               <img
-                src="/About1.webp"
-                alt="Nigerian medical students praying together before ward rounds"
-                width={1408}
-                height={1008}
+                src="/gallery/conferences/conference-17.webp"
+                alt="A delegate praying during a CMDA Nigeria conference session"
+                width={1067}
+                height={1600}
                 loading="lazy"
                 className="aspect-4/5 size-full object-cover"
               />
@@ -192,10 +194,10 @@ export function OurStory() {
             </div>
             <div className="mt-6 hidden overflow-hidden lg:block">
               <img
-                src="/About2.webp"
-                alt="Delegates at a CMDA Nigeria healthcare leadership conference"
-                width={1408}
-                height={1008}
+                src="/gallery/conferences/conference-05.webp"
+                alt="Delegates gathered at a CMDA Nigeria national conference"
+                width={1600}
+                height={1067}
                 loading="lazy"
                 className="aspect-16/7 size-full object-cover"
               />
@@ -220,9 +222,7 @@ export function VisionAndMission() {
             <span className="h-px w-10 bg-cmda-green" aria-hidden="true" />
             <p className="eyebrow text-cmda-green">Vision</p>
           </div>
-          <h2 className="display-2 mt-6 text-balance">
-            God made man — spirit, soul, and body.
-          </h2>
+          <h2 className="display-2 mt-6 text-balance">God made man — spirit, soul, and body.</h2>
           <div className="mt-8 space-y-5 border-l border-border pl-6 text-base leading-relaxed text-muted-foreground">
             <p>
               He has called us Christians in the Medical and Dental disciplines to be proficient in
@@ -273,13 +273,37 @@ export function VisionAndMission() {
  * ────────────────────────────────────────────── */
 
 const values = [
-  { icon: HandHeart, title: "Compassion", desc: "Caring for the whole person with Christ-like love." },
-  { icon: ShieldCheck, title: "Character", desc: "Upholding moral integrity in personal and professional life." },
-  { icon: Award, title: "Competence", desc: "Pursuing clinical excellence and continuous learning." },
-  { icon: Sparkles, title: "Integrity", desc: "Acting with honesty and accountability at all times." },
-  { icon: Stethoscope, title: "Excellence", desc: "Striving for the highest standards in healthcare practice." },
+  {
+    icon: HandHeart,
+    title: "Compassion",
+    desc: "Caring for the whole person with Christ-like love.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Character",
+    desc: "Upholding moral integrity in personal and professional life.",
+  },
+  {
+    icon: Award,
+    title: "Competence",
+    desc: "Pursuing clinical excellence and continuous learning.",
+  },
+  {
+    icon: Sparkles,
+    title: "Integrity",
+    desc: "Acting with honesty and accountability at all times.",
+  },
+  {
+    icon: Stethoscope,
+    title: "Excellence",
+    desc: "Striving for the highest standards in healthcare practice.",
+  },
   { icon: Users, title: "Teamwork", desc: "Collaborating across disciplines for greater impact." },
-  { icon: HeartHandshake, title: "Social Responsibility", desc: "Serving underserved communities with purpose and care." },
+  {
+    icon: HeartHandshake,
+    title: "Social Responsibility",
+    desc: "Serving underserved communities with purpose and care.",
+  },
 ];
 
 export function CoreValues() {
@@ -455,10 +479,10 @@ export function HistoryTeaser() {
           <div className="relative">
             <div className="framed">
               <img
-                src="/About2.webp"
-                alt="Delegates at a CMDA Nigeria healthcare leadership conference"
-                width={1408}
-                height={1008}
+                src="/gallery/wholeness-missions/motor-park-08.webp"
+                alt="CMDA Nigeria healthcare workers at a motor park medical outreach"
+                width={1600}
+                height={1067}
                 loading="lazy"
                 className="aspect-4/3 size-full object-cover"
               />
