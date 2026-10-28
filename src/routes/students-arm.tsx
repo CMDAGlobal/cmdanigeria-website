@@ -142,20 +142,24 @@ function StudentsArmPage() {
           <Reveal delay={120}>
             <div className="space-y-6">
               <div className="framed">
-                <img
-                  src="/gallery/students/students-01.webp"
-                  alt="CMDA Nigeria students worshipping at the student conference"
-                  loading="lazy"
-                  className="h-auto w-full"
-                />
+                <div className="relative aspect-[3.75/1] overflow-hidden">
+                  <img
+                    src="/gallery/students/students-01.webp"
+                    alt="CMDA Nigeria students worshipping at the student conference"
+                    loading="lazy"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
               </div>
               <div className="framed">
-                <img
-                  src="/gallery/students/students-03.webp"
-                  alt="CMDA Nigeria students taking notes during a conference session"
-                  loading="lazy"
-                  className="h-auto w-full"
-                />
+                <div className="relative aspect-[3.75/1] overflow-hidden">
+                  <img
+                    src="/gallery/students/students-03.webp"
+                    alt="CMDA Nigeria students taking notes during a conference session"
+                    loading="lazy"
+                    className="h-full w-full object-cover object-center"
+                  />
+                </div>
               </div>
               <div className="w-56 bg-primary-deep p-6 text-primary-foreground shadow-elegant">
                 <p className="font-display text-4xl leading-none font-extrabold text-cmda-green-light">
