@@ -1,6 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { ArrowUpRight } from "lucide-react";
 import { CmsPage } from "@/components/site/CmsPage";
+import { PhotoGallery } from "@/components/site/PhotoGallery";
+import { IFEHL_GALLERY } from "@/components/site/gallery-data";
 import { fetchPageBySlug, fetchPageCounters } from "@/sanity/data";
 import { buttonVariants, Reveal, Section, SectionHead } from "@/components/site/primitives";
 import { cn } from "@/lib/utils";
@@ -157,6 +159,17 @@ function IfEhlPage() {
               </div>
             </Reveal>
           ))}
+        </div>
+      </Section>
+
+      <Section id="gallery" className="paper">
+        <SectionHead
+          eyebrow="Gallery"
+          title="Moments from our leadership programmes"
+          intro="Sessions, graduations and community life from the Basic and Advanced Leadership programmes."
+        />
+        <div className="mt-16">
+          <PhotoGallery photos={IFEHL_GALLERY} />
         </div>
       </Section>
     </CmsPage>

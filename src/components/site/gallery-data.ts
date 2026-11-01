@@ -9,6 +9,8 @@ function album(prefix: string, filePrefix: string, count: number, altBase: strin
 
 export const STUDENT_GALLERY = album("students", "students", 12, "CMDA Nigeria student fellowship");
 
+export const IFEHL_GALLERY = album("ifehl", "ifehl", 17, "IfEHL leadership training");
+
 export const CONFERENCE_GALLERY = album("conferences", "conference", 26, "CMDA Nigeria conference");
 
 export const WHOLENESS_ALBUMS: { title: string; photos: GalleryPhoto[] }[] = [

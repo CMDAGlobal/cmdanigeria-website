@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { CmsPage } from "@/components/site/CmsPage";
 import { ImpactStats } from "@/components/site/ImpactStats";
+import { ImpactHighlights } from "@/components/site/ImpactHighlights";
 import { ImpactStories } from "@/components/site/Stories";
 import { fetchChapterCounts, fetchPageBySlug } from "@/sanity/data";
 
@@ -37,6 +38,7 @@ function ImpactPage() {
       intro="Outreaches, scholarships, chapters and hospitals — here is what five decades of faithful service looks like in numbers and in stories."
     >
       <ImpactStats chapters={chapters} />
+      <ImpactHighlights />
       <ImpactStories />
     </CmsPage>
   );
