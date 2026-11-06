@@ -105,10 +105,22 @@ export const prescription = defineType({
       name: "body",
       title: "Body",
       description:
-        "The full issue. The dashboard edits this as markdown-lite (**bold**, [links], ## headings); inline photos are only safe to add here in Studio.",
+        "The full issue, built block by block in the dashboard: paragraphs, headings, photos, quotes, callouts, lists, dividers and buttons.",
       type: "array",
       of: [
-        defineArrayMember({ type: "block" }),
+        defineArrayMember({
+          type: "block",
+          styles: [
+            { title: "Normal", value: "normal" },
+            { title: "Heading", value: "h2" },
+            { title: "Subheading", value: "h3" },
+            { title: "Minor heading", value: "h4" },
+            { title: "Pull quote", value: "blockquote" },
+            { title: "Callout", value: "callout" },
+            { title: "Divider", value: "divider" },
+            { title: "Button / link", value: "button" },
+          ],
+        }),
         defineArrayMember({
           type: "image",
           options: { hotspot: true },

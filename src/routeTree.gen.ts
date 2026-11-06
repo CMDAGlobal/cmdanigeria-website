@@ -46,6 +46,7 @@ import { Route as NewsIndexRouteImport } from './routes/news/index'
 import { Route as NewsSlugRouteImport } from './routes/news/$slug'
 import { Route as PublicationsIndexRouteImport } from './routes/publications/index'
 import { Route as PublicationsSlugRouteImport } from './routes/publications/$slug'
+import { Route as PublicationsPrescriptionPreviewRouteImport } from './routes/publications/prescription-preview'
 import { Route as ZonesSlugRouteImport } from './routes/zones/$slug'
 import { Route as AdminLayoutIndexRouteImport } from './routes/admin/_layout/index'
 import { Route as AdminLayoutAnnouncementsRouteImport } from './routes/admin/_layout/announcements'
@@ -253,6 +254,12 @@ const PublicationsSlugRoute = PublicationsSlugRouteImport.update({
   path: '/publications/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PublicationsPrescriptionPreviewRoute =
+  PublicationsPrescriptionPreviewRouteImport.update({
+    id: '/publications/prescription-preview',
+    path: '/publications/prescription-preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ZonesSlugRoute = ZonesSlugRouteImport.update({
   id: '/zones/$slug',
   path: '/zones/$slug',
@@ -381,6 +388,7 @@ export interface FileRoutesByFullPath {
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/publications/prescription-preview': typeof PublicationsPrescriptionPreviewRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
@@ -438,6 +446,7 @@ export interface FileRoutesByTo {
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/publications/prescription-preview': typeof PublicationsPrescriptionPreviewRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about': typeof AboutIndexRoute
   '/chapters': typeof ChaptersIndexRoute
@@ -497,6 +506,7 @@ export interface FileRoutesById {
   '/ministries/wholeness-missions': typeof MinistriesWholenessMissionsRoute
   '/news/$slug': typeof NewsSlugRoute
   '/publications/$slug': typeof PublicationsSlugRoute
+  '/publications/prescription-preview': typeof PublicationsPrescriptionPreviewRoute
   '/zones/$slug': typeof ZonesSlugRoute
   '/about/': typeof AboutIndexRoute
   '/chapters/': typeof ChaptersIndexRoute
@@ -557,6 +567,7 @@ export interface FileRouteTypes {
     | '/ministries/wholeness-missions'
     | '/news/$slug'
     | '/publications/$slug'
+    | '/publications/prescription-preview'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
@@ -614,6 +625,7 @@ export interface FileRouteTypes {
     | '/ministries/wholeness-missions'
     | '/news/$slug'
     | '/publications/$slug'
+    | '/publications/prescription-preview'
     | '/zones/$slug'
     | '/about'
     | '/chapters'
@@ -672,6 +684,7 @@ export interface FileRouteTypes {
     | '/ministries/wholeness-missions'
     | '/news/$slug'
     | '/publications/$slug'
+    | '/publications/prescription-preview'
     | '/zones/$slug'
     | '/about/'
     | '/chapters/'
@@ -731,6 +744,7 @@ export interface RootRouteChildren {
   MinistriesWholenessMissionsRoute: typeof MinistriesWholenessMissionsRoute
   NewsSlugRoute: typeof NewsSlugRoute
   PublicationsSlugRoute: typeof PublicationsSlugRoute
+  PublicationsPrescriptionPreviewRoute: typeof PublicationsPrescriptionPreviewRoute
   ZonesSlugRoute: typeof ZonesSlugRoute
   AboutIndexRoute: typeof AboutIndexRoute
   ChaptersIndexRoute: typeof ChaptersIndexRoute
@@ -1003,6 +1017,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PublicationsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/publications/prescription-preview': {
+      id: '/publications/prescription-preview'
+      path: '/publications/prescription-preview'
+      fullPath: '/publications/prescription-preview'
+      preLoaderRoute: typeof PublicationsPrescriptionPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/zones/$slug': {
       id: '/zones/$slug'
       path: '/zones/$slug'
@@ -1215,6 +1236,7 @@ const rootRouteChildren: RootRouteChildren = {
   MinistriesWholenessMissionsRoute: MinistriesWholenessMissionsRoute,
   NewsSlugRoute: NewsSlugRoute,
   PublicationsSlugRoute: PublicationsSlugRoute,
+  PublicationsPrescriptionPreviewRoute: PublicationsPrescriptionPreviewRoute,
   ZonesSlugRoute: ZonesSlugRoute,
   AboutIndexRoute: AboutIndexRoute,
   ChaptersIndexRoute: ChaptersIndexRoute,

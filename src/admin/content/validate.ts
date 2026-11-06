@@ -257,8 +257,8 @@ export const MODULE_MUTATIONS: Record<ContentModuleKey, ModuleMutationConfig> = 
     auditPrefix: "publication",
     titleField: "title",
     required: ["title", "issueDate", "kind"],
-    // `body` is markdown-lite editable (bold/links/headings round-trip);
-    // inline Studio photos are preserved only while the body is untouched.
+    // `body` is built in the dashboard's block composer: text blocks round-trip
+    // and inline photos are kept as validated image blocks.
     allowed: [
       "title",
       "slug",
@@ -630,6 +630,8 @@ export function validateFields(
         throw new ContentInputError("invalid_input");
       }
       output[key] = parsed;
+    } else if (key === "body" && config.type === "prescription") {
+      output[key] = normalizeNewsletterBody(value);
     } else {
       output[key] = value;
     }
@@ -786,6 +788,53 @@ function normalizeSectionBody(value: unknown): unknown {
     return value;
   }
   throw new ContentInputError("invalid_input");
+}
+
+/**
+ * Newsletter body blocks: text blocks pass through untouched (the composer
+ * already emits Portable Text), while inline photos are rebuilt from a
+ * validated asset id so a malformed reference can never reach the content lake.
+ */
+function normalizeNewsletterBody(value: unknown): Array<Record<string, unknown>> {
+  if (value === null || value === undefined) return [];
+  if (typeof value === "string") {
+    if (value.length > MAX_FIELD_CHARS) throw new ContentInputError("invalid_input");
+    return bodyTextToBlocks(value);
+  }
+  if (!Array.isArray(value) || value.length > MAX_LIST_ITEMS) {
+    throw new ContentInputError("invalid_input");
+  }
+  const out: Array<Record<string, unknown>> = [];
+  for (const raw of value) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const block = raw as Record<string, unknown>;
+    if (block["_type"] !== "image") {
+      out.push(block);
+      continue;
+    }
+    const asset = block["asset"];
+    const ref =
+      asset && typeof asset === "object" && !Array.isArray(asset)
+        ? (asset as Record<string, unknown>)["_ref"]
+        : null;
+    if (typeof ref !== "string" || !IMAGE_ASSET_ID.test(ref)) {
+      throw new ContentInputError("invalid_input");
+    }
+    const image: Record<string, unknown> = {
+      _type: "image",
+      asset: { _type: "reference", _ref: ref },
+    };
+    for (const key of ["alt", "caption"] as const) {
+      const text = block[key];
+      if (typeof text !== "string" || !text.trim()) continue;
+      if (text.length > MAX_STRING_CHARS) throw new ContentInputError("invalid_input");
+      image[key] = text.trim();
+    }
+    out.push(image);
+  }
+  return out;
 }
 
 function normalizeStatItems(value: unknown): Array<Record<string, string>> {

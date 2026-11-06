@@ -21,7 +21,9 @@ export type FormFieldKind =
   /** Repeating rows of columns, each row one entry (resources). */
   | "list"
   /** Repeating rows of photo + alt + caption (chapter gallery). */
-  | "gallery";
+  | "gallery"
+  /** Newsletter composer: paragraphs, headings, photos, quotes, callouts, lists. */
+  | "blocks";
 
 export interface FormFieldOption {
   value: string;
@@ -63,7 +65,7 @@ const FILE_HELP =
 const ISSUE_NUMBER_HELP = "Shown as “#65” in the archive.";
 const URL_HELP = "Optional. Only if the issue lives somewhere else.";
 const BODY_HELP =
-  "One paragraph per line. **Bold**, [link text](https://…) and ## headings round-trip. Inline photos are dropped if you save the body here — for issues with photos, edit in Studio.";
+  "Build the issue block by block: paragraphs, headings, photos, quotes, callouts, lists and buttons. Drag the arrows to reorder.";
 const SEO_TITLE_HELP = "Optional. Overrides the browser tab / search result title.";
 const SEO_DESC_HELP = "Optional. Shown under the title in search results.";
 
@@ -308,7 +310,7 @@ export const MODULE_FORM_FIELDS: Record<ContentModuleKey, FormField[]> = {
     { name: "issueDate", label: "Issue date", kind: "date" },
     { name: "author", label: "Author", kind: "text", placeholder: "CMDA Nigeria" },
     { name: "summary", label: "Summary", kind: "textarea", rows: 3 },
-    { name: "body", label: "Issue body", kind: "rich", rows: 10, help: BODY_HELP },
+    { name: "body", label: "Issue content", kind: "blocks", help: BODY_HELP },
     { name: "coverImage", label: "Cover image", kind: "image" },
     { name: "coverAlt", label: "Cover alt text", kind: "text" },
     { name: "url", label: "Reading link", kind: "url", placeholder: "https://", help: URL_HELP },

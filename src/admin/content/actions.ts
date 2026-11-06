@@ -622,6 +622,13 @@ function docDetailQuery(config: ModuleMutationConfig): string {
         `"${key}": ${key}[]{ "assetId": image.asset._ref, "url": image.asset->url, alt, caption }`,
         key,
       );
+    } else if (key === "body" && config.type === "prescription") {
+      // Newsletter body blocks: images carry their asset id plus a preview URL
+      // so the dashboard composer can show the photo it already has.
+      add(
+        `"body": body[]{ ..., _type == "image" => { ..., "assetRef": asset._ref, "assetUrl": asset->url } }`,
+        key,
+      );
     } else {
       add(key, key);
     }

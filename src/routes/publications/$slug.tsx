@@ -2,6 +2,7 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { ArrowLeft, ArrowUpRight, CalendarDays, Download, User } from "lucide-react";
 
 import { PageHero } from "@/components/site/PageHero";
+import { NewsletterIssue } from "@/components/site/NewsletterIssue";
 import { PortableContent } from "@/components/site/portable";
 import { Reveal, Section, buttonVariants } from "@/components/site/primitives";
 import { fetchPrescription } from "@/sanity/data";
@@ -81,6 +82,28 @@ function PublicationDetailPage() {
   // `downloadUrl` is the external reading link when present, otherwise the
   // uploaded file — so the card and the detail page can share one field.
   const external = issue.url;
+
+  // The Prescription is a proper newsletter: block-composed body, masthead,
+  // contents list and subscribe card rather than the generic article layout.
+  if (issue.kind === "prescription") {
+    return (
+      <NewsletterIssue
+        issue={{
+          title: issue.title,
+          slug: issue.slug,
+          issueNumber: issue.issueNumber,
+          issueDate: issue.issueDate,
+          author: issue.author,
+          summary: issue.summary,
+          coverUrl,
+          coverAlt: issue.cover?.alt,
+          body: issue.body,
+          downloadUrl: issue.downloadUrl,
+          external: Boolean(external),
+        }}
+      />
+    );
+  }
 
   return (
     <>

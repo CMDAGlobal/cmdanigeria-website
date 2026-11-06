@@ -48,6 +48,12 @@ import {
   type ScopeUnitOption,
 } from "@/admin/content/forms";
 import { MODULE_MUTATIONS, assertSlug } from "@/admin/content/validate";
+import {
+  blocksToPortable,
+  parseBlocksJson,
+  portableToBlocks,
+  serializeBlocks,
+} from "@/admin/content/blocks";
 import type { ContentItem, ContentModuleKey } from "@/admin/content/types";
 import {
   useContentDoc,
@@ -57,6 +63,7 @@ import {
 } from "./admin-content";
 import { UnitMultiSelect } from "./UnitMultiSelect";
 import { MediaField } from "./MediaField";
+import { BlocksField } from "./BlocksField";
 
 export interface ContentEditorDialogProps {
   module: ContentModuleKey;
@@ -203,6 +210,8 @@ export function ContentEditorDialog({
         nextValues[field.name] = isoToLocalInput(raw);
       } else if (field.kind === "rich") {
         nextValues[field.name] = flattenPortableText(raw);
+      } else if (field.kind === "blocks") {
+        nextValues[field.name] = serializeBlocks(portableToBlocks(raw));
       } else if (field.kind === "tags") {
         nextValues[field.name] = tagsToText(raw);
       } else if (field.kind === "number") {
@@ -318,7 +327,12 @@ export function ContentEditorDialog({
       if (field.kind === "number" && Number.isNaN(Number(raw))) {
         return `${field.label} must be a number.`;
       }
-      if (field.kind === "object" || field.kind === "list" || field.kind === "gallery") {
+      if (
+        field.kind === "object" ||
+        field.kind === "list" ||
+        field.kind === "gallery" ||
+        field.kind === "blocks"
+      ) {
         let parsed: unknown = null;
         try {
           parsed = JSON.parse(raw);
@@ -357,6 +371,11 @@ export function ContentEditorDialog({
           break;
         case "rich": {
           const blocks = textToBlocks(raw);
+          if (blocks.length > 0) out[field.name] = blocks;
+          break;
+        }
+        case "blocks": {
+          const blocks = blocksToPortable(parseBlocksJson(raw));
           if (blocks.length > 0) out[field.name] = blocks;
           break;
         }
@@ -420,6 +439,9 @@ export function ContentEditorDialog({
           break;
         case "rich":
           out[field.name] = textToBlocks(now);
+          break;
+        case "blocks":
+          out[field.name] = blocksToPortable(parseBlocksJson(now));
           break;
         case "object": {
           const value = jsonToObject(field.columns ?? [], now);
@@ -596,6 +618,20 @@ export function ContentEditorDialog({
           </Select>
           {help}
         </div>
+      );
+    }
+
+    if (field.kind === "blocks") {
+      return (
+        <BlocksField
+          key={field.name}
+          id={id}
+          label={field.label}
+          module={module}
+          help={field.help}
+          value={values[field.name] ?? ""}
+          onChange={(next) => setValues((prev) => ({ ...prev, [field.name]: next }))}
+        />
       );
     }
 
