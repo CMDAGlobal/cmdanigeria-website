@@ -32,6 +32,12 @@ describe("applySecurityHeaders", () => {
     expect(SECURITY_HEADERS["Referrer-Policy"]).toBe("strict-origin-when-cross-origin");
   });
 
+  it("allows the fonts the site actually loads", () => {
+    const csp = SECURITY_HEADERS["Content-Security-Policy"] ?? "";
+    expect(csp).toContain("https://fonts.googleapis.com");
+    expect(csp).toContain("https://fonts.gstatic.com");
+  });
+
   it("still hardens responses with immutable headers (redirects)", () => {
     const res = applySecurityHeaders(Response.redirect("https://example.com/next", 302));
     expect(res.status).toBe(302);
