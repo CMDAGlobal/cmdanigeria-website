@@ -19,6 +19,27 @@ import {
 import { generateSessionToken } from "./tokens";
 import { verifyPassword } from "./password";
 import { PASSWORD_MIN_LENGTH, SESSION_COOKIE_NAME } from "./constants";
+import {
+  MAX_PASSWORD_LENGTH,
+  lockoutMessage,
+  retryAfterMs,
+  throttleKeys,
+  type ThrottleKeys,
+} from "./throttle";
+import {
+  clearLoginFailures,
+  noteLoginFailure,
+  pruneLoginThrottle,
+  readBucket,
+} from "./throttle-store";
+
+/**
+ * A real PBKDF2 hash of a value nobody knows. Verifying against it when the
+ * email does not exist keeps the failure path's cost identical to a wrong
+ * password, so response time cannot be used to enumerate accounts.
+ */
+const DUMMY_PASSWORD_HASH =
+  "pbkdf2$310000$xCQQO0LUTsk5texQinz+lA==$abfQ9QISXl5dDE/Ck+wgKty1ncoayfdBF0nlBlf0s7g=";
 
 interface RequestMeta {
   ipAddress: string | null;
@@ -64,12 +85,33 @@ export interface LoginResult {
 export async function loginWithPassword(email: string, password: string): Promise<LoginResult> {
   const meta = requestMeta();
   const normalizedEmail = normalizeEmail(email);
+  const now = Date.now();
+  const emailLooksValid = Boolean(normalizedEmail) && normalizedEmail.length <= 254;
+  const keys = throttleKeys(emailLooksValid ? normalizedEmail : "unknown", meta.ipAddress);
 
-  if (!normalizedEmail || normalizedEmail.length > 254) {
-    return failLogin("invalid_credentials", meta);
+  // 1. Refuse early when this identity (or host) is already locked out. Checked
+  //    before PBKDF2 so a flood of guesses costs the attacker a DB read, not a
+  //    full 310k-iteration derivation.
+  const lockedForMs = await currentLockoutMs(keys, now);
+  if (lockedForMs > 0) {
+    await recordAudit({
+      action: "auth.login",
+      outcome: "denied",
+      reason: "throttled",
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+    });
+    return { ok: false, error: lockoutMessage(lockedForMs) };
+  }
+
+  if (!emailLooksValid) {
+    return failLogin("invalid_credentials", meta, keys);
   }
   if (typeof password !== "string" || password.length < PASSWORD_MIN_LENGTH) {
-    return failLogin("invalid_credentials", meta);
+    return failLogin("invalid_credentials", meta, keys);
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    return failLogin("invalid_credentials", meta, keys);
   }
 
   try {
@@ -85,11 +127,17 @@ export async function loginWithPassword(email: string, password: string): Promis
     );
     const user = rows[0];
 
-    const validPassword = user ? await verifyPassword(password, user.password_hash) : false;
+    // Always run one derivation, whether or not the account exists.
+    const validPassword = await verifyPassword(
+      password,
+      user?.password_hash ?? DUMMY_PASSWORD_HASH,
+    );
     if (!user || !validPassword || !user.is_active) {
-      return failLogin("invalid_credentials", meta);
+      return failLogin("invalid_credentials", meta, keys);
     }
 
+    await clearLoginFailures(keys);
+    void pruneLoginThrottle();
     await deleteExpiredSessions();
 
     const token = generateSessionToken();
@@ -121,7 +169,26 @@ export async function loginWithPassword(email: string, password: string): Promis
   }
 }
 
-async function failLogin(reason: string, meta: RequestMeta): Promise<LoginResult> {
+async function currentLockoutMs(keys: ThrottleKeys, now: number): Promise<number> {
+  const ipBucket = keys.ip ? readBucket(keys.ip) : Promise.resolve(null);
+  const [perPair, perIp, perEmail] = await Promise.all([
+    readBucket(keys.emailIp),
+    ipBucket,
+    readBucket(keys.email),
+  ]);
+  return Math.max(
+    retryAfterMs(perPair, now),
+    retryAfterMs(perIp, now),
+    retryAfterMs(perEmail, now),
+  );
+}
+
+async function failLogin(
+  reason: string,
+  meta: RequestMeta,
+  keys: ThrottleKeys,
+): Promise<LoginResult> {
+  const lockedForMs = await noteLoginFailure(keys);
   await recordAudit({
     action: "auth.login",
     outcome: "denied",
@@ -129,6 +196,9 @@ async function failLogin(reason: string, meta: RequestMeta): Promise<LoginResult
     ipAddress: meta.ipAddress,
     userAgent: meta.userAgent,
   });
+  // Once the attempt trips a limit, say so — the account/IP is already known to
+  // be under attack, and hiding it only confuses the legitimate owner.
+  if (lockedForMs > 0) return { ok: false, error: lockoutMessage(lockedForMs) };
   return { ok: false, error: "Invalid email or password." };
 }
 

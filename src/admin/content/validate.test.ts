@@ -244,6 +244,38 @@ describe("validateFields", () => {
         { partial: false },
       ),
     ).toThrow(ContentInputError);
+    // Link destinations are reduced to web/mail/phone; script URLs never land.
+    const withUnsafeLink = validateFields(
+      publications,
+      {
+        title: "x",
+        issueDate: "2026-03-01",
+        kind: "prescription",
+        body: [
+          {
+            _type: "block",
+            style: "normal",
+            markDefs: [
+              { _type: "link", _key: "bad", href: "javascript:alert(1)" },
+              { _type: "link", _key: "good", href: "https://cmdanigeria.org" },
+            ],
+            children: [
+              { _type: "span", text: "one", marks: ["bad"] },
+              { _type: "span", text: "two", marks: ["good"] },
+            ],
+          },
+        ],
+      },
+      { partial: false },
+    );
+    const sanitized = (withUnsafeLink["body"] as Array<Record<string, unknown>>)[0];
+    expect(sanitized?.["markDefs"]).toEqual([
+      { _type: "link", _key: "good", href: "https://cmdanigeria.org" },
+    ]);
+    expect(sanitized?.["children"]).toEqual([
+      { _type: "span", text: "one", marks: [] },
+      { _type: "span", text: "two", marks: ["good"] },
+    ]);
     // Issue metadata the dashboard does own.
     const meta = validateFields(
       publications,

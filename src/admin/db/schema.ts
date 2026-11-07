@@ -84,4 +84,15 @@ export const ADMIN_DDL_STATEMENTS: readonly string[] = [
   `create index if not exists admin_audit_logs_created_idx on admin_audit_logs (created_at desc)`,
 
   `create index if not exists admin_audit_logs_actor_idx on admin_audit_logs (actor_user_id)`,
+
+  // Login throttling. One row per bucket key (`email-ip:…`, `ip:…`, `email:…`).
+  `create table if not exists admin_login_throttle (
+    key text primary key,
+    failures integer not null default 0,
+    window_started_at timestamptz not null default now(),
+    locked_until timestamptz,
+    updated_at timestamptz not null default now()
+  )`,
+
+  `create index if not exists admin_login_throttle_updated_idx on admin_login_throttle (updated_at)`,
 ] as const;

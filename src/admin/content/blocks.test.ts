@@ -140,6 +140,52 @@ describe("newsletter blocks", () => {
     expect(text).toBe("[Visit](https://cmdanigeria.org)");
   });
 
+  it("never writes a script URL into a link or button", () => {
+    const out = blocksToPortable([
+      { id: "p1", kind: "paragraph", text: "Read [this](javascript:alert) now" },
+      { id: "b1", kind: "button", label: "Click me", href: "javascript:alert" },
+      { id: "b2", kind: "button", label: "Safe", href: "https://example.com/ok" },
+    ]);
+
+    // The link annotation is dropped but its text survives.
+    expect(out[0]?.["markDefs"]).toEqual([]);
+    const children = (out[0]?.["children"] ?? []) as Array<{ text: string; marks: string[] }>;
+    expect(children.map((span) => span.text).join("")).toBe("Read this now");
+    expect(children.every((span) => span.marks.length === 0)).toBe(true);
+    // The unsafe button block is skipped entirely.
+    expect(out[1]?.["markDefs"]).toEqual([
+      { _type: "link", _key: "cta-link", href: "https://example.com/ok" },
+    ]);
+    expect(JSON.stringify(out)).not.toContain("javascript:");
+  });
+
+  it("drops unsafe links when reading stored content back", () => {
+    const blocks = portableToBlocks([
+      {
+        _type: "block",
+        style: "normal",
+        markDefs: [{ _type: "link", _key: "l1", href: "javascript:alert(1)" }],
+        children: [{ _type: "span", text: "Visit", marks: ["l1"] }],
+      },
+      {
+        _type: "block",
+        style: "button",
+        markDefs: [{ _type: "link", _key: "l2", href: "data:text/html,<script>" }],
+        children: [{ _type: "span", text: "Tap", marks: ["l2"] }],
+      },
+    ]);
+
+    expect(blocks[0]).toMatchObject({ kind: "paragraph", text: "Visit" });
+    expect(blocks[1]).toMatchObject({ kind: "button", label: "Tap", href: "" });
+  });
+
+  it("clears an unsafe href when sanitising editor state", () => {
+    const blocks = parseBlocksJson(
+      JSON.stringify([{ kind: "button", label: "Go", href: " javascript:alert(1)" }]),
+    );
+    expect(blocks[0]).toMatchObject({ kind: "button", href: "" });
+  });
+
   it("falls back safely on malformed editor state", () => {
     expect(parseBlocksJson("")).toEqual([]);
     expect(parseBlocksJson("not json")).toEqual([]);

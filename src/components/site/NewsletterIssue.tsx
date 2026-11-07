@@ -4,6 +4,7 @@ import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { ArrowUpRight, CalendarDays, Clock, Download, Mail, User } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { opensInNewTab, safeHref } from "@/lib/safe-href";
 import {
   asRecord,
   formatIssueMonth,
@@ -95,16 +96,20 @@ const components: PortableTextComponents = {
   marks: {
     strong: ({ children }) => <strong className="font-semibold text-foreground">{children}</strong>,
     em: ({ children }) => <em className="italic">{children}</em>,
-    link: ({ children, value }) => (
-      <a
-        href={value?.href}
-        target={value?.href?.startsWith("http") ? "_blank" : undefined}
-        rel="noopener noreferrer"
-        className="font-semibold text-cmda-green underline decoration-gold/60 underline-offset-4 hover:text-cmda-green-deep"
-      >
-        {children}
-      </a>
-    ),
+    link: ({ children, value }) => {
+      const href = safeHref(value?.href);
+      if (!href) return <>{children}</>;
+      return (
+        <a
+          href={href}
+          target={opensInNewTab(href) ? "_blank" : undefined}
+          rel="noopener noreferrer"
+          className="font-semibold text-cmda-green underline decoration-gold/60 underline-offset-4 hover:text-cmda-green-deep"
+        >
+          {children}
+        </a>
+      );
+    },
   },
   types: {
     image: ({ value }) => {

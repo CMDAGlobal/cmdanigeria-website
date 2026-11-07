@@ -1,5 +1,6 @@
 import { ARM_KEYS, type ArmKey } from "../rbac/roles";
 import type { PermissionKey } from "../rbac/permissions";
+import { safeHref } from "../../lib/safe-href";
 import { strArray } from "./scope";
 import type { ContentModuleKey, ContentScopeInput, ContentScopeMeta } from "./types";
 
@@ -795,6 +796,46 @@ function normalizeSectionBody(value: unknown): unknown {
  * already emits Portable Text), while inline photos are rebuilt from a
  * validated asset id so a malformed reference can never reach the content lake.
  */
+/**
+ * Strips link annotations whose destination is not a web/mail/phone URL.
+ * Applied on write so a `javascript:` href can never reach the content lake,
+ * even when the save comes from a client that skipped the composer's own guard.
+ */
+function sanitizePortableLinks(block: Record<string, unknown>): Record<string, unknown> {
+  const defs = block["markDefs"];
+  if (!Array.isArray(defs) || defs.length === 0) return block;
+
+  const kept: Array<Record<string, unknown>> = [];
+  const dropped = new Set<string>();
+  for (const raw of defs) {
+    if (!raw || typeof raw !== "object" || Array.isArray(raw)) continue;
+    const def = raw as Record<string, unknown>;
+    if (def["_type"] !== "link") {
+      kept.push(def);
+      continue;
+    }
+    const href = safeHref(def["href"]);
+    if (!href) {
+      if (typeof def["_key"] === "string") dropped.add(def["_key"]);
+      continue;
+    }
+    kept.push({ ...def, href });
+  }
+  if (dropped.size === 0) return { ...block, markDefs: kept };
+
+  const children = Array.isArray(block["children"]) ? block["children"] : [];
+  const cleaned = children.map((child) => {
+    if (!child || typeof child !== "object" || Array.isArray(child)) return child;
+    const span = child as Record<string, unknown>;
+    const marks = Array.isArray(span["marks"]) ? span["marks"] : [];
+    return {
+      ...span,
+      marks: marks.filter((mark) => typeof mark !== "string" || !dropped.has(mark)),
+    };
+  });
+  return { ...block, markDefs: kept, children: cleaned };
+}
+
 function normalizeNewsletterBody(value: unknown): Array<Record<string, unknown>> {
   if (value === null || value === undefined) return [];
   if (typeof value === "string") {
@@ -811,7 +852,7 @@ function normalizeNewsletterBody(value: unknown): Array<Record<string, unknown>>
     }
     const block = raw as Record<string, unknown>;
     if (block["_type"] !== "image") {
-      out.push(block);
+      out.push(sanitizePortableLinks(block));
       continue;
     }
     const asset = block["asset"];

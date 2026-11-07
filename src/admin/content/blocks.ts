@@ -1,4 +1,5 @@
 import { textToBlocks } from "./forms";
+import { safeHref } from "../../lib/safe-href";
 
 /**
  * Newsletter body blocks as the dashboard edits them. Each block is one unit
@@ -154,15 +155,17 @@ function inlineBlock(text: string, style: string): ParsedBlock {
       children: [{ _type: "span", text: "", marks: [] }],
     };
   }
-  const markDefs: MarkDefOut[] = parsed.markDefs.map((def) => ({
-    _type: "link",
-    _key: def._key,
-    href: def.href,
-  }));
+  const markDefs: MarkDefOut[] = [];
+  const dropped = new Set<string>();
+  for (const def of parsed.markDefs) {
+    const href = safeHref(def.href);
+    if (href) markDefs.push({ _type: "link", _key: def._key, href });
+    else dropped.add(def._key);
+  }
   const children: SpanOut[] = parsed.children.map((span) => ({
     _type: "span",
     text: span.text,
-    marks: [...span.marks],
+    marks: span.marks.filter((mark) => !dropped.has(mark)),
   }));
   return { _type: "block", style, markDefs, children };
 }
@@ -215,10 +218,11 @@ export function blocksToPortable(blocks: NewsletterBlock[]): PortableBlockOut[] 
         break;
       }
       case "button": {
-        if (!block.label.trim() || !block.href.trim()) break;
+        const href = safeHref(block.href.trim());
+        if (!block.label.trim() || !href) break;
         const parsed = inlineBlock(block.label, "normal");
         const key = "cta-link";
-        parsed.markDefs.push({ _type: "link", _key: key, href: block.href.trim() });
+        parsed.markDefs.push({ _type: "link", _key: key, href });
         parsed.children = parsed.children.map((span) => ({ ...span, marks: [...span.marks, key] }));
         out.push({ ...parsed });
         break;
@@ -248,7 +252,8 @@ export function blockToText(value: unknown): string {
       typeof def["_key"] === "string" &&
       typeof def["href"] === "string"
     ) {
-      hrefs.set(def["_key"], def["href"]);
+      const href = safeHref(def["href"]);
+      if (href) hrefs.set(def["_key"], href);
     }
   }
   const children = Array.isArray(block["children"]) ? block["children"] : [];
@@ -275,7 +280,10 @@ function firstLink(block: Record<string, unknown>): string {
   const defs = Array.isArray(block["markDefs"]) ? block["markDefs"] : [];
   for (const raw of defs) {
     const def = asRecord(raw);
-    if (def && def["_type"] === "link" && typeof def["href"] === "string") return def["href"];
+    if (def && def["_type"] === "link" && typeof def["href"] === "string") {
+      const href = safeHref(def["href"]);
+      if (href) return href;
+    }
   }
   return "";
 }
@@ -414,7 +422,7 @@ function sanitizeBlock(raw: unknown): NewsletterBlock | null {
         id: newBlockId("button"),
         kind,
         label: readString(entry["label"]),
-        href: readString(entry["href"]),
+        href: safeHref(readString(entry["href"])) ?? "",
       };
     default:
       return null;
