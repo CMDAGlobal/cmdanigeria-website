@@ -4,6 +4,8 @@ import { useState, type FormEvent } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { UserPlus, Users, X } from "lucide-react";
 
+import { PASSWORD_POLICY_MIN_LENGTH } from "@/admin/auth/password-policy";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -202,7 +204,9 @@ function AdminUsersPage() {
     if (mode === "create") {
       if (!name.trim()) return "Enter the administrator’s name.";
       if (!email.trim()) return "Enter an email address.";
-      if (password.length < 8) return "Password must be at least 8 characters.";
+      if (password.length < PASSWORD_POLICY_MIN_LENGTH) {
+        return `Password must be at least ${PASSWORD_POLICY_MIN_LENGTH} characters.`;
+      }
     }
     return null;
   }
@@ -485,7 +489,10 @@ function AdminUsersPage() {
                     onChange={(event) => setPassword(event.target.value)}
                     autoComplete="new-password"
                   />
-                  <p className="text-xs text-muted-foreground">At least 8 characters.</p>
+                  <p className="text-xs text-muted-foreground">
+                    At least {PASSWORD_POLICY_MIN_LENGTH} characters. Avoid names, emails and common
+                    phrases.
+                  </p>
                 </div>
               </>
             ) : null}

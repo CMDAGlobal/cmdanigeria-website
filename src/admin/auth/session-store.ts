@@ -1,5 +1,5 @@
 import { query } from "../db/client";
-import { adminSessionTtlMs } from "../config";
+import { adminSessionIdleMs, adminSessionTtlMs } from "../config";
 import { hashToken } from "./tokens";
 
 export interface SessionUserRow {
@@ -46,9 +46,12 @@ export async function createSessionRecord(
 
 /**
  * Resolves a raw cookie token to its session row (plus the owning user) when
- * the session is valid and has not expired or been revoked.
+ * the session is valid: not expired, not revoked, not idle beyond the timeout.
  */
-export async function findValidSession(rawToken: string): Promise<SessionLookupResult | null> {
+export async function findValidSession(
+  rawToken: string,
+  idleMs: number = adminSessionIdleMs(),
+): Promise<SessionLookupResult | null> {
   const tokenHash = await hashToken(rawToken);
   const rows = await query<{
     session_id: string;
@@ -72,8 +75,10 @@ export async function findValidSession(rawToken: string): Promise<SessionLookupR
      where s.token_hash = $1
        and s.revoked_at is null
        and s.expires_at > now()
+       and (s.last_seen_at is null
+            or s.last_seen_at > now() - ($2::int * interval '1 millisecond'))
      limit 1`,
-    [tokenHash],
+    [tokenHash, idleMs],
   );
   const row = rows[0];
   if (!row) return null;
@@ -108,6 +113,34 @@ export async function revokeSessionByToken(rawToken: string): Promise<void> {
     `update admin_sessions set revoked_at = now() where token_hash = $1 and revoked_at is null`,
     [tokenHash],
   );
+}
+
+/** Revokes every live session for a user, including the caller's. */
+export async function revokeAllSessions(userId: string): Promise<number> {
+  const rows = await query<{ id: string }>(
+    `update admin_sessions set revoked_at = now()
+      where user_id = $1 and revoked_at is null
+      returning id`,
+    [userId],
+  );
+  return rows.length;
+}
+
+/**
+ * Revokes every live session for a user except the one making the request.
+ * Used after a password change: other devices must sign in again.
+ */
+export async function revokeOtherSessions(userId: string, rawToken: string): Promise<number> {
+  const tokenHash = await hashToken(rawToken);
+  const rows = await query<{ id: string }>(
+    `update admin_sessions set revoked_at = now()
+      where user_id = $1
+        and revoked_at is null
+        and token_hash <> $2
+      returning id`,
+    [userId, tokenHash],
+  );
+  return rows.length;
 }
 
 export async function deleteExpiredSessions(): Promise<void> {

@@ -13,12 +13,19 @@ import {
   deleteExpiredSessions,
   createSessionRecord,
   findValidSession,
+  revokeAllSessions,
+  revokeOtherSessions,
   revokeSessionByToken,
   touchSession,
 } from "./session-store";
 import { generateSessionToken } from "./tokens";
-import { verifyPassword } from "./password";
+import { hashPassword, verifyPassword } from "./password";
 import { PASSWORD_MIN_LENGTH, SESSION_COOKIE_NAME } from "./constants";
+import {
+  checkPasswordPolicy,
+  passwordPolicyMessage,
+  type PasswordProblem,
+} from "./password-policy";
 import {
   MAX_PASSWORD_LENGTH,
   lockoutMessage,
@@ -271,6 +278,126 @@ export async function logout(meta?: RequestMeta): Promise<{ ok: true }> {
     userAgent: request.userAgent,
   });
   return { ok: true };
+}
+
+/**
+ * Signs the current user out of every device, including this one. Used when an
+ * admin suspects a session was stolen or has finished with a shared machine.
+ */
+export async function logoutEverywhere(): Promise<{ ok: true }> {
+  const meta = requestMeta();
+  const token = getCookie(SESSION_COOKIE_NAME);
+  const found = token ? await findValidSession(token) : null;
+  if (found) {
+    await revokeAllSessions(found.user.id);
+  }
+  deleteCookie(SESSION_COOKIE_NAME, { path: "/" });
+  await recordAudit({
+    action: "auth.logout_all",
+    outcome: "success",
+    actorUserId: found?.user.id ?? null,
+    ipAddress: meta.ipAddress,
+    userAgent: meta.userAgent,
+  });
+  return { ok: true };
+}
+
+export interface ChangePasswordResult {
+  ok: boolean;
+  error?: string;
+  /** Number of other devices that were signed out. */
+  revokedSessions?: number;
+}
+
+/**
+ * Rotates the signed-in user's own password. Requires the current password
+ * (so a borrowed session cannot silently take over the account) and revokes
+ * every other session on success.
+ */
+export async function changePassword(input: {
+  currentPassword?: unknown;
+  newPassword?: unknown;
+}): Promise<ChangePasswordResult> {
+  const meta = requestMeta();
+  const token = getCookie(SESSION_COOKIE_NAME);
+  if (!token) {
+    return { ok: false, error: "Your session has expired. Please sign in again." };
+  }
+
+  const found = await findValidSession(token);
+  if (!found) {
+    deleteCookie(SESSION_COOKIE_NAME, { path: "/" });
+    return { ok: false, error: "Your session has expired. Please sign in again." };
+  }
+
+  const currentPassword = typeof input?.currentPassword === "string" ? input.currentPassword : "";
+  const newPassword = typeof input?.newPassword === "string" ? input.newPassword : "";
+
+  try {
+    const rows = await query<{ password_hash: string }>(
+      `select password_hash from admin_users where id = $1 limit 1`,
+      [found.user.id],
+    );
+    const stored = rows[0]?.password_hash;
+    if (
+      !stored ||
+      typeof currentPassword !== "string" ||
+      currentPassword.length === 0 ||
+      !(await verifyPassword(currentPassword, stored))
+    ) {
+      await recordAudit({
+        actorUserId: found.user.id,
+        action: "auth.password_change",
+        outcome: "denied",
+        reason: "invalid_password",
+        ipAddress: meta.ipAddress,
+        userAgent: meta.userAgent,
+      });
+      return { ok: false, error: "Your current password is incorrect." };
+    }
+
+    const problem: PasswordProblem | null = checkPasswordPolicy(newPassword, {
+      email: found.user.email,
+      name: found.user.name,
+    });
+    if (problem) {
+      return { ok: false, error: passwordPolicyMessage(problem) };
+    }
+    if (newPassword === currentPassword) {
+      return { ok: false, error: "Choose a password you have not used before." };
+    }
+
+    const passwordHash = await hashPassword(newPassword);
+    await query(`update admin_users set password_hash = $2, updated_at = now() where id = $1`, [
+      found.user.id,
+      passwordHash,
+    ]);
+    const revokedSessions = await revokeOtherSessions(found.user.id, token);
+
+    await recordAudit({
+      actorUserId: found.user.id,
+      action: "auth.password_change",
+      targetType: "admin_user",
+      targetId: found.user.id,
+      outcome: "success",
+      reason: `revoked_sessions:${revokedSessions}`,
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+    });
+
+    return { ok: true, revokedSessions };
+  } catch (error) {
+    console.error("[admin:auth] password change failed unexpectedly", error);
+    await recordAudit({
+      actorUserId: found.user.id,
+      action: "auth.password_change",
+      outcome: "error",
+      reason: "unexpected_error",
+      ipAddress: meta.ipAddress,
+      userAgent: meta.userAgent,
+    });
+    return { ok: false, error: "Something went wrong. Please try again." };
+  }
 }
 
 export type { AdminUserRecord };

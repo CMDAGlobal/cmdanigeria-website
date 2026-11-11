@@ -4,7 +4,7 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, type ComponentType, type ReactNode } from "react";
 import { toast } from "sonner";
-import { Menu, X, LogOut, ShieldCheck } from "lucide-react";
+import { Menu, X, LogOut, KeyRound, ShieldOff, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -17,10 +17,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { logoutAction } from "@/admin/auth/server";
+import { logoutAction, logoutAllAction } from "@/admin/auth/server";
 import { cn } from "@/lib/utils";
 import { scopeLabel } from "./admin-session";
 import type { AdminSession } from "./admin-session";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { isChapterDashboard, navLabel, visibleNavItems } from "./nav-items";
 import { useMyChapter } from "./admin-content";
 
@@ -127,11 +128,24 @@ function AdminTopbar({
   const chapterOnly = isChapterDashboard(session);
   const chapter = useMyChapter(chapterOnly);
   const current = visibleNavItems(session).find((item) => item.href === location.pathname);
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
   async function handleLogout() {
     try {
       await logoutAction();
       await queryClient.invalidateQueries({ queryKey: ["admin-session"] });
+      window.location.href = "/admin/login";
+    } catch (error) {
+      console.error(error);
+      toast.error("Could not sign you out. Please try again.");
+    }
+  }
+
+  async function handleLogoutEverywhere() {
+    try {
+      await logoutAllAction();
+      await queryClient.invalidateQueries({ queryKey: ["admin-session"] });
+      toast.success("Signed out of all devices.");
       window.location.href = "/admin/login";
     } catch (error) {
       console.error(error);
@@ -209,6 +223,15 @@ function AdminTopbar({
               )}
             </div>
             <DropdownMenuSeparator />
+            <DropdownMenuItem onClick={() => setPasswordOpen(true)} className="cursor-pointer">
+              <KeyRound className="h-4 w-4" />
+              Change password
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={handleLogoutEverywhere} className="cursor-pointer">
+              <ShieldOff className="h-4 w-4" />
+              Sign out everywhere
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
             <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive">
               <LogOut className="h-4 w-4" />
               Sign out
@@ -216,6 +239,8 @@ function AdminTopbar({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      <ChangePasswordDialog open={passwordOpen} onOpenChange={setPasswordOpen} />
     </header>
   );
 }

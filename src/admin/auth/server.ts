@@ -29,6 +29,28 @@ export const logoutAction = createServerFn({ method: "POST", strict: false }).ha
   },
 );
 
+export const logoutAllAction = createServerFn({ method: "POST", strict: false }).handler(
+  async (): Promise<{ ok: boolean }> => {
+    const { logoutEverywhere } = await import("./actions");
+    return logoutEverywhere();
+  },
+);
+
+export interface ChangePasswordInput {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export const changePasswordAction = createServerFn({ method: "POST", strict: false })
+  .validator((input: ChangePasswordInput) => input)
+  .handler(async ({ data }): Promise<{ ok: boolean; error?: string; revokedSessions?: number }> => {
+    const { changePassword } = await import("./actions");
+    return changePassword({
+      currentPassword: data?.currentPassword,
+      newPassword: data?.newPassword,
+    });
+  });
+
 export const meAction = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<{
     user: { id: string; email: string; name: string } | null;

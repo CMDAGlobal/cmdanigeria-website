@@ -1,7 +1,7 @@
 import { query } from "../db/client";
 import { getCurrentActor } from "../auth/actions";
 import { hashPassword } from "../auth/password";
-import { PASSWORD_MIN_LENGTH } from "../auth/constants";
+import { checkPasswordPolicy, passwordPolicyMessage } from "../auth/password-policy";
 import { recordAudit } from "../audit/record";
 import { AuthorizationError, isSystemScope, scopeContains, type Actor } from "../rbac/engine";
 import {
@@ -362,7 +362,11 @@ const MUTATION_MESSAGES: Record<string, string> = {
   role_assignment_denied: "You are not allowed to grant that role.",
   invalid_scope: "Choose a valid scope for the selected role.",
   invalid_input: "Check the details and try again.",
-  weak_password: `Password must be at least ${PASSWORD_MIN_LENGTH} characters.`,
+  too_short: passwordPolicyMessage("too_short"),
+  too_long: passwordPolicyMessage("too_long"),
+  too_common: passwordPolicyMessage("too_common"),
+  matches_identity: passwordPolicyMessage("matches_identity"),
+  repeated_character: passwordPolicyMessage("repeated_character"),
   unknown_role: "That role is not configured. Run the admin migration first.",
   user_not_found: "That administrator account was not found.",
   last_super_admin: "At least one active Super Admin account is required.",
@@ -558,8 +562,9 @@ export async function createAdminUser(input: CreateUserInput): Promise<MutationR
         permission: "users.write",
       });
     }
-    if (password.length < PASSWORD_MIN_LENGTH) {
-      throw new AuthorizationError("weak_password", {
+    const passwordProblem = checkPasswordPolicy(password, { email, name });
+    if (passwordProblem) {
+      throw new AuthorizationError(passwordProblem, {
         actorUserId: session.user.id,
         permission: "users.write",
       });
