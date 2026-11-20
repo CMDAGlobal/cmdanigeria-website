@@ -5,6 +5,7 @@ import type {
   ArmOverview,
   ChapterDetail,
   EventRecord,
+  LeaderRecord,
   LeadershipTeams,
   RegionDetail,
   RegionListEntry,
@@ -843,8 +844,424 @@ export function fallbackDoctorsArm(): ArmOverview {
   return overviewFromZones("doctors", doctorZones, doctorEvents);
 }
 
+const fallbackGoverningBoard: LeaderRecord[] = [
+  {
+    _id: "leader-gb-zumnan-gimba",
+    name: "Dr. Zumnan Mark Gimba",
+    slug: { current: "dr-zumnan-mark-gimba" },
+    position: "National President",
+    chapter: "Plateau Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-zumnan-mark-gimba.png" },
+      alt: "Dr. Zumnan Mark Gimba",
+    },
+    order: 1,
+  },
+  {
+    _id: "leader-gb-pfongkazah-didamson",
+    name: "Dr. Pfongkazah Daniel Didamson",
+    slug: { current: "dr-pfongkazah-daniel-didamson" },
+    position: "Vice President North",
+    chapter: "Zaria Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-pfongkazah-daniel-didamson.png" },
+      alt: "Dr. Pfongkazah Daniel Didamson",
+    },
+    order: 2,
+  },
+  {
+    _id: "leader-gb-ogonna-nwankwo",
+    name: "Dr. Ogonna Nwankwo",
+    slug: { current: "dr-ogonna-nwankwo" },
+    position: "Vice President East",
+    chapter: "Cross River Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ogonna-nwankwo.png" },
+      alt: "Dr. Ogonna Nwankwo",
+    },
+    order: 3,
+  },
+  {
+    _id: "leader-gb-simeon-olateju",
+    name: "Dr. Simeon Olugbade Olateju",
+    slug: { current: "dr-simeon-olugbade-olateju" },
+    position: "Vice President West",
+    chapter: "Ile-Ife Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-simeon-olugbade-olateju.jpg" },
+      alt: "Dr. Simeon Olugbade Olateju",
+    },
+    order: 4,
+  },
+  {
+    _id: "leader-gb-olufemi-ogundipe",
+    name: "Dr. Olufemi Kolawole Ogundipe",
+    slug: { current: "dr-olufemi-kolawole-ogundipe" },
+    position: "Chair, Board Committee on Professional Development",
+    chapter: "Ife Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-olufemi-kolawole-ogundipe.png" },
+      alt: "Dr. Olufemi Kolawole Ogundipe",
+    },
+    order: 5,
+  },
+  {
+    _id: "leader-gb-godwin-ewu",
+    name: "Dr. Godwin Adamba Ewu",
+    slug: { current: "dr-godwin-adamba-ewu" },
+    position: "Chair, Prayer and Welfare Committee",
+    chapter: "Gwagwalada Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-godwin-adamba-ewu.jpg" },
+      alt: "Dr. Godwin Adamba Ewu",
+    },
+    order: 6,
+  },
+  {
+    _id: "leader-gb-gloria-imhonopi",
+    name: "Dr. Gloria Bosede Imhonopi",
+    slug: { current: "dr-gloria-bosede-imhonopi" },
+    position: "National Treasurer / Chair, Finance Committee",
+    chapter: "FMC Abeokuta Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-gloria-bosede-imhonopi.jpg" },
+      alt: "Dr. Gloria Bosede Imhonopi",
+    },
+    order: 7,
+  },
+  {
+    _id: "leader-gb-babatunde-oderinde",
+    name: "Dr. Babatunde Samuel Oderinde",
+    slug: { current: "dr-babatunde-samuel-oderinde" },
+    position: "Chair, Board Committee on Missions",
+    chapter: "Osun Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-babatunde-samuel-oderinde.png" },
+      alt: "Dr. Babatunde Samuel Oderinde",
+    },
+    order: 8,
+  },
+  {
+    _id: "leader-gb-alexander-akor",
+    name: "Dr. Alexander Akor",
+    slug: { current: "dr-alexander-akor" },
+    position: "Internal Auditor",
+    chapter: "Gwagwalada Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-alexander-akor.png" },
+      alt: "Dr. Alexander Akor",
+    },
+    order: 9,
+  },
+  {
+    _id: "leader-gb-ayodele-iyun",
+    name: "Dr. Ayodele Olukayode Iyun",
+    slug: { current: "dr-ayodele-olukayode-iyun" },
+    position: "National Ex-Officio",
+    chapter: "Ibadan Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ayodele-olukayode-iyun.png" },
+      alt: "Dr. Ayodele Olukayode Iyun",
+    },
+    order: 10,
+  },
+];
+
+const fallbackBoardOfTrustees: LeaderRecord[] = [
+  {
+    _id: "leader-bot-ipalibo-banigo",
+    name: "Dr. Ipalibo Gogo Banigo",
+    slug: { current: "dr-ipalibo-gogo-banigo" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ipalibo-gogo-banigo.jpg" },
+      alt: "Dr. Ipalibo Gogo Banigo",
+    },
+    order: 1,
+  },
+  {
+    _id: "leader-bot-philip-olatunji",
+    name: "Prof. Philip Olusola Olatunji",
+    slug: { current: "prof-philip-olusola-olatunji" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/prof-philip-olusola-olatunji.jpg" },
+      alt: "Prof. Philip Olusola Olatunji",
+    },
+    order: 2,
+  },
+  {
+    _id: "leader-bot-christian-isichei",
+    name: "Prof. Christian Ogoegbunam Isichei",
+    slug: { current: "prof-christian-ogoegbunam-isichei" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/prof-christian-ogoegbunam-isichei.jpg" },
+      alt: "Prof. Christian Ogoegbunam Isichei",
+    },
+    order: 3,
+  },
+  {
+    _id: "leader-bot-osemwen-asemota",
+    name: "Dr. Osemwen Asemota",
+    slug: { current: "dr-osemwen-asemota" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-osemwen-asemota.jpg" },
+      alt: "Dr. Osemwen Asemota",
+    },
+    order: 4,
+  },
+  {
+    _id: "leader-bot-ademola-adeyinka",
+    name: "Dr. Ademola Adeyinka",
+    slug: { current: "dr-ademola-adeyinka" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ademola-adeyinka.jpg" },
+      alt: "Dr. Ademola Adeyinka",
+    },
+    order: 5,
+  },
+  {
+    _id: "leader-bot-godwin-uwaoma",
+    name: "Dr. Godwin Iheanyi Uwaoma",
+    slug: { current: "dr-godwin-iheanyi-uwaoma" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-godwin-iheanyi-uwaoma.jpg" },
+      alt: "Dr. Godwin Iheanyi Uwaoma",
+    },
+    order: 6,
+  },
+  {
+    _id: "leader-bot-ayodele-iyun",
+    name: "Dr. Ayodele Olukayode Iyun",
+    slug: { current: "dr-ayodele-olukayode-iyun-bot" },
+    position: "Trustee",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ayodele-olukayode-iyun-bot.png" },
+      alt: "Dr. Ayodele Olukayode Iyun",
+    },
+    order: 7,
+  },
+];
+
+const fallbackManagementTeam: LeaderRecord[] = [
+  {
+    _id: "leader-mgmt-chima-onoka",
+    name: "Prof. Chima Ariel Onoka",
+    slug: { current: "prof-chima-ariel-onoka" },
+    position: "Chief Executive Officer",
+    chapter: "Abuja Municipal Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/prof-chima-ariel-onoka.png" },
+      alt: "Prof. Chima Ariel Onoka",
+    },
+    order: 1,
+  },
+  {
+    _id: "leader-mgmt-eghe-aihie",
+    name: "Dr. Eghe Osawaru Aihie",
+    slug: { current: "dr-eghe-osawaru-aihie" },
+    position: "Deputy Chief Executive Officer (1)",
+    chapter: "Benin Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-eghe-osawaru-aihie.jpg" },
+      alt: "Dr. Eghe Osawaru Aihie",
+    },
+    order: 2,
+  },
+  {
+    _id: "leader-mgmt-alex-ibrahim",
+    name: "Dr. Etubi Alex Ibrahim",
+    slug: { current: "dr-etubi-alex-ibrahim" },
+    position: "Deputy Chief Executive Officer (2)",
+    chapter: "FCT-Gwagwalada Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/alex-etubi-ibrahim.png" },
+      alt: "Dr. Etubi Alex Ibrahim",
+    },
+    order: 3,
+  },
+  {
+    _id: "leader-mgmt-chukwuebuka-ugwu",
+    name: "Dr. Chukwuebuka Ugwu",
+    slug: { current: "dr-chukwuebuka-ugwu" },
+    position: "Director, Research, Ethics & Editorial",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-chukwuebuka-ugwu.png" },
+      alt: "Dr. Chukwuebuka Ugwu",
+    },
+    order: 4,
+  },
+  {
+    _id: "leader-mgmt-ifeyinwa-amamilo",
+    name: "Dr. Ifeyinwa Amamilo",
+    slug: { current: "dr-ifeyinwa-amamilo" },
+    position: "Director, Resource Mobilization & Financial Control",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ifeyinwa-amamilo.jpeg" },
+      alt: "Dr. Ifeyinwa Amamilo",
+    },
+    order: 5,
+  },
+  {
+    _id: "leader-mgmt-ikechukwuka-alioke",
+    name: "Dr. Ikechukwuka Alioke",
+    slug: { current: "dr-ikechukwuka-alioke" },
+    position: "Director, Wholeness Missions",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ikechukwuka-alioke.png" },
+      alt: "Dr. Ikechukwuka Alioke",
+    },
+    order: 6,
+  },
+  {
+    _id: "leader-mgmt-felix-wina",
+    name: "Dr. Felix Wina",
+    slug: { current: "dr-felix-wina" },
+    position: "Director, IMM",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-felix-wina.png" },
+      alt: "Dr. Felix Wina",
+    },
+    order: 7,
+  },
+  {
+    _id: "leader-mgmt-ferdinand-ogbaji",
+    name: "Dr. Ferdinand Ibu Ogbaji",
+    slug: { current: "dr-ferdinand-ibu-ogbaji" },
+    position: "Dean, IfEHL Basic Course",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-ferdinand-ibu-ogbaji.png" },
+      alt: "Dr. Ferdinand Ibu Ogbaji",
+    },
+    order: 8,
+  },
+  {
+    _id: "leader-mgmt-haningh-ngalato",
+    name: "Dr. Haningh Ngalato",
+    slug: { current: "dr-haningh-ngalato" },
+    position: "Director, CPD",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-haningh-ngalato.png" },
+      alt: "Dr. Haningh Ngalato",
+    },
+    order: 9,
+  },
+  {
+    _id: "leader-mgmt-victor-ayeni",
+    name: "Dr. Victor Ayodeji Ayeni",
+    slug: { current: "dr-victor-ayodeji-ayeni" },
+    position: "Zonal Liaison Officer (West)",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-victor-ayodeji-ayeni.png" },
+      alt: "Dr. Victor Ayodeji Ayeni",
+    },
+    order: 10,
+  },
+  {
+    _id: "leader-mgmt-komommo-iwara",
+    name: "Dr. Komommo Joemmanel Iwara",
+    slug: { current: "dr-komommo-joemmanel-iwara" },
+    position: "Zonal Liaison Officer (East)",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-komommo-joemmanel-iwara.jpg" },
+      alt: "Dr. Komommo Joemmanel Iwara",
+    },
+    order: 11,
+  },
+  {
+    _id: "leader-mgmt-musa-mathew",
+    name: "Dr. Musa Bafeshi Mathew",
+    slug: { current: "dr-musa-bafeshi-mathew" },
+    position: "Zonal Liaison Officer (North)",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/dr-musa-bafeshi-mathew.jpeg" },
+      alt: "Dr. Musa Bafeshi Mathew",
+    },
+    order: 12,
+  },
+  {
+    _id: "leader-mgmt-raymond-ogbaji",
+    name: "Mr. Raymond Ogbaji",
+    slug: { current: "mr-raymond-ogbaji" },
+    position: "Operations Lead / Secretariat Team Lead",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/mr-raymond-ogbaji.png" },
+      alt: "Mr. Raymond Ogbaji",
+    },
+    order: 13,
+  },
+];
+
+const fallbackStudentNec: LeaderRecord[] = [
+  {
+    _id: "leader-nec-kpoughor-watchman",
+    name: "Kpoughor Watchman",
+    slug: { current: "kpoughor-watchman" },
+    position: "Students National President",
+    chapter: "JUTH Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/kpoughor-watchman.jpg" },
+      alt: "Kpoughor Watchman",
+    },
+    order: 1,
+  },
+  {
+    _id: "leader-nec-covenant-osondu",
+    name: "Covenant Onyedikachukwu Osondu",
+    slug: { current: "covenant-onyedikachukwu-osondu" },
+    position: "Students National Ex-Officio",
+    chapter: "UBTH Chapter",
+    country: "Nigeria",
+    headshot: {
+      asset: { url: "/images/leaders/covenant-onyedikachukwu-osondu.jpg" },
+      alt: "Covenant Onyedikachukwu Osondu",
+    },
+    order: 2,
+  },
+];
+
 export function fallbackLeadership(): LeadershipTeams {
-  return { boardOfTrustees: [], governingBoard: [], managementTeam: [], studentNec: [] };
+  return {
+    boardOfTrustees: fallbackBoardOfTrustees,
+    governingBoard: fallbackGoverningBoard,
+    managementTeam: fallbackManagementTeam,
+    studentNec: fallbackStudentNec,
+  };
 }
 
 function overviewFromZones(arm: Arm, zones: FallbackZone[], events: EventRecord[]): ArmOverview {
