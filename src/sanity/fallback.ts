@@ -836,13 +836,7 @@ const doctorEvents: EventRecord[] = [
   },
 ];
 
-export function fallbackStudentsArm(): ArmOverview {
-  return overviewFromZones("students", studentZones, studentEvents);
-}
 
-export function fallbackDoctorsArm(): ArmOverview {
-  return overviewFromZones("doctors", doctorZones, doctorEvents);
-}
 
 const fallbackGoverningBoard: LeaderRecord[] = [
   {
@@ -1291,6 +1285,16 @@ function overviewFromZones(arm: Arm, zones: FallbackZone[], events: EventRecord[
     events,
     announcements: [],
   };
+}
+
+export function fallbackStudentsArm(): ArmOverview {
+  const base = overviewFromZones("students", studentZones, studentEvents);
+  return { ...base, nec: fallbackStudentNec };
+}
+
+export function fallbackDoctorsArm(): ArmOverview {
+  const base = overviewFromZones("doctors", doctorZones, doctorEvents);
+  return { ...base, nec: fallbackGoverningBoard };
 }
 
 const allZones = [...studentZones, ...doctorZones];

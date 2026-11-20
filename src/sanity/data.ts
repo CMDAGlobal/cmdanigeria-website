@@ -95,15 +95,16 @@ export const fetchArmOverview = createServerFn({ method: "GET", strict: false })
         client.fetch<EventRecord[] | null>(armEventsQuery, { arm: data }),
         client.fetch<AnnouncementRecord[] | null>(armAnnouncementsQuery, { arm: data }),
       ]);
+      const fallback = data === "students" ? fallbackStudentsArm() : fallbackDoctorsArm();
       return {
-        nec: nec ?? [],
+        nec: nec?.length ? nec : fallback.nec,
         zones: (zones ?? []).filter((zone) => (zone.chapterCount ?? 0) > 0),
-        events: events ?? [],
+        events: events?.length ? events : fallback.events,
         announcements: announcements ?? [],
       };
     } catch (error) {
       console.error(`[sanity] fetchArmOverview failed for ${data}`, error);
-      return { zones: [], nec: [], events: [], announcements: [] };
+      return data === "students" ? fallbackStudentsArm() : fallbackDoctorsArm();
     }
   });
 
@@ -155,14 +156,21 @@ export const fetchZone = createServerFn({ method: "GET", strict: false })
 
 export const fetchLeadership = createServerFn({ method: "GET", strict: false }).handler(
   async (): Promise<LeadershipTeams> => {
+    const fallback = fallbackLeadership();
     const client = getClient();
-    if (!client) return fallbackLeadership();
+    if (!client) return fallback;
     try {
       const teams = await client.fetch<LeadershipTeams | null>(leadershipQuery);
-      return teams ?? fallbackLeadership();
+      if (!teams) return fallback;
+      return {
+        boardOfTrustees: teams.boardOfTrustees?.length ? teams.boardOfTrustees : fallback.boardOfTrustees,
+        governingBoard: teams.governingBoard?.length ? teams.governingBoard : fallback.governingBoard,
+        managementTeam: teams.managementTeam?.length ? teams.managementTeam : fallback.managementTeam,
+        studentNec: teams.studentNec?.length ? teams.studentNec : fallback.studentNec,
+      };
     } catch (error) {
       console.error("[sanity] fetchLeadership failed", error);
-      return fallbackLeadership();
+      return fallback;
     }
   },
 );
