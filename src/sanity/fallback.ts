@@ -1188,10 +1188,7 @@ const fallbackManagementTeam: LeaderRecord[] = [
     slug: { current: "dr-komommo-joemmanel-iwara" },
     position: "Zonal Liaison Officer (East)",
     country: "Nigeria",
-    headshot: {
-      asset: { url: "/images/leaders/dr-komommo-joemmanel-iwara.jpg" },
-      alt: "Dr. Komommo Joemmanel Iwara",
-    },
+    headshot: null,
     order: 11,
   },
   {

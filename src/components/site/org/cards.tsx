@@ -87,25 +87,75 @@ export function Avatar({
 export function LeaderCard({ leader, compact }: { leader: LeaderRecord; compact?: boolean }) {
   const role = leader.position ?? leader.chapterRole ?? "Leader";
   const detail = [leader.institution, leader.chapter, leader.country].filter(Boolean).join(" · ");
+  const hasImage = Boolean(leader.headshot?.asset?.url);
+
   return (
     <Reveal className="h-full">
-      <div className="flex h-full flex-col border border-border bg-background p-6 transition-shadow hover:shadow-card">
-        <Avatar
-          image={leader.headshot}
-          name={leader.name}
-          className="mx-auto aspect-[4/5] w-full max-w-40 object-cover"
-        />
-        <div className="mt-5 text-center">
-          <h3 className="font-display text-base font-bold tracking-tight text-foreground">
-            {leader.name}
-          </h3>
-          <p className="mt-1 text-sm font-semibold text-cmda-green">{role}</p>
-          {detail ? <p className="mt-1 text-xs text-muted-foreground">{detail}</p> : null}
-          {!compact && leader.bio ? (
-            <p className="mt-3 line-clamp-3 text-sm leading-relaxed text-muted-foreground">
-              {leader.bio}
-            </p>
+      <div className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xs transition-all duration-300 hover:-translate-y-1.5 hover:border-cmda-green/50 hover:shadow-xl hover:ring-2 hover:ring-cmda-green/10">
+        {/* Top Portrait Frame */}
+        <div className="relative aspect-[4/5] w-full overflow-hidden bg-gradient-to-b from-muted/80 via-muted/40 to-muted/90">
+          {hasImage ? (
+            <>
+              <img
+                src={leader.headshot!.asset!.url!}
+                alt={leader.headshot?.alt ?? leader.name}
+                loading="lazy"
+                className="size-full object-cover object-top transition-transform duration-500 ease-out group-hover:scale-105"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+              />
+            </>
+          ) : (
+            <div
+              aria-hidden="true"
+              className="relative flex size-full flex-col items-center justify-center p-6 text-center select-none"
+            >
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,var(--cmda-green)_0%,transparent_60%)] opacity-15" />
+              <div className="relative flex size-20 items-center justify-center rounded-2xl bg-gradient-to-br from-cmda-green to-primary font-display text-2xl font-bold text-white shadow-lg ring-4 ring-background/80 transition-transform duration-300 group-hover:scale-110">
+                {initials(leader.name)}
+              </div>
+              <span className="relative mt-3 text-xs font-medium text-muted-foreground">
+                CMDA Nigeria
+              </span>
+            </div>
+          )}
+
+          {/* Floating location / chapter badge */}
+          {leader.chapter ? (
+            <div className="absolute top-3 left-3 z-10 flex items-center gap-1 rounded-full border border-border/50 bg-background/85 px-2.5 py-1 text-[11px] font-semibold text-foreground/90 shadow-xs backdrop-blur-md">
+              <MapPin className="size-3 shrink-0 text-cmda-green" aria-hidden="true" />
+              <span className="max-w-[140px] truncate">{leader.chapter}</span>
+            </div>
           ) : null}
+        </div>
+
+        {/* Card Body */}
+        <div className="flex flex-1 flex-col justify-between p-5">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-cmda-green line-clamp-1">
+              {role}
+            </p>
+            <h3 className="mt-1.5 font-display text-base font-bold tracking-tight text-foreground transition-colors group-hover:text-cmda-green sm:text-lg">
+              {leader.name}
+            </h3>
+            {detail && !leader.chapter ? (
+              <p className="mt-1 text-xs text-muted-foreground line-clamp-1">{detail}</p>
+            ) : null}
+            {!compact && leader.bio ? (
+              <p className="mt-2.5 text-xs leading-relaxed text-muted-foreground/90 line-clamp-2">
+                {leader.bio}
+              </p>
+            ) : null}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between border-t border-border/50 pt-3 text-[11px] text-muted-foreground">
+            <span className="truncate">{leader.institution ?? leader.country ?? "National Leadership"}</span>
+            <span className="shrink-0 font-medium text-cmda-green opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+              CMDA
+            </span>
+          </div>
         </div>
       </div>
     </Reveal>
